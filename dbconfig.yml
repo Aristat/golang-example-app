@@ -1,0 +1,11 @@
+development:
+    dialect: postgres
+    datasource: dbname=oauth2_development sslmode=disable
+    dir: db/migrations
+    table: migrations
+
+test:
+    dialect: postgres
+    datasource: dbname=oauth2_test sslmode=disable
+    dir: db/migrations
+    table: migrations
