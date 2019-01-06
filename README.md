@@ -1,5 +1,7 @@
 # Golang Gin OAuth2 Example
 
+> ### Golang/Gin/Oauth2 codebase containing examples
+
 # How it works
 
 ```
@@ -59,6 +61,7 @@ run server
 run client
 ➜  cd client
 ➜  go run client.go
+
 ➜  http://localhost:9094/login
 ```
 
