@@ -1,7 +1,13 @@
 package users
 
 import (
+	"errors"
+
 	"github.com/aristat/golang-gin-oauth2-example-app/common"
+)
+
+var (
+	passwordIsEmpty = errors.New("10001 email is not valid")
 )
 
 type UserModel struct {
@@ -12,7 +18,7 @@ type UserModel struct {
 
 func (u *UserModel) setPassword(password string) error {
 	if len(password) == 0 {
-		return common.PasswordIsEmpty
+		return passwordIsEmpty
 	}
 
 	passwordHash, _ := common.HashPassword(password)

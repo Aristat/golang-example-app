@@ -2,7 +2,10 @@ package users
 
 import (
 	"context"
+	"errors"
 	"net/http"
+
+	"github.com/aristat/golang-gin-oauth2-example-app/oauth"
 
 	"fmt"
 
@@ -11,9 +14,13 @@ import (
 	"github.com/go-session/session"
 )
 
+var (
+	userNotFound = errors.New("10002 user not found")
+)
+
 type UserRouters struct {
 	*common.Env
-	common.OauthServer
+	oauth.OauthServer
 }
 
 func InitRouters(routerGin *gin.Engine, router *UserRouters) {
@@ -53,7 +60,7 @@ func (router *UserRouters) PostLogin(c *gin.Context) {
 	}
 
 	if common.CheckPasswordHash(password, currentUser.EncryptedPassword) == false {
-		c.HTML(http.StatusNotFound, "users/login.html", gin.H{"errors": []string{common.UserNotFound.Error()}})
+		c.HTML(http.StatusNotFound, "users/login.html", gin.H{"errors": []string{userNotFound.Error()}})
 		return
 	}
 

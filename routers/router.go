@@ -5,7 +5,6 @@ import (
 	"github.com/aristat/golang-gin-oauth2-example-app/oauth"
 	"github.com/aristat/golang-gin-oauth2-example-app/users"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 )
 
 func Init(env *common.Env) *gin.Engine {
@@ -13,7 +12,7 @@ func Init(env *common.Env) *gin.Engine {
 
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	r.LoadHTMLGlob(viper.GetString("TEMPLATE_PATH"))
+	r.LoadHTMLGlob("../templates/**/*")
 
 	userRouters := &users.UserRouters{
 		Env:         env,

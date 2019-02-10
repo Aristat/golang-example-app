@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
 	"net/url"
@@ -12,9 +13,13 @@ import (
 	"github.com/aristat/golang-gin-oauth2-example-app/common"
 )
 
+var (
+	invalidReturnUri = errors.New("10003 returnUri is not valid")
+)
+
 type AuthRouters struct {
 	*common.Env
-	common.OauthServer
+	OauthServer
 }
 
 func InitRouters(routerGin *gin.Engine, router *AuthRouters) {
@@ -56,7 +61,7 @@ func (router *AuthRouters) Authorize(c *gin.Context) {
 		} else {
 			log.Printf("Value not a map[string]interface{}: %v\n", v)
 
-			c.AbortWithError(http.StatusInternalServerError, common.InvalidReturnUri)
+			c.AbortWithError(http.StatusInternalServerError, invalidReturnUri)
 			return
 		}
 	}

@@ -16,27 +16,32 @@ import (
 
 	"sync"
 	"time"
-
-	"github.com/aristat/golang-gin-oauth2-example-app/common"
 )
+
+type OauthServer interface {
+	UserAuthorizationHandler(handler server.UserAuthorizationHandler)
+	HandleAuthorizeRequest(w http.ResponseWriter, r *http.Request) (err error)
+	HandleTokenRequest(w http.ResponseWriter, r *http.Request) (err error)
+	ValidationBearerToken(r *http.Request) (ti oauth2.TokenInfo, err error)
+}
 
 type oauth2Server struct {
 	server *server.Server
 }
 
 var (
-	IOauthServer common.OauthServer
+	IOauthServer OauthServer
 	once         sync.Once
 )
 
-func GetIOauthServer() common.OauthServer {
+func GetIOauthServer() OauthServer {
 	once.Do(func() {
 		IOauthServer = NewOauthServer()
 	})
 	return IOauthServer
 }
 
-func NewOauthServer() common.OauthServer {
+func NewOauthServer() OauthServer {
 	manager := manage.NewDefaultManager()
 	manager.SetAuthorizeCodeTokenCfg(
 		&manage.Config{

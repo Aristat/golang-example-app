@@ -17,6 +17,4 @@ func InitConfig() {
 
 	viper.SetDefault("DATABASE_URL", DefaultDatabaseUrl)
 	viper.SetDefault("TEST_DATABASE_URL", DefaultTestDatabaseUrl)
-
-	viper.SetDefault("TEMPLATE_PATH", viper.GetString("GOPATH")+"/src/"+RepositoryPath+"/templates/**/*")
 }

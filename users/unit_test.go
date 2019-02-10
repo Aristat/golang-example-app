@@ -13,7 +13,6 @@ import (
 	"fmt"
 
 	"github.com/aristat/golang-gin-oauth2-example-app/common"
-	"github.com/spf13/viper"
 )
 
 var env *common.Env
@@ -96,7 +95,7 @@ func TestRequest(t *testing.T) {
 	asserts := assert.New(t)
 
 	r := gin.New()
-	r.LoadHTMLGlob(viper.GetString("TEMPLATE_PATH"))
+	r.LoadHTMLGlob("../templates/**/*")
 
 	usersRouters := &UserRouters{Env: env}
 	InitRouters(r, usersRouters)
