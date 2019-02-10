@@ -11,8 +11,6 @@
 │   ├── config.go         //config for app
 │   ├── database.go       //DB connect
 │   ├── env.go            //environment for services
-│   ├── error_messages.go //errors
-│   ├── interfaces.go     //interfaces for app
 │   └── session.go        //session
 ├── db        // migrations for DB
 ├── oauth
@@ -34,10 +32,6 @@
 
 https://golang.org/doc/install
 
-## Install glide
-
-https://github.com/Masterminds/glide
-
 ## Install sql-migrate
 
 ```
@@ -54,7 +48,7 @@ git clone git@github.com:Aristat/golang-gin-oauth2-example-app.git (go get)
 
 ```
 run server
-➜  glide install
+➜  go mod vendor
 ➜  sql-migrate up (create database)
 ➜  go run *.go
 
