@@ -60,7 +60,7 @@ func main() {
 	http.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
 		res, err := config.Client(context.Background(), token).Get("http://localhost:9096/user")
 		if err != nil {
-			log.Println(err)
+			log.Printf("[ERROR] %s", err.Error())
 			http.Redirect(w, r, "/login", http.StatusFound)
 			return
 		}
@@ -75,6 +75,6 @@ func main() {
 		w.Write(d)
 	})
 
-	log.Println("Client is running at 9094 port.")
+	log.Println("[INFO] Client is running at 9094 port.")
 	log.Fatal(http.ListenAndServe(":9094", nil))
 }

@@ -65,12 +65,12 @@ func NewOauthServer() OauthServer {
 	oauthServer := &oauth2Server{server: server.NewDefaultServer(manager)}
 
 	oauthServer.server.SetInternalErrorHandler(func(err error) (re *errors.Response) {
-		log.Println("Internal Error:", err.Error())
+		log.Printf("[ERROR] Internal Error: %s", err.Error())
 		return
 	})
 
 	oauthServer.server.SetResponseErrorHandler(func(re *errors.Response) {
-		log.Println("Response Error:", re.Error.Error())
+		log.Printf("[ERROR] Response Error: %s", re.Error.Error())
 	})
 
 	return oauthServer
