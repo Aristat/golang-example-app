@@ -3,7 +3,6 @@ package oauth
 import (
 	"context"
 	"errors"
-	"log"
 	"net/http"
 	"net/url"
 
@@ -42,28 +41,15 @@ func (router *AuthRouters) Authorize(c *gin.Context) {
 		return
 	}
 
-	form := url.Values{}
-	if v, ok := store.Get("ReturnUri"); ok {
+	params, ok := store.Get("ReturnUri")
+	if !ok {
+		params = ""
+	}
 
-		if rec, ok := v.(map[string]interface{}); ok {
-			for key, value := range rec {
-
-				aInterface := value.([]interface{})
-				aString := make([]string, len(aInterface))
-				for i, v := range aInterface {
-					aString[i] = v.(string)
-				}
-
-				for _, v := range aString {
-					form.Add(key, v)
-				}
-			}
-		} else {
-			log.Printf("Value not a map[string]interface{}: %v\n", v)
-
-			c.AbortWithError(http.StatusInternalServerError, invalidReturnUri)
-			return
-		}
+	form, err := url.ParseQuery(params.(string))
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
 	}
 
 	if len(form) != 0 {
@@ -104,7 +90,7 @@ func userAuthorization(w http.ResponseWriter, r *http.Request) (userID string, e
 			r.ParseForm()
 		}
 
-		store.Set("ReturnUri", r.Form)
+		store.Set("ReturnUri", r.Form.Encode())
 		store.Save()
 
 		w.Header().Set("Location", "/login")

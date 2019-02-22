@@ -12,7 +12,7 @@ func Init(env *common.Env) *gin.Engine {
 
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	r.LoadHTMLGlob("../templates/**/*")
+	r.LoadHTMLGlob("templates/**/*")
 
 	userRouters := &users.UserRouters{
 		Env:         env,

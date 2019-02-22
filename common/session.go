@@ -14,7 +14,7 @@ func InitSession() {
 	redisURL := viper.GetString("REDIS_URL")
 	db := viper.GetInt("REDIS_SESSION_DB")
 
-	log.Printf("[REDIS] Init redis: %v, db: %v", redisURL, db)
+	log.Printf("[INFO] Init redis: %v, db: %v", redisURL, db)
 
 	manager := redis.NewRedisStore(&redis.Options{
 		Addr: redisURL,
