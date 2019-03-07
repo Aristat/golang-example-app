@@ -6,22 +6,20 @@
 
 ```
 .
+├── cmd // start commands
 ├── common
 │   ├── bcrypt.go         //generate passwords
-│   ├── config.go         //config for app
-│   ├── database.go       //DB connect
-│   ├── env.go            //environment for services
-│   └── session.go        //session
+│   └── database.go       //DB connect
 ├── db        // migrations for DB
 ├── oauth
+│   ├── session           //init session manager
 │   ├── clients.go        //clients data(in memory)
-│   ├── routers.go        //business logic and gin routers
+│   ├── service.go        //business logic and gin routers
 │   └── server.go         //oauth2 server
-├── routers   // init gin
 ├── templates
 └── users
     ├── models.go       //data models and DB operation
-    ├── routers.go      //business logic and gin routers
+    ├── service.go      //business logic and gin routers
     └── serializers.go  //json
 ```
 
@@ -50,11 +48,10 @@ git clone git@github.com:Aristat/golang-gin-oauth2-example-app.git (go get)
 run server
 ➜  go mod vendor
 ➜  sql-migrate up (create database)
-➜  go run *.go
+➜  make run_development
 
 run client
-➜  cd client
-➜  go run client.go
+➜  make run_client
 
 ➜  http://localhost:9094/login
 ```
@@ -62,5 +59,5 @@ run client
 ## Testing
 ```
 ➜  sql-migrate up -env="test"
-➜  go test -v ./...
+➜  make test
 ```

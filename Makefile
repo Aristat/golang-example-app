@@ -1,13 +1,13 @@
 DATABASE_URL=oauth2_development
 
 test:
-	go test ./...
+	go test -race ./...
 
 run_client:
-	go run client_example/client.go
+	go run main.go test_client
 
 run_development:
-	go run main.go
+	go run main.go server
 
 coverage:
 	go test -coverprofile=coverage.out ./...

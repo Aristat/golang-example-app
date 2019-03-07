@@ -1,6 +1,7 @@
 package users
 
 import (
+	"database/sql"
 	"errors"
 
 	"github.com/aristat/golang-gin-oauth2-example-app/common"
@@ -16,18 +17,17 @@ type UserModel struct {
 	EncryptedPassword string
 }
 
-func (u *UserModel) setPassword(password string) error {
+func (u *UserModel) setPassword(password string, cost int) error {
 	if len(password) == 0 {
 		return passwordIsEmpty
 	}
 
-	passwordHash, _ := common.HashPassword(password)
+	passwordHash, _ := common.HashPassword(password, cost)
 	u.EncryptedPassword = string(passwordHash)
 	return nil
 }
 
-func FindByEmail(env *common.Env, email string) (*UserModel, error) {
-	db := env.DB
+func FindByEmail(db *sql.DB, email string) (*UserModel, error) {
 	u := &UserModel{}
 
 	err := db.

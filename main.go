@@ -1,40 +1,56 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"syscall"
+	"os"
 
-	"github.com/aristat/golang-gin-oauth2-example-app/routers"
-
-	"github.com/aristat/golang-gin-oauth2-example-app/common"
-	"github.com/fvbock/endless"
-	"github.com/spf13/viper"
+	"github.com/aristat/golang-gin-oauth2-example-app/cmd"
+	"github.com/hashicorp/logutils"
+	"github.com/jessevdk/go-flags"
 )
 
-var (
-	env *common.Env
-)
+type Opts struct {
+	ClientCmd cmd.ClientCommand `command:"test_client"`
+	ServerCmd cmd.ServerCommand `command:"server"`
 
-func init() {
-	viper.AutomaticEnv()
-	common.InitConfig()
-	env = common.InitEnv()
-	common.InitSession()
+	Dbg bool `long:"dbg" env:"DEBUG" description:"debug mode"`
 }
 
 func main() {
-	port := viper.GetInt("HTTP_SERVER_PORT")
-	endPoint := fmt.Sprintf(":%d", port)
-	routersInit := routers.Init(env)
+	var opts Opts
+	p := flags.NewParser(&opts, flags.Default)
+	p.CommandHandler = func(command flags.Commander, args []string) error {
+		setupLog(opts.Dbg)
 
-	server := endless.NewServer(endPoint, routersInit)
-	server.BeforeBegin = func(add string) {
-		log.Printf("[INFO] Actual pid is %d", syscall.Getpid())
+		err := command.Execute(args)
+		if err != nil {
+			log.Printf("[ERROR] failed with %+v", err)
+		}
+		return err
+
 	}
 
-	err := server.ListenAndServe()
-	if err != nil {
-		log.Printf("[ERROR] Server err: %v", err)
+	if _, err := p.Parse(); err != nil {
+		if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
+			os.Exit(0)
+		} else {
+			os.Exit(1)
+		}
 	}
+}
+
+func setupLog(dbg bool) {
+	filter := &logutils.LevelFilter{
+		Levels:   []logutils.LogLevel{"DEBUG", "INFO", "WARN", "ERROR"},
+		MinLevel: logutils.LogLevel("INFO"),
+		Writer:   os.Stdout,
+	}
+
+	log.SetFlags(log.Ldate | log.Ltime)
+
+	if dbg {
+		log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds | log.Lshortfile)
+		filter.MinLevel = logutils.LogLevel("DEBUG")
+	}
+	log.SetOutput(filter)
 }

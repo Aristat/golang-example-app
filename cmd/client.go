@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"context"
@@ -9,6 +9,9 @@ import (
 
 	"golang.org/x/oauth2"
 )
+
+type ClientCommand struct {
+}
 
 var (
 	config = oauth2.Config{
@@ -22,9 +25,10 @@ var (
 		},
 	}
 )
+
 var token *oauth2.Token
 
-func main() {
+func (cmd *ClientCommand) Execute(args []string) error {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
 
 	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
@@ -77,4 +81,6 @@ func main() {
 
 	log.Println("[INFO] Client is running at 9094 port.")
 	log.Fatal(http.ListenAndServe(":9094", nil))
+
+	return nil
 }

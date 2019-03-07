@@ -7,6 +7,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/go-session/session"
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 
@@ -15,7 +18,11 @@ import (
 	"github.com/aristat/golang-gin-oauth2-example-app/common"
 )
 
-var env *common.Env
+var (
+	databaseUrl = "postgresql://localhost:5432/oauth2_test?sslmode=disable"
+	db          = common.InitDB(databaseUrl)
+)
+
 var requestTests = []struct {
 	init            func(*http.Request)
 	url             string
@@ -72,12 +79,12 @@ func userModelMocker(n int) []UserModel {
 		userModel := UserModel{
 			Email: fmt.Sprintf("user%v@linkedin.com", i),
 		}
-		userModel.setPassword("password123")
+		userModel.setPassword("password123", bcrypt.MinCost)
 
 		sqlStatement := `
 INSERT INTO users (email, encrypted_password)
 VALUES ($1, $2)`
-		_ = env.DB.QueryRow(sqlStatement, userModel.Email, userModel.EncryptedPassword)
+		_ = db.QueryRow(sqlStatement, userModel.Email, userModel.EncryptedPassword)
 		ret = append(ret, userModel)
 	}
 
@@ -85,7 +92,7 @@ VALUES ($1, $2)`
 }
 
 func resetDBWithMock() {
-	common.ClearDataTestDB(env.DB)
+	common.ClearDataTestDB(db)
 	userModelMocker(2)
 }
 
@@ -97,10 +104,12 @@ func TestRequest(t *testing.T) {
 	r := gin.New()
 	r.LoadHTMLGlob("../templates/**/*")
 
-	usersRouters := &UserRouters{Env: env}
-	InitRouters(r, usersRouters)
+	service := &Service{DB: db}
+	Run(r, service)
 
 	for _, testData := range requestTests {
+		service.SessionManager = session.NewManager()
+
 		requestBodyData := testData.requestBodyData
 		req, err := http.NewRequest(testData.method, testData.url, bytes.NewBufferString(requestBodyData))
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -116,11 +125,8 @@ func TestRequest(t *testing.T) {
 }
 
 func TestMain(m *testing.M) {
-	common.InitConfig()
-	env = common.InitTestEnv()
-
 	exitVal := m.Run()
 
-	common.ClearDataTestDB(env.DB)
+	common.ClearDataTestDB(db)
 	os.Exit(exitVal)
 }

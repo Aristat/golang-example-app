@@ -2,6 +2,7 @@ package users
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"net/http"
 
@@ -18,23 +19,24 @@ var (
 	userNotFound = errors.New("10002 user not found")
 )
 
-type UserRouters struct {
-	*common.Env
+type Service struct {
+	SessionManager *session.Manager
+	DB             *sql.DB
 	oauth.OauthServer
 }
 
-func InitRouters(routerGin *gin.Engine, router *UserRouters) {
-	routerGin.GET("/login", router.GetLogin)
-	routerGin.POST("/login", router.PostLogin)
+func Run(routerGin *gin.Engine, service *Service) {
+	routerGin.GET("/login", service.GetLogin)
+	routerGin.POST("/login", service.PostLogin)
 
-	routerGin.GET("/auth", router.Auth)
-	routerGin.POST("/auth", router.Auth)
+	routerGin.GET("/auth", service.Auth)
+	routerGin.POST("/auth", service.Auth)
 
-	routerGin.GET("/user", router.User)
+	routerGin.GET("/user", service.User)
 }
 
-func (router *UserRouters) GetLogin(c *gin.Context) {
-	_, err := session.Start(context.Background(), c.Writer, c.Request)
+func (service *Service) GetLogin(c *gin.Context) {
+	_, err := service.SessionManager.Start(context.Background(), c.Writer, c.Request)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -43,8 +45,8 @@ func (router *UserRouters) GetLogin(c *gin.Context) {
 	c.HTML(http.StatusOK, "users/login.html", gin.H{})
 }
 
-func (router *UserRouters) PostLogin(c *gin.Context) {
-	store, err := session.Start(context.Background(), c.Writer, c.Request)
+func (service *Service) PostLogin(c *gin.Context) {
+	store, err := service.SessionManager.Start(context.Background(), c.Writer, c.Request)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -53,9 +55,9 @@ func (router *UserRouters) PostLogin(c *gin.Context) {
 	email := c.PostForm("email")
 	password := c.PostForm("password")
 
-	currentUser, err := FindByEmail(router.Env, email)
+	currentUser, err := FindByEmail(service.DB, email)
 	if err != nil {
-		c.AbortWithError(http.StatusNotFound, err)
+		c.HTML(http.StatusNotFound, "users/login.html", gin.H{"errors": []string{userNotFound.Error()}})
 		return
 	}
 
@@ -76,8 +78,8 @@ func (router *UserRouters) PostLogin(c *gin.Context) {
 	c.HTML(http.StatusOK, "users/login.html", gin.H{})
 }
 
-func (router *UserRouters) Auth(c *gin.Context) {
-	store, err := session.Start(context.Background(), c.Writer, c.Request)
+func (service *Service) Auth(c *gin.Context) {
+	store, err := service.SessionManager.Start(context.Background(), c.Writer, c.Request)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -92,8 +94,8 @@ func (router *UserRouters) Auth(c *gin.Context) {
 	c.HTML(http.StatusOK, "users/auth.html", gin.H{})
 }
 
-func (router *UserRouters) User(c *gin.Context) {
-	ti, err := router.OauthServer.ValidationBearerToken(c.Request)
+func (service *Service) User(c *gin.Context) {
+	ti, err := service.OauthServer.ValidationBearerToken(c.Request)
 	if err != nil {
 		c.AbortWithError(http.StatusNotFound, err)
 		return

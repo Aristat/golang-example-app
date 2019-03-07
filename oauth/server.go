@@ -1,12 +1,12 @@
 package oauth
 
 import (
+	"context"
 	"log"
 	"net/http"
 
-	"github.com/spf13/viper"
+	"github.com/go-session/session"
 
-	"gopkg.in/go-oauth2/redis.v3"
 	"gopkg.in/oauth2.v3"
 
 	"gopkg.in/oauth2.v3/errors"
@@ -14,34 +14,26 @@ import (
 	"gopkg.in/oauth2.v3/server"
 	"gopkg.in/oauth2.v3/store"
 
-	"sync"
 	"time"
 )
 
+type Oauth2Service struct {
+	SessionManager *session.Manager
+	TokenStore     oauth2.TokenStore
+	ClientStore    *store.ClientStore
+}
+
 type OauthServer interface {
-	UserAuthorizationHandler(handler server.UserAuthorizationHandler)
 	HandleAuthorizeRequest(w http.ResponseWriter, r *http.Request) (err error)
 	HandleTokenRequest(w http.ResponseWriter, r *http.Request) (err error)
 	ValidationBearerToken(r *http.Request) (ti oauth2.TokenInfo, err error)
 }
 
 type oauth2Server struct {
-	server *server.Server
+	*server.Server
 }
 
-var (
-	IOauthServer OauthServer
-	once         sync.Once
-)
-
-func GetIOauthServer() OauthServer {
-	once.Do(func() {
-		IOauthServer = NewOauthServer()
-	})
-	return IOauthServer
-}
-
-func NewOauthServer() OauthServer {
+func NewOauthServer(oauth2Service *Oauth2Service) OauthServer {
 	manager := manage.NewDefaultManager()
 	manager.SetAuthorizeCodeTokenCfg(
 		&manage.Config{
@@ -50,47 +42,54 @@ func NewOauthServer() OauthServer {
 			IsGenerateRefresh: true,
 		},
 	)
-	manager.MapTokenStorage(redis.NewRedisStore(&redis.Options{
-		Addr: viper.GetString("REDIS_URL"),
-		DB:   viper.GetInt("REDIS_TOKEN_DB"),
-	}))
 
-	clientStore := store.NewClientStore()
-	for key, value := range clientsConfig {
-		clientStore.Set(key, value)
-	}
+	manager.MapTokenStorage(oauth2Service.TokenStore)
+	manager.MapClientStorage(oauth2Service.ClientStore)
 
-	manager.MapClientStorage(clientStore)
-
-	oauthServer := &oauth2Server{server: server.NewDefaultServer(manager)}
-
-	oauthServer.server.SetInternalErrorHandler(func(err error) (re *errors.Response) {
+	server := server.NewDefaultServer(manager)
+	server.UserAuthorizationHandler = userAuthorization(oauth2Service)
+	server.SetInternalErrorHandler(func(err error) (re *errors.Response) {
 		log.Printf("[ERROR] Internal Error: %s", err.Error())
 		return
 	})
-
-	oauthServer.server.SetResponseErrorHandler(func(re *errors.Response) {
+	server.SetResponseErrorHandler(func(re *errors.Response) {
 		log.Printf("[ERROR] Response Error: %s", re.Error.Error())
 	})
 
-	return oauthServer
+	return NewOauthServerWithServer(server)
 }
 
-func (m *oauth2Server) UserAuthorizationHandler(handler server.UserAuthorizationHandler) {
-	m.server.UserAuthorizationHandler = handler
+func NewOauthServerWithServer(srv *server.Server) OauthServer {
+	return &oauth2Server{Server: srv}
 }
 
-func (m *oauth2Server) HandleAuthorizeRequest(w http.ResponseWriter, r *http.Request) (err error) {
-	err = m.server.HandleAuthorizeRequest(w, r)
-	return
-}
+func userAuthorization(service *Oauth2Service) func(w http.ResponseWriter, r *http.Request) (userID string, err error) {
+	return func(w http.ResponseWriter, r *http.Request) (userID string, err error) {
+		log.Printf("[INFO] userAuthorization %s", r.URL)
+		sessionStore, err := service.SessionManager.Start(context.Background(), w, r)
+		if err != nil {
+			return
+		}
 
-func (m *oauth2Server) HandleTokenRequest(w http.ResponseWriter, r *http.Request) (err error) {
-	err = m.server.HandleTokenRequest(w, r)
-	return
-}
+		uid, ok := sessionStore.Get("LoggedInUserID")
+		if !ok {
+			if r.Form == nil {
+				r.ParseForm()
+			}
 
-func (m *oauth2Server) ValidationBearerToken(r *http.Request) (ti oauth2.TokenInfo, err error) {
-	ti, err = m.server.ValidationBearerToken(r)
-	return
+			sessionStore.Set("ReturnUri", r.Form.Encode())
+			sessionStore.Save()
+
+			w.Header().Set("Location", "/login")
+			w.WriteHeader(http.StatusFound)
+			return
+		}
+		userID = uid.(string)
+
+		// Authorization for receiving a token
+		sessionStore.Delete("LoggedInUserID")
+		sessionStore.Save()
+
+		return
+	}
 }
