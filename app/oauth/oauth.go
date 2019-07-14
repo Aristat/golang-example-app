@@ -4,18 +4,35 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"time"
+
+	"github.com/go-oauth2/oauth2/models"
 
 	"github.com/go-session/session"
-
 	"gopkg.in/oauth2.v3"
-
 	"gopkg.in/oauth2.v3/errors"
 	"gopkg.in/oauth2.v3/manage"
 	"gopkg.in/oauth2.v3/server"
 	"gopkg.in/oauth2.v3/store"
 
-	"time"
+	oauthRedis "gopkg.in/go-oauth2/redis.v3"
 )
+
+// OAuth
+type OAuth struct {
+	ctx          context.Context
+	cfg          Config
+	OauthServer  OauthServer
+	OauthService *Service
+}
+
+var ClientsConfig = map[string]oauth2.ClientInfo{
+	"123456": &models.Client{
+		ID:     "123456",
+		Secret: "12345678",
+		Domain: "http://localhost:9094",
+	},
+}
 
 type Oauth2Service struct {
 	SessionManager *session.Manager
@@ -31,6 +48,15 @@ type OauthServer interface {
 
 type oauth2Server struct {
 	*server.Server
+}
+
+func NewClientStore(config map[string]oauth2.ClientInfo) *store.ClientStore {
+	clientStore := store.NewClientStore()
+	for key, value := range config {
+		clientStore.Set(key, value)
+	}
+
+	return clientStore
 }
 
 func NewOauthServer(oauth2Service *Oauth2Service) OauthServer {
@@ -57,6 +83,33 @@ func NewOauthServer(oauth2Service *Oauth2Service) OauthServer {
 	})
 
 	return NewOauthServerWithServer(server)
+}
+
+// New
+func New(ctx context.Context, cfg Config, session *session.Manager) *OAuth {
+	oauthConfig := oauthRedis.Options{
+		Addr: cfg.RedisUrl,
+		DB:   cfg.RedisDB,
+	}
+
+	oauth2Service := &Oauth2Service{
+		TokenStore:     oauthRedis.NewRedisStore(&oauthConfig),
+		ClientStore:    NewClientStore(ClientsConfig),
+		SessionManager: session,
+	}
+
+	oauthServer := NewOauthServer(oauth2Service)
+	authService := &Service{
+		SessionManager: session,
+		OauthServer:    oauthServer,
+	}
+
+	return &OAuth{
+		ctx:          ctx,
+		cfg:          cfg,
+		OauthServer:  oauthServer,
+		OauthService: authService,
+	}
 }
 
 func NewOauthServerWithServer(srv *server.Server) OauthServer {

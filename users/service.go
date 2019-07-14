@@ -6,7 +6,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/aristat/golang-gin-oauth2-example-app/oauth"
+	"github.com/aristat/golang-gin-oauth2-example-app/app/oauth"
 
 	"fmt"
 

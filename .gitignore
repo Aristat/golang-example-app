@@ -16,5 +16,6 @@
 vendor/
 
 .idea/
+artifacts/
 
 coverage.out

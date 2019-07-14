@@ -102,7 +102,7 @@ func TestRequest(t *testing.T) {
 	asserts := assert.New(t)
 
 	r := gin.New()
-	r.LoadHTMLGlob("../templates/**/*")
+	r.LoadHTMLGlob("../resources/templates/**/*")
 
 	service := &Service{DB: db}
 	Run(r, service)

@@ -1,0 +1,9 @@
+session:
+  redisUrl: 127.0.0.1:6379
+  redisDB: 10
+db:
+  url: postgresql://localhost:5432/oauth2_development?sslmode=disable
+oauth:
+  redisUrl: 127.0.0.1:6379
+  redisDB: 10
+
