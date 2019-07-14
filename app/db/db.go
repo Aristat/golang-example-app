@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
+	_ "github.com/lib/pq"
 )
 
 const prefix = "app.db"

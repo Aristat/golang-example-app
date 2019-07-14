@@ -39,7 +39,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	httpConfig, cleanup5, err := Cfg(viper)
+	oauthConfig, cleanup5, err := oauth.Cfg(viper)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -47,7 +47,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthConfig, cleanup6, err := oauth.Cfg(viper)
+	sessionConfig, cleanup6, err := session.Cfg(viper)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -56,7 +56,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	sessionConfig, cleanup7, err := session.Cfg(viper)
+	manager, cleanup7, err := session.Provider(context, zap, sessionConfig)
 	if err != nil {
 		cleanup6()
 		cleanup5()
@@ -66,7 +66,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	manager, cleanup8, err := session.Provider(context, zap, sessionConfig)
+	oAuth, cleanup8, err := oauth.Provider(context, zap, oauthConfig, manager)
 	if err != nil {
 		cleanup7()
 		cleanup6()
@@ -77,7 +77,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oAuth, cleanup9, err := oauth.Provider(context, zap, oauthConfig, manager)
+	dbConfig, cleanup9, err := db.Cfg(viper)
 	if err != nil {
 		cleanup8()
 		cleanup7()
@@ -89,7 +89,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	dbConfig, cleanup10, err := db.Cfg(viper)
+	sqlDB, cleanup10, err := db.DB(dbConfig, zap)
 	if err != nil {
 		cleanup9()
 		cleanup8()
@@ -102,7 +102,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	sqlDB, cleanup11, err := db.DB(dbConfig, zap)
+	dbManager, cleanup11, err := db.Provider(context, zap, dbConfig, sqlDB)
 	if err != nil {
 		cleanup10()
 		cleanup9()
@@ -116,7 +116,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	dbManager, cleanup12, err := db.Provider(context, zap, dbConfig, sqlDB)
+	chiMux, cleanup12, err := Mux(oAuth, dbManager, manager, zap)
 	if err != nil {
 		cleanup11()
 		cleanup10()
@@ -131,7 +131,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	http, cleanup13, err := Provider(context, zap, httpConfig, oAuth, manager, dbManager)
+	httpConfig, cleanup13, err := Cfg(viper)
 	if err != nil {
 		cleanup12()
 		cleanup11()
@@ -147,7 +147,25 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	http, cleanup14, err := Provider(context, chiMux, zap, httpConfig, oAuth, manager, dbManager)
+	if err != nil {
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return http, func() {
+		cleanup14()
 		cleanup13()
 		cleanup12()
 		cleanup11()

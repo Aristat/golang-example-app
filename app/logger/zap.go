@@ -11,74 +11,6 @@ type (
 	Tags   []string
 )
 
-// Level represent RFC5424 logger severity
-type Level int8
-
-// String implements interface Stringer
-func (l Level) String() string {
-	switch l {
-	case LevelDebug:
-		return "debug"
-	case LevelInfo:
-		return "info"
-	case LevelNotice:
-		return "notice"
-	case LevelWarning:
-		return "warning"
-	case LevelError:
-		return "error"
-	case LevelCritical:
-		return "critical"
-	case LevelAlert:
-		return "alert"
-	case LevelEmergency:
-		return "emergency"
-	}
-	return "unknown"
-}
-
-// FromString set logger level from string representation
-func (l *Level) FromString(level string) Level {
-	switch level {
-	case "debug":
-		*l = LevelDebug
-	case "info":
-		*l = LevelInfo
-	case "notice":
-		*l = LevelNotice
-	case "warning":
-		*l = LevelWarning
-	case "error":
-		*l = LevelError
-	case "critical":
-		*l = LevelCritical
-	case "alert":
-		*l = LevelAlert
-	case "emergency":
-		*l = LevelEmergency
-	}
-	return *l
-}
-
-const (
-	// Debug: debug-level messages
-	LevelDebug Level = 7
-	// Informational: informational messages
-	LevelInfo Level = 6
-	// Notice: normal but significant condition
-	LevelNotice Level = 5
-	// Warning: warning conditions
-	LevelWarning Level = 4
-	// Error: error conditions
-	LevelError Level = 3
-	// Critical: critical conditions
-	LevelCritical Level = 2
-	// Alert: action must be taken immediately
-	LevelAlert Level = 1
-	// Emergency: system is unusable
-	LevelEmergency Level = 0
-)
-
 type opts struct {
 	args   []interface{}
 	tags   Tags
@@ -218,14 +150,6 @@ func (z *Zap) Log(level Level, format string, o ...Option) {
 	}
 }
 
-// Args returns func hook a logger for replace fmt placeholders on represent values
-func Args(a ...interface{}) Option {
-	return func(f *opts) error {
-		f.args = a
-		return nil
-	}
-}
-
 // WithFields create new instance with fields
 func (z *Zap) WithFields(fields Fields) *Zap {
 	nz := &Zap{}
@@ -238,6 +162,14 @@ func (z *Zap) WithTags(tags Tags) *Zap {
 	nz := &Zap{}
 	copyZap(nz, z, tags, nil)
 	return nz
+}
+
+// Args returns func hook a logger for replace fmt placeholders on represent values
+func Args(a ...interface{}) Option {
+	return func(f *opts) error {
+		f.args = a
+		return nil
+	}
 }
 
 func copyZap(dst, src *Zap, tags []string, fields map[string]interface{}) {
@@ -263,7 +195,7 @@ func copyZap(dst, src *Zap, tags []string, fields map[string]interface{}) {
 	dst.logger = src.logger
 }
 
-// NewZap returns uber/zap logger instance implemented of Logger interface
+// NewZap returns zap logger
 func NewZap(ctx context.Context, cfg Config) *Zap {
 	var logger *zap.Logger
 	if !cfg.Debug {

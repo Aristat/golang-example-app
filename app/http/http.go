@@ -2,7 +2,9 @@ package http
 
 import (
 	"context"
-	"syscall"
+	"net/http"
+
+	"github.com/go-chi/chi"
 
 	"github.com/go-session/session"
 
@@ -11,11 +13,6 @@ import (
 	"github.com/aristat/golang-gin-oauth2-example-app/app/oauth"
 
 	"github.com/aristat/golang-gin-oauth2-example-app/app/db"
-
-	"github.com/aristat/golang-gin-oauth2-example-app/users"
-	"github.com/fvbock/endless"
-
-	"github.com/gin-gonic/gin"
 )
 
 const prefix = "app.http"
@@ -34,39 +31,25 @@ type Http struct {
 	session *session.Manager
 	db      *db.Manager
 	log     *logger.Zap
+	mux     *chi.Mux
 }
 
 // ListenAndServe
 func (m *Http) ListenAndServe(bind ...string) (err error) {
 	m.log.Info("Initialize http")
 
-	bindAdrr := m.cfg.Bind
+	bindAddress := m.cfg.Bind
 
 	if len(bind) > 0 && len(bind[0]) > 0 {
-		bindAdrr = bind[0]
+		bindAddress = bind[0]
 	}
 
-	usersService := &users.Service{
-		SessionManager: m.session,
-		DB:             m.db.DB,
-		OauthServer:    m.oauth.OauthServer,
+	server := &http.Server{
+		Addr:    bindAddress,
+		Handler: m.mux,
 	}
 
-	r := gin.New()
-
-	r.Use(gin.Logger())
-	r.Use(gin.Recovery())
-	r.LoadHTMLGlob("templates/**/*")
-
-	users.Run(r, usersService)
-	oauth.Run(r, m.oauth.OauthService)
-
-	m.log.Info("start listen and serve http at %v", logger.Args(bindAdrr))
-
-	server := endless.NewServer(bindAdrr, r)
-	server.BeforeBegin = func(add string) {
-		m.log.Info("Actual pid is %d", logger.Args(syscall.Getpid()))
-	}
+	m.log.Info("start listen and serve http at %v", logger.Args(bindAddress))
 
 	go func() {
 		<-m.ctx.Done()
@@ -76,22 +59,25 @@ func (m *Http) ListenAndServe(bind ...string) (err error) {
 		}
 	}()
 
-	err = server.ListenAndServe()
-	if err != nil {
-		m.log.Emergency("Server err: %v", logger.Args(err))
+	if err = server.ListenAndServe(); err != nil {
+		if err != http.ErrServerClosed {
+			m.log.Emergency("server is shutdown with error, %v", logger.Args(err))
+		} else {
+			err = nil
+		}
 	}
-
 	return
 }
 
 // New
-func New(ctx context.Context, log *logger.Zap, cfg Config, oauth *oauth.OAuth, session *session.Manager, db *db.Manager) *Http {
+func New(ctx context.Context, mux *chi.Mux, log *logger.Zap, cfg Config, oauth *oauth.OAuth, session *session.Manager, db *db.Manager) *Http {
 	return &Http{
 		ctx:     ctx,
 		cfg:     cfg,
 		oauth:   oauth,
 		session: session,
 		db:      db,
+		mux:     mux,
 		log:     log.WithFields(logger.Fields{"service": prefix}),
 	}
 }

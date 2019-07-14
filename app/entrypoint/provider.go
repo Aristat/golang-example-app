@@ -6,13 +6,13 @@ import (
 	"github.com/google/wire"
 )
 
-// ContextProvider returns stub/mock context instance with resolved dependencies
+// ContextProvider
 func ContextProvider() (context.Context, func(), error) {
 	c := OnShutdown()
 	return c, func() {}, nil
 }
 
-// ContextProviderTest returns stub/mock context instance with resolved dependencies
+// ContextProviderTest
 func ContextProviderTest() (context.Context, func(), error) {
 	c := context.Background()
 	return c, func() {}, nil

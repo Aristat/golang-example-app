@@ -3,15 +3,19 @@ package users
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
+	"html/template"
 	"net/http"
 
+	"github.com/go-chi/chi"
+
+	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 	"github.com/aristat/golang-gin-oauth2-example-app/app/oauth"
 
 	"fmt"
 
 	"github.com/aristat/golang-gin-oauth2-example-app/common"
-	"github.com/gin-gonic/gin"
 	"github.com/go-session/session"
 )
 
@@ -19,50 +23,55 @@ var (
 	userNotFound = errors.New("10002 user not found")
 )
 
+type H map[string]interface{}
+
 type Service struct {
+	Template       *template.Template
 	SessionManager *session.Manager
 	DB             *sql.DB
-	oauth.OauthServer
+	Log            *logger.Zap
+	oauth.IServer
 }
 
-func Run(routerGin *gin.Engine, service *Service) {
-	routerGin.GET("/login", service.GetLogin)
-	routerGin.POST("/login", service.PostLogin)
+func Run(router *chi.Mux, service *Service) {
+	router.Get("/login", service.GetLogin)
+	router.Post("/login", service.PostLogin)
 
-	routerGin.GET("/auth", service.Auth)
-	routerGin.POST("/auth", service.Auth)
+	router.Get("/auth", service.Auth)
+	router.Post("/auth", service.Auth)
 
-	routerGin.GET("/user", service.User)
+	router.Get("/user", service.User)
 }
 
-func (service *Service) GetLogin(c *gin.Context) {
-	_, err := service.SessionManager.Start(context.Background(), c.Writer, c.Request)
+func (service *Service) GetLogin(w http.ResponseWriter, r *http.Request) {
+	_, err := service.SessionManager.Start(r.Context(), w, r)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	c.HTML(http.StatusOK, "users/login.html", gin.H{})
+	service.Template.ExecuteTemplate(w, "users/login", H{})
 }
 
-func (service *Service) PostLogin(c *gin.Context) {
-	store, err := service.SessionManager.Start(context.Background(), c.Writer, c.Request)
+func (service *Service) PostLogin(w http.ResponseWriter, r *http.Request) {
+	store, err := service.SessionManager.Start(context.Background(), w, r)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	email := c.PostForm("email")
-	password := c.PostForm("password")
+	r.ParseForm()
+	email := r.Form.Get("email")
+	password := r.Form.Get("password")
 
 	currentUser, err := FindByEmail(service.DB, email)
 	if err != nil {
-		c.HTML(http.StatusNotFound, "users/login.html", gin.H{"errors": []string{userNotFound.Error()}})
+		service.Template.ExecuteTemplate(w, "users/login", H{"errors": []string{userNotFound.Error()}})
 		return
 	}
 
 	if common.CheckPasswordHash(password, currentUser.EncryptedPassword) == false {
-		c.HTML(http.StatusNotFound, "users/login.html", gin.H{"errors": []string{userNotFound.Error()}})
+		service.Template.ExecuteTemplate(w, "users/login", H{"errors": []string{userNotFound.Error()}})
 		return
 	}
 
@@ -70,41 +79,48 @@ func (service *Service) PostLogin(c *gin.Context) {
 		store.Set("LoggedInUserID", fmt.Sprintf("%d", currentUser.ID))
 		store.Save()
 
-		c.Header("Location", "/auth")
-		c.Status(http.StatusFound)
+		w.Header().Set("Location", "/auth")
+		w.WriteHeader(http.StatusFound)
 		return
 	}
 
-	c.HTML(http.StatusOK, "users/login.html", gin.H{})
+	w.Header().Set("Location", "/login")
+	w.WriteHeader(http.StatusFound)
 }
 
-func (service *Service) Auth(c *gin.Context) {
-	store, err := service.SessionManager.Start(context.Background(), c.Writer, c.Request)
+func (service *Service) Auth(w http.ResponseWriter, r *http.Request) {
+	store, err := service.SessionManager.Start(context.Background(), w, r)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if _, ok := store.Get("LoggedInUserID"); !ok {
-		c.Header("Location", "/login")
-		c.Status(http.StatusFound)
+		service.Log.Error("User not found")
+
+		w.Header().Set("Location", "/login")
+		w.WriteHeader(http.StatusFound)
+
 		return
 	}
 
-	c.HTML(http.StatusOK, "users/auth.html", gin.H{})
+	service.Template.ExecuteTemplate(w, "users/auth", H{})
 }
 
-func (service *Service) User(c *gin.Context) {
-	ti, err := service.OauthServer.ValidationBearerToken(c.Request)
+func (service *Service) User(w http.ResponseWriter, r *http.Request) {
+	ti, err := service.IServer.ValidationBearerToken(r)
 	if err != nil {
-		c.AbortWithError(http.StatusNotFound, err)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	c.Header("Content-Type", "application/json;charset=UTF-8")
-	c.Header("Cache-Control", "no-store")
-	c.Header("Pragma", "no-store")
+	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Pragma", "no-cache")
 
+	status := http.StatusOK
+
+	w.WriteHeader(status)
 	userData := userData{ID: ti.GetUserID(), Scope: ti.GetScope()}
-	c.JSON(http.StatusOK, gin.H{"user": userData})
+	err = json.NewEncoder(w).Encode(userData)
 }

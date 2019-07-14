@@ -1,74 +1,47 @@
 package oauth
 
 import (
-	"context"
-	"errors"
+	"log"
 	"net/http"
-	"net/url"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-session/session"
-)
-
-var (
-	invalidReturnUri = errors.New("10003 returnUri is not valid")
+	"gopkg.in/oauth2.v3"
+	"gopkg.in/oauth2.v3/store"
 )
 
 type Service struct {
 	SessionManager *session.Manager
-	OauthServer
+	TokenStore     oauth2.TokenStore
+	ClientStore    *store.ClientStore
 }
 
-func Run(routerGin *gin.Engine, service *Service) {
-	routerGin.GET("/authorize", service.Authorize)
-	routerGin.POST("/authorize", service.Authorize)
+func userAuthorization(service *Service) func(w http.ResponseWriter, r *http.Request) (userID string, err error) {
+	return func(w http.ResponseWriter, r *http.Request) (userID string, err error) {
+		log.Printf("[INFO] userAuthorization %s", r.URL)
+		sessionStore, err := service.SessionManager.Start(r.Context(), w, r)
+		if err != nil {
+			return
+		}
 
-	routerGin.GET("/token", service.Token)
-	routerGin.POST("/token", service.Token)
-}
+		uid, ok := sessionStore.Get("LoggedInUserID")
+		if !ok {
+			if r.Form == nil {
+				r.ParseForm()
+			}
 
-func (service *Service) Authorize(c *gin.Context) {
-	cw := c.Writer
-	cr := c.Request
+			sessionStore.Set("ReturnUri", r.Form.Encode())
+			sessionStore.Save()
 
-	store, err := service.SessionManager.Start(context.Background(), cw, cr)
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
+			w.Header().Set("Location", "/login")
+			w.WriteHeader(http.StatusFound)
+			return
+		}
+		userID = uid.(string)
 
-	params, ok := store.Get("ReturnUri")
-	if !ok {
-		params = ""
-	}
+		// Authorization for receiving a token
+		sessionStore.Delete("LoggedInUserID")
+		sessionStore.Save()
 
-	form, err := url.ParseQuery(params.(string))
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
-	if len(form) != 0 {
-		cr.Form = form
-	}
-
-	store.Delete("ReturnUri")
-	store.Save()
-
-	err = service.OauthServer.HandleAuthorizeRequest(cw, cr)
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-}
-
-func (service *Service) Token(c *gin.Context) {
-	cw := c.Writer
-	cr := c.Request
-
-	err := service.OauthServer.HandleTokenRequest(cw, cr)
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 }
