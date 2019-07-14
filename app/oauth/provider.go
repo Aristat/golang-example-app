@@ -3,6 +3,8 @@ package oauth
 import (
 	"context"
 
+	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
+
 	"github.com/go-session/session"
 
 	"github.com/google/wire"
@@ -31,8 +33,8 @@ func CfgTest() (Config, func(), error) {
 }
 
 // Provider
-func Provider(ctx context.Context, cfg Config, session *session.Manager) (*OAuth, func(), error) {
-	g := New(ctx, cfg, session)
+func Provider(ctx context.Context, log *logger.Zap, cfg Config, session *session.Manager) (*OAuth, func(), error) {
+	g := New(ctx, log, cfg, session)
 	return g, func() {}, nil
 }
 

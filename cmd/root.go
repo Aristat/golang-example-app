@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -16,6 +15,7 @@ import (
 	"github.com/aristat/golang-gin-oauth2-example-app/cmd/client"
 
 	"github.com/aristat/golang-gin-oauth2-example-app/app/entrypoint"
+	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 
 	"go.uber.org/automaxprocs/maxprocs"
 
@@ -31,6 +31,7 @@ var (
 	debug         bool
 	v             *viper.Viper
 	gracefulDelay time.Duration
+	log           *logger.Zap
 )
 
 const prefix = "cmd.root"
@@ -42,12 +43,20 @@ var rootCmd = &cobra.Command{
 	SilenceUsage:  true,
 	SilenceErrors: true,
 	PersistentPreRun: func(cmd *cobra.Command, _ []string) {
+		l, c, e := logger.Build()
+		defer c()
+		if e != nil {
+			panic(e)
+		}
+
+		log = l.WithFields(logger.Fields{"service": prefix})
+
 		v.SetConfigFile(configPath)
 
 		if configPath != "" {
 			e := v.ReadInConfig()
 			if e != nil {
-				fmt.Printf("can't read config, %v", errors.WithMessage(e, prefix))
+				log.Error("can't read config, %v", logger.Args(errors.WithMessage(e, prefix)))
 				os.Exit(1)
 			}
 		}
@@ -57,7 +66,7 @@ var rootCmd = &cobra.Command{
 			var out bytes.Buffer
 			e := json.Indent(&out, b, "", "  ")
 			if e != nil {
-				fmt.Printf("can't prettify config")
+				log.Error("can't prettify config")
 				os.Exit(1)
 			}
 			fmt.Println(string(out.Bytes()))

@@ -13,7 +13,7 @@ require (
 	github.com/gavv/monotime v0.0.0-20171021193802-6f8212e8d10d // indirect
 	github.com/gin-contrib/sse v0.0.0-20170109093832-22d885f9ecc7 // indirect
 	github.com/gin-gonic/gin v0.0.0-20170702092826-d459835d2b07
-	github.com/go-chi/chi v4.0.2+incompatible
+	github.com/go-chi/chi v4.0.2+incompatible // indirect
 	github.com/go-kit/kit v0.9.0 // indirect
 	github.com/go-oauth2/oauth2 v3.9.2+incompatible
 	github.com/go-redis/redis v6.14.2+incompatible // indirect
@@ -69,6 +69,7 @@ require (
 	github.com/yudai/pp v2.0.1+incompatible // indirect
 	go.etcd.io/bbolt v1.3.3 // indirect
 	go.uber.org/automaxprocs v1.2.0
+	go.uber.org/zap v1.10.0
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 	golang.org/x/exp v0.0.0-20190627132806-fd42eb6b336f // indirect
 	golang.org/x/image v0.0.0-20190703141733-d6a02ce849c9 // indirect

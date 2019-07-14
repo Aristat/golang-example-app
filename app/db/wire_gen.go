@@ -8,11 +8,12 @@ package db
 import (
 	"github.com/aristat/golang-gin-oauth2-example-app/app/config"
 	"github.com/aristat/golang-gin-oauth2-example-app/app/entrypoint"
+	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 )
 
 // Injectors from injector.go:
 
-func Build() (*DBManager, func(), error) {
+func Build() (*Manager, func(), error) {
 	context, cleanup, err := entrypoint.ContextProvider()
 	if err != nil {
 		return nil, nil, err
@@ -22,20 +23,20 @@ func Build() (*DBManager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	dbConfig, cleanup3, err := Cfg(viper)
+	loggerConfig, cleanup3, err := logger.ProviderCfg(viper)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	db, cleanup4, err := DB(dbConfig)
+	zap, cleanup4, err := logger.Provider(context, loggerConfig)
 	if err != nil {
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	dbManager, cleanup5, err := Provider(context, dbConfig, db)
+	dbConfig, cleanup5, err := Cfg(viper)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -43,7 +44,28 @@ func Build() (*DBManager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	return dbManager, func() {
+	db, cleanup6, err := DB(dbConfig, zap)
+	if err != nil {
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	manager, cleanup7, err := Provider(context, zap, dbConfig, db)
+	if err != nil {
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	return manager, func() {
+		cleanup7()
+		cleanup6()
 		cleanup5()
 		cleanup4()
 		cleanup3()

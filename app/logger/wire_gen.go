@@ -3,18 +3,16 @@
 //go:generate wire
 //+build !wireinject
 
-package session
+package logger
 
 import (
 	"github.com/aristat/golang-gin-oauth2-example-app/app/config"
 	"github.com/aristat/golang-gin-oauth2-example-app/app/entrypoint"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
-	"github.com/go-session/session"
 )
 
 // Injectors from injector.go:
 
-func Build() (*session.Manager, func(), error) {
+func Build() (*Zap, func(), error) {
 	context, cleanup, err := entrypoint.ContextProvider()
 	if err != nil {
 		return nil, nil, err
@@ -24,39 +22,20 @@ func Build() (*session.Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	loggerConfig, cleanup3, err := logger.ProviderCfg(viper)
+	loggerConfig, cleanup3, err := ProviderCfg(viper)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	zap, cleanup4, err := logger.Provider(context, loggerConfig)
+	zap, cleanup4, err := Provider(context, loggerConfig)
 	if err != nil {
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	sessionConfig, cleanup5, err := Cfg(viper)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	manager, cleanup6, err := Provider(context, zap, sessionConfig)
-	if err != nil {
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	return manager, func() {
-		cleanup6()
-		cleanup5()
+	return zap, func() {
 		cleanup4()
 		cleanup3()
 		cleanup2()

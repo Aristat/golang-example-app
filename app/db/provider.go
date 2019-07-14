@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
+
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 )
@@ -23,7 +25,9 @@ func CfgTest() (Config, func(), error) {
 	return Config{}, func() {}, nil
 }
 
-func DB(cfg Config) (*sql.DB, func(), error) {
+func DB(cfg Config, log *logger.Zap) (*sql.DB, func(), error) {
+	log.Info("Initialize DB")
+
 	db, err := sql.Open("postgres", cfg.URL)
 
 	if err != nil {
@@ -38,8 +42,8 @@ func DB(cfg Config) (*sql.DB, func(), error) {
 }
 
 // Provider
-func Provider(ctx context.Context, cfg Config, db *sql.DB) (*DBManager, func(), error) {
-	g := New(ctx, cfg, db)
+func Provider(ctx context.Context, log *logger.Zap, cfg Config, db *sql.DB) (*Manager, func(), error) {
+	g := New(ctx, log, cfg, db)
 	return g, func() {}, nil
 }
 

@@ -1,9 +1,8 @@
 package daemon
 
 import (
-	"fmt"
-
 	"github.com/aristat/golang-gin-oauth2-example-app/app/http"
+	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 
 	"github.com/spf13/cobra"
 )
@@ -21,17 +20,33 @@ var (
 				s *http.Http
 				c func()
 			)
+
+			log, c, e := logger.Build()
+			if e != nil {
+				panic(e)
+			}
+			defer c()
+			defer func() {
+				if r := recover(); r != nil {
+					if re, _ := r.(error); re != nil {
+						log.Error(re.Error())
+					} else {
+						log.Alert("unhandled panic, err: %v", logger.Args(r))
+					}
+				}
+			}()
+
 			s, c, e = http.Build()
 			if e != nil {
-				fmt.Println(e.Error())
+				log.Error(e.Error())
 				return
 			}
 			defer c()
 			if err := s.ListenAndServe(bind); err != nil {
-				fmt.Println(err.Error())
+				log.Error(err.Error())
 				return
 			}
-			fmt.Println("daemon stopped successfully")
+			log.Info("daemon stopped successfully")
 		},
 	}
 )

@@ -2,21 +2,23 @@ package http
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"syscall"
+
+	"github.com/go-session/session"
+
+	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 
 	"github.com/aristat/golang-gin-oauth2-example-app/app/oauth"
 
 	"github.com/aristat/golang-gin-oauth2-example-app/app/db"
-
-	"github.com/aristat/golang-gin-oauth2-example-app/app/session"
 
 	"github.com/aristat/golang-gin-oauth2-example-app/users"
 	"github.com/fvbock/endless"
 
 	"github.com/gin-gonic/gin"
 )
+
+const prefix = "app.http"
 
 // Config
 type Config struct {
@@ -26,36 +28,30 @@ type Config struct {
 
 // Http
 type Http struct {
-	ctx   context.Context
-	cfg   Config
-	oauth *oauth.OAuth
+	ctx     context.Context
+	cfg     Config
+	oauth   *oauth.OAuth
+	session *session.Manager
+	db      *db.Manager
+	log     *logger.Zap
 }
 
 // ListenAndServe
 func (m *Http) ListenAndServe(bind ...string) (err error) {
+	m.log.Info("Initialize http")
+
 	bindAdrr := m.cfg.Bind
 
 	if len(bind) > 0 && len(bind[0]) > 0 {
 		bindAdrr = bind[0]
 	}
 
-	dbManager, _, e := db.Build()
-	if e != nil {
-		return e
-	}
-
-	sessionManager, _, e := session.Build()
-	if e != nil {
-		return e
-	}
-
 	usersService := &users.Service{
-		SessionManager: sessionManager,
-		DB:             dbManager.DB,
+		SessionManager: m.session,
+		DB:             m.db.DB,
 		OauthServer:    m.oauth.OauthServer,
 	}
 
-	fmt.Println("init gin")
 	r := gin.New()
 
 	r.Use(gin.Logger())
@@ -65,34 +61,37 @@ func (m *Http) ListenAndServe(bind ...string) (err error) {
 	users.Run(r, usersService)
 	oauth.Run(r, m.oauth.OauthService)
 
-	fmt.Printf("start listen and serve http at %v", bindAdrr)
+	m.log.Info("start listen and serve http at %v", logger.Args(bindAdrr))
 
 	server := endless.NewServer(bindAdrr, r)
 	server.BeforeBegin = func(add string) {
-		log.Printf("[INFO] Actual pid is %d", syscall.Getpid())
+		m.log.Info("Actual pid is %d", logger.Args(syscall.Getpid()))
 	}
 
 	go func() {
 		<-m.ctx.Done()
-		fmt.Println("context cancelled, shutdown is raised")
+		m.log.Info("context cancelled, shutdown is raised")
 		if e := server.Shutdown(context.Background()); e != nil {
-			fmt.Printf("graceful shutdown error, %v", e)
+			m.log.Emergency("graceful shutdown error, %v", logger.Args(e))
 		}
 	}()
 
 	err = server.ListenAndServe()
 	if err != nil {
-		log.Printf("[ERROR] Server err: %v", err)
+		m.log.Emergency("Server err: %v", logger.Args(err))
 	}
 
 	return
 }
 
 // New
-func New(ctx context.Context, cfg Config, oauth *oauth.OAuth) *Http {
+func New(ctx context.Context, log *logger.Zap, cfg Config, oauth *oauth.OAuth, session *session.Manager, db *db.Manager) *Http {
 	return &Http{
-		ctx:   ctx,
-		cfg:   cfg,
-		oauth: oauth,
+		ctx:     ctx,
+		cfg:     cfg,
+		oauth:   oauth,
+		session: session,
+		db:      db,
+		log:     log.WithFields(logger.Fields{"service": prefix}),
 	}
 }

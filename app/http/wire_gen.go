@@ -7,7 +7,9 @@ package http
 
 import (
 	"github.com/aristat/golang-gin-oauth2-example-app/app/config"
+	"github.com/aristat/golang-gin-oauth2-example-app/app/db"
 	"github.com/aristat/golang-gin-oauth2-example-app/app/entrypoint"
+	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 	"github.com/aristat/golang-gin-oauth2-example-app/app/oauth"
 	"github.com/aristat/golang-gin-oauth2-example-app/app/session"
 )
@@ -24,20 +26,20 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	httpConfig, cleanup3, err := Cfg(viper)
+	loggerConfig, cleanup3, err := logger.ProviderCfg(viper)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	oauthConfig, cleanup4, err := oauth.Cfg(viper)
+	zap, cleanup4, err := logger.Provider(context, loggerConfig)
 	if err != nil {
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	sessionConfig, cleanup5, err := session.Cfg(viper)
+	httpConfig, cleanup5, err := Cfg(viper)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -45,7 +47,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	manager, cleanup6, err := session.Provider(context, sessionConfig)
+	oauthConfig, cleanup6, err := oauth.Cfg(viper)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -54,7 +56,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oAuth, cleanup7, err := oauth.Provider(context, oauthConfig, manager)
+	sessionConfig, cleanup7, err := session.Cfg(viper)
 	if err != nil {
 		cleanup6()
 		cleanup5()
@@ -64,7 +66,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	http, cleanup8, err := Provider(context, httpConfig, oAuth)
+	manager, cleanup8, err := session.Provider(context, zap, sessionConfig)
 	if err != nil {
 		cleanup7()
 		cleanup6()
@@ -75,7 +77,82 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	oAuth, cleanup9, err := oauth.Provider(context, zap, oauthConfig, manager)
+	if err != nil {
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	dbConfig, cleanup10, err := db.Cfg(viper)
+	if err != nil {
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	sqlDB, cleanup11, err := db.DB(dbConfig, zap)
+	if err != nil {
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	dbManager, cleanup12, err := db.Provider(context, zap, dbConfig, sqlDB)
+	if err != nil {
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	http, cleanup13, err := Provider(context, zap, httpConfig, oAuth, manager, dbManager)
+	if err != nil {
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return http, func() {
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
 		cleanup8()
 		cleanup7()
 		cleanup6()

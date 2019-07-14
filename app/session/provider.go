@@ -2,7 +2,8 @@ package session
 
 import (
 	"context"
-	"fmt"
+
+	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 
 	"github.com/go-session/session"
 	"github.com/google/wire"
@@ -13,7 +14,6 @@ import (
 func Cfg(cfg *viper.Viper) (Config, func(), error) {
 	c := Config{}
 	e := cfg.UnmarshalKey("session", &c)
-	fmt.Println("asdsa", cfg, c, cfg.Get("session"))
 	if e != nil {
 		return c, func() {}, nil
 	}
@@ -26,8 +26,8 @@ func CfgTest() (Config, func(), error) {
 }
 
 // Provider
-func Provider(ctx context.Context, cfg Config) (*session.Manager, func(), error) {
-	return New(ctx, cfg)
+func Provider(ctx context.Context, log *logger.Zap, cfg Config) (*session.Manager, func(), error) {
+	return New(ctx, log, cfg)
 }
 
 var (

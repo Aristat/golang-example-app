@@ -8,6 +8,7 @@ package oauth
 import (
 	"github.com/aristat/golang-gin-oauth2-example-app/app/config"
 	"github.com/aristat/golang-gin-oauth2-example-app/app/entrypoint"
+	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 	"github.com/aristat/golang-gin-oauth2-example-app/app/session"
 )
 
@@ -23,20 +24,20 @@ func Build() (*OAuth, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthConfig, cleanup3, err := Cfg(viper)
+	loggerConfig, cleanup3, err := logger.ProviderCfg(viper)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	sessionConfig, cleanup4, err := session.Cfg(viper)
+	zap, cleanup4, err := logger.Provider(context, loggerConfig)
 	if err != nil {
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	manager, cleanup5, err := session.Provider(context, sessionConfig)
+	oauthConfig, cleanup5, err := Cfg(viper)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -44,7 +45,7 @@ func Build() (*OAuth, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oAuth, cleanup6, err := Provider(context, oauthConfig, manager)
+	sessionConfig, cleanup6, err := session.Cfg(viper)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -53,7 +54,30 @@ func Build() (*OAuth, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	manager, cleanup7, err := session.Provider(context, zap, sessionConfig)
+	if err != nil {
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	oAuth, cleanup8, err := Provider(context, zap, oauthConfig, manager)
+	if err != nil {
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return oAuth, func() {
+		cleanup8()
+		cleanup7()
 		cleanup6()
 		cleanup5()
 		cleanup4()

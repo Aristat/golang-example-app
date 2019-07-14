@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
+
 	"github.com/go-oauth2/oauth2/models"
 
 	"github.com/go-session/session"
@@ -18,10 +20,13 @@ import (
 	oauthRedis "gopkg.in/go-oauth2/redis.v3"
 )
 
+const prefix = "app.oauth"
+
 // OAuth
 type OAuth struct {
 	ctx          context.Context
 	cfg          Config
+	log          *logger.Zap
 	OauthServer  OauthServer
 	OauthService *Service
 }
@@ -59,7 +64,7 @@ func NewClientStore(config map[string]oauth2.ClientInfo) *store.ClientStore {
 	return clientStore
 }
 
-func NewOauthServer(oauth2Service *Oauth2Service) OauthServer {
+func NewOauthServer(oauth2Service *Oauth2Service, log *logger.Zap) OauthServer {
 	manager := manage.NewDefaultManager()
 	manager.SetAuthorizeCodeTokenCfg(
 		&manage.Config{
@@ -75,18 +80,20 @@ func NewOauthServer(oauth2Service *Oauth2Service) OauthServer {
 	server := server.NewDefaultServer(manager)
 	server.UserAuthorizationHandler = userAuthorization(oauth2Service)
 	server.SetInternalErrorHandler(func(err error) (re *errors.Response) {
-		log.Printf("[ERROR] Internal Error: %s", err.Error())
+		log.Error("Internal Error: %s", logger.Args(err.Error()))
 		return
 	})
 	server.SetResponseErrorHandler(func(re *errors.Response) {
-		log.Printf("[ERROR] Response Error: %s", re.Error.Error())
+		log.Error("Response Error: %s", logger.Args(re.Error.Error()))
 	})
 
 	return NewOauthServerWithServer(server)
 }
 
 // New
-func New(ctx context.Context, cfg Config, session *session.Manager) *OAuth {
+func New(ctx context.Context, log *logger.Zap, cfg Config, session *session.Manager) *OAuth {
+	log.Info("Initialize oauth")
+
 	oauthConfig := oauthRedis.Options{
 		Addr: cfg.RedisUrl,
 		DB:   cfg.RedisDB,
@@ -98,7 +105,7 @@ func New(ctx context.Context, cfg Config, session *session.Manager) *OAuth {
 		SessionManager: session,
 	}
 
-	oauthServer := NewOauthServer(oauth2Service)
+	oauthServer := NewOauthServer(oauth2Service, log)
 	authService := &Service{
 		SessionManager: session,
 		OauthServer:    oauthServer,
@@ -107,6 +114,7 @@ func New(ctx context.Context, cfg Config, session *session.Manager) *OAuth {
 	return &OAuth{
 		ctx:          ctx,
 		cfg:          cfg,
+		log:          log.WithFields(logger.Fields{"service": prefix}),
 		OauthServer:  oauthServer,
 		OauthService: authService,
 	}

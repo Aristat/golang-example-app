@@ -3,6 +3,12 @@ package http
 import (
 	"context"
 
+	"github.com/aristat/golang-gin-oauth2-example-app/app/db"
+
+	"github.com/go-session/session"
+
+	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
+
 	"github.com/aristat/golang-gin-oauth2-example-app/app/oauth"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
@@ -25,8 +31,8 @@ func CfgTest() (Config, func(), error) {
 }
 
 // Provider
-func Provider(ctx context.Context, cfg Config, oath *oauth.OAuth) (*Http, func(), error) {
-	g := New(ctx, cfg, oath)
+func Provider(ctx context.Context, log *logger.Zap, cfg Config, oath *oauth.OAuth, session *session.Manager, db *db.Manager) (*Http, func(), error) {
+	g := New(ctx, log, cfg, oath, session, db)
 	return g, func() {}, nil
 }
 
