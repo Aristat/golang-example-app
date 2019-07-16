@@ -11,6 +11,10 @@ import (
 	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 )
 
+import (
+	_ "github.com/lib/pq"
+)
+
 // Injectors from injector.go:
 
 func Build() (*Manager, func(), error) {
@@ -44,7 +48,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	db, cleanup6, err := DB(dbConfig, zap)
+	db, cleanup6, err := ProviderGORM(context, zap, dbConfig)
 	if err != nil {
 		cleanup5()
 		cleanup4()

@@ -8,7 +8,6 @@ package session
 import (
 	"github.com/aristat/golang-gin-oauth2-example-app/app/config"
 	"github.com/aristat/golang-gin-oauth2-example-app/app/entrypoint"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 	"github.com/go-session/session"
 )
 
@@ -24,39 +23,20 @@ func Build() (*session.Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	loggerConfig, cleanup3, err := logger.ProviderCfg(viper)
+	sessionConfig, cleanup3, err := Cfg(viper)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	zap, cleanup4, err := logger.Provider(context, loggerConfig)
+	manager, cleanup4, err := Provider(context, sessionConfig)
 	if err != nil {
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	sessionConfig, cleanup5, err := Cfg(viper)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	manager, cleanup6, err := Provider(context, zap, sessionConfig)
-	if err != nil {
-		cleanup5()
-		cleanup4()
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
 	return manager, func() {
-		cleanup6()
-		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()

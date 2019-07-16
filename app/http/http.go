@@ -36,8 +36,6 @@ type Http struct {
 
 // ListenAndServe
 func (m *Http) ListenAndServe(bind ...string) (err error) {
-	m.log.Info("Initialize http")
-
 	bindAddress := m.cfg.Bind
 
 	if len(bind) > 0 && len(bind[0]) > 0 {
@@ -49,7 +47,7 @@ func (m *Http) ListenAndServe(bind ...string) (err error) {
 		Handler: m.mux,
 	}
 
-	m.log.Info("start listen and serve http at %v", logger.Args(bindAddress))
+	m.log.Debug("start: %s listen and serve http at %v", logger.Args("qwe", bindAddress))
 
 	go func() {
 		<-m.ctx.Done()

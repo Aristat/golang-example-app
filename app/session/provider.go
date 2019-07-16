@@ -3,8 +3,6 @@ package session
 import (
 	"context"
 
-	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
-
 	"github.com/go-session/session"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
@@ -26,8 +24,8 @@ func CfgTest() (Config, func(), error) {
 }
 
 // Provider
-func Provider(ctx context.Context, log *logger.Zap, cfg Config) (*session.Manager, func(), error) {
-	return New(ctx, log, cfg)
+func Provider(ctx context.Context, cfg Config) (*session.Manager, func(), error) {
+	return New(ctx, cfg)
 }
 
 var (

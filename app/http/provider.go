@@ -8,6 +8,7 @@ import (
 
 	"github.com/aristat/golang-gin-oauth2-example-app/app/db"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 
 	"github.com/go-session/session"
 
@@ -41,7 +42,11 @@ func Mux(oauth *oauth.OAuth, db *db.Manager, session *session.Manager, log *logg
 	if mux != nil {
 		return mux, func() {}, nil
 	}
+
 	mux = chi.NewRouter()
+	mux.Use(middleware.RequestID)
+	mux.Use(Logger(log))
+
 	tmp := template.Must(template.New("").ParseGlob("templates/**/*"))
 
 	usersService := &users.Service{

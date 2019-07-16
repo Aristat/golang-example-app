@@ -54,7 +54,7 @@ func Build() (*OAuth, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	manager, cleanup7, err := session.Provider(context, zap, sessionConfig)
+	manager, cleanup7, err := session.Provider(context, sessionConfig)
 	if err != nil {
 		cleanup6()
 		cleanup5()

@@ -1,8 +1,9 @@
 package users
 
 import (
-	"database/sql"
 	"errors"
+
+	"github.com/jinzhu/gorm"
 
 	"github.com/aristat/golang-gin-oauth2-example-app/common"
 )
@@ -27,12 +28,15 @@ func (u *UserModel) setPassword(password string, cost int) error {
 	return nil
 }
 
-func FindByEmail(db *sql.DB, email string) (*UserModel, error) {
+func FindByEmail(db *gorm.DB, email string) (*UserModel, error) {
 	u := &UserModel{}
 
-	err := db.
-		QueryRow(`SELECT id, email, encrypted_password FROM users WHERE email = $1 LIMIT 1`, email).
-		Scan(&u.ID, &u.Email, &u.EncryptedPassword)
+	row := db.Table("users").Select("users.id, users.email, users.encrypted_password").
+		Where("users.email = ?", email).
+		Limit(1).
+		Row()
+
+	err := row.Scan(&u.ID, &u.Email, &u.EncryptedPassword)
 
 	return u, err
 }

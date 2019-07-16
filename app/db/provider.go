@@ -2,7 +2,8 @@ package db
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jinzhu/gorm"
 
 	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 
@@ -12,7 +13,7 @@ import (
 
 // Cfg
 func Cfg(cfg *viper.Viper) (Config, func(), error) {
-	c := Config{}
+	c := Config{LogLevel: logger.LevelDebug}
 	e := cfg.UnmarshalKey("db", &c)
 	if e != nil {
 		return c, func() {}, nil
@@ -25,29 +26,38 @@ func CfgTest() (Config, func(), error) {
 	return Config{}, func() {}, nil
 }
 
-func DB(cfg Config, log *logger.Zap) (*sql.DB, func(), error) {
-	log.Info("Initialize DB")
+// ProviderGORM
+func ProviderGORM(ctx context.Context, log *logger.Zap, cfg Config) (*gorm.DB, func(), error) {
 
-	db, err := sql.Open("postgres", cfg.URL)
+	log = log.WithFields(logger.Fields{"service": prefix})
 
-	if err != nil {
-		return nil, func() {}, err
+	db, err := gorm.Open("postgres", cfg.URL)
+	db.DB().SetMaxOpenConns(cfg.MaxOpenConns)
+	db.DB().SetMaxIdleConns(cfg.MaxIdleConns)
+	db.DB().SetConnMaxLifetime(cfg.ConnMaxLifetime)
+
+	if cfg.LogLevel == logger.LevelDebug {
+		db.LogMode(true)
 	}
 
-	if err := db.Ping(); err != nil {
-		return nil, func() {}, err
+	db.SetLogger(NewLoggerAdapter(log, cfg.LogLevel))
+
+	cleanup := func() {
+		if db != nil {
+			_ = db.Close()
+		}
 	}
 
-	return db, func() {}, nil
+	return db, cleanup, err
 }
 
 // Provider
-func Provider(ctx context.Context, log *logger.Zap, cfg Config, db *sql.DB) (*Manager, func(), error) {
+func Provider(ctx context.Context, log *logger.Zap, cfg Config, db *gorm.DB) (*Manager, func(), error) {
 	g := New(ctx, log, cfg, db)
 	return g, func() {}, nil
 }
 
 var (
-	ProviderProductionSet = wire.NewSet(Provider, DB, Cfg)
-	ProviderTestSet       = wire.NewSet(Provider, DB, CfgTest)
+	ProviderProductionSet = wire.NewSet(Provider, ProviderGORM, Cfg)
+	ProviderTestSet       = wire.NewSet(Provider, ProviderGORM, CfgTest)
 )

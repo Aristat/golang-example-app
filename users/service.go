@@ -2,11 +2,12 @@ package users
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"html/template"
 	"net/http"
+
+	"github.com/jinzhu/gorm"
 
 	"github.com/go-chi/chi"
 
@@ -28,7 +29,7 @@ type H map[string]interface{}
 type Service struct {
 	Template       *template.Template
 	SessionManager *session.Manager
-	DB             *sql.DB
+	DB             *gorm.DB
 	Log            *logger.Zap
 	oauth.IServer
 }

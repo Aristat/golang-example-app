@@ -3,6 +3,8 @@ package logger
 import (
 	"context"
 
+	"go.uber.org/zap/zapcore"
+
 	"go.uber.org/zap"
 )
 
@@ -200,15 +202,10 @@ func NewZap(ctx context.Context, cfg Config) *Zap {
 	var logger *zap.Logger
 	if !cfg.Debug {
 		cfg := zap.NewProductionConfig()
-		cfg.EncoderConfig.LevelKey = ""
-		cfg.OutputPaths = []string{"stdout"}
-		cfg.ErrorOutputPaths = []string{"stderr"}
 		logger, _ = cfg.Build(zap.AddCallerSkip(2), zap.AddStacktrace(zap.PanicLevel))
 	} else {
 		cfg := zap.NewDevelopmentConfig()
-		cfg.EncoderConfig.LevelKey = ""
-		cfg.OutputPaths = []string{"stdout"}
-		cfg.ErrorOutputPaths = []string{"stderr"}
+		cfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 		logger, _ = cfg.Build(zap.AddCallerSkip(2))
 	}
 	go func(logger *zap.Logger) {

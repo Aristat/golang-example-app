@@ -3,8 +3,6 @@ package session
 import (
 	"context"
 
-	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
-
 	"github.com/go-session/redis"
 	"github.com/go-session/session"
 )
@@ -16,9 +14,7 @@ type Config struct {
 }
 
 // New
-func New(ctx context.Context, log *logger.Zap, cfg Config) (*session.Manager, func(), error) {
-	log.Info("Initialize session manager")
-
+func New(ctx context.Context, cfg Config) (*session.Manager, func(), error) {
 	sessionStore := redis.NewRedisStore(&redis.Options{
 		Addr: cfg.RedisUrl,
 		DB:   cfg.RedisDB,

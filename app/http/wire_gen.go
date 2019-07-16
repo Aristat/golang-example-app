@@ -56,7 +56,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	manager, cleanup7, err := session.Provider(context, zap, sessionConfig)
+	manager, cleanup7, err := session.Provider(context, sessionConfig)
 	if err != nil {
 		cleanup6()
 		cleanup5()
@@ -89,7 +89,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	sqlDB, cleanup10, err := db.DB(dbConfig, zap)
+	gormDB, cleanup10, err := db.ProviderGORM(context, zap, dbConfig)
 	if err != nil {
 		cleanup9()
 		cleanup8()
@@ -102,7 +102,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	dbManager, cleanup11, err := db.Provider(context, zap, dbConfig, sqlDB)
+	dbManager, cleanup11, err := db.Provider(context, zap, dbConfig, gormDB)
 	if err != nil {
 		cleanup10()
 		cleanup9()

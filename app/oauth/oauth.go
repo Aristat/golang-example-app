@@ -44,8 +44,6 @@ func NewClientStore(config map[string]oauth2.ClientInfo) *store.ClientStore {
 
 // New
 func New(ctx context.Context, log *logger.Zap, cfg Config, session *session.Manager) *OAuth {
-	log.Info("Initialize oauth")
-
 	oauthConfig := oauthRedis.Options{
 		Addr: cfg.RedisUrl,
 		DB:   cfg.RedisDB,
