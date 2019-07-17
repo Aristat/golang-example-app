@@ -25,12 +25,12 @@ type Config struct {
 type Manager struct {
 	ctx context.Context
 	cfg Config
-	log *logger.Zap
+	log logger.Logger
 	DB  *gorm.DB
 }
 
 // New
-func New(ctx context.Context, log *logger.Zap, cfg Config, db *gorm.DB) *Manager {
+func New(ctx context.Context, log logger.Logger, cfg Config, db *gorm.DB) *Manager {
 	return &Manager{
 		ctx: ctx,
 		cfg: cfg,

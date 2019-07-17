@@ -38,7 +38,7 @@ func CfgTest() (Config, func(), error) {
 }
 
 // Mux
-func Mux(oauth *oauth.OAuth, db *db.Manager, session *session.Manager, log *logger.Zap) (*chi.Mux, func(), error) {
+func Mux(oauth *oauth.OAuth, db *db.Manager, session *session.Manager, log logger.Logger) (*chi.Mux, func(), error) {
 	if mux != nil {
 		return mux, func() {}, nil
 	}
@@ -64,7 +64,7 @@ func Mux(oauth *oauth.OAuth, db *db.Manager, session *session.Manager, log *logg
 }
 
 // Provider
-func Provider(ctx context.Context, mux *chi.Mux, log *logger.Zap, cfg Config, oauth *oauth.OAuth, session *session.Manager, db *db.Manager) (*Http, func(), error) {
+func Provider(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config, oauth *oauth.OAuth, session *session.Manager, db *db.Manager) (*Http, func(), error) {
 	g := New(ctx, mux, log, cfg, oauth, session, db)
 	return g, func() {}, nil
 }

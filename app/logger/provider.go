@@ -7,12 +7,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config is a general logger config settings
-type Config struct {
-	Debug   bool
-	Verbose bool
-}
-
 // ProviderCfg returns configuration for production logger
 func ProviderCfg(cfg *viper.Viper) (Config, func(), error) {
 	c := Config{}
@@ -22,9 +16,6 @@ func ProviderCfg(cfg *viper.Viper) (Config, func(), error) {
 	}
 	if cfg.IsSet("debug") {
 		c.Debug = cfg.GetBool("debug")
-	}
-	if cfg.IsSet("verbose") {
-		c.Verbose = cfg.GetBool("verbose")
 	}
 	return c, func() {}, nil
 }
@@ -39,6 +30,12 @@ func Provider(ctx context.Context, cfg Config) (*Zap, func(), error) {
 	return NewZap(ctx, cfg), func() {}, nil
 }
 
+// ProviderTest returns stub/mock logger instance implemented of Logger interface with resolved dependencies
+func ProviderTest(ctx context.Context, cfg Config) (*Mock, func(), error) {
+	return NewMock(ctx, cfg, true), func() {}, nil
+}
+
 var (
-	ProviderProductionSet = wire.NewSet(Provider, ProviderCfg)
+	ProviderProductionSet = wire.NewSet(Provider, ProviderCfg, wire.Bind(new(Logger), new(*Zap)))
+	ProviderTestSet       = wire.NewSet(ProviderTest, ProviderCfgTest, wire.Bind(new(Logger), new(*Mock)))
 )

@@ -8,6 +8,7 @@ import (
 	"github.com/google/wire"
 )
 
-func Build() (*Zap, func(), error) {
+// Build returns logger instance implemented of Logger interface with resolved dependencies
+func Build() (Logger, func(), error) {
 	panic(wire.Build(ProviderProductionSet, entrypoint.ProviderProductionSet, config.ProviderSet))
 }

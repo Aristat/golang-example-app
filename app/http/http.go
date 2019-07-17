@@ -30,7 +30,7 @@ type Http struct {
 	oauth   *oauth.OAuth
 	session *session.Manager
 	db      *db.Manager
-	log     *logger.Zap
+	log     logger.Logger
 	mux     *chi.Mux
 }
 
@@ -68,7 +68,7 @@ func (m *Http) ListenAndServe(bind ...string) (err error) {
 }
 
 // New
-func New(ctx context.Context, mux *chi.Mux, log *logger.Zap, cfg Config, oauth *oauth.OAuth, session *session.Manager, db *db.Manager) *Http {
+func New(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config, oauth *oauth.OAuth, session *session.Manager, db *db.Manager) *Http {
 	return &Http{
 		ctx:     ctx,
 		cfg:     cfg,

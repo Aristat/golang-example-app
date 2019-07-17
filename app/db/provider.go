@@ -27,8 +27,7 @@ func CfgTest() (Config, func(), error) {
 }
 
 // ProviderGORM
-func ProviderGORM(ctx context.Context, log *logger.Zap, cfg Config) (*gorm.DB, func(), error) {
-
+func ProviderGORM(ctx context.Context, log logger.Logger, cfg Config) (*gorm.DB, func(), error) {
 	log = log.WithFields(logger.Fields{"service": prefix})
 
 	db, err := gorm.Open("postgres", cfg.URL)
@@ -52,7 +51,7 @@ func ProviderGORM(ctx context.Context, log *logger.Zap, cfg Config) (*gorm.DB, f
 }
 
 // Provider
-func Provider(ctx context.Context, log *logger.Zap, cfg Config, db *gorm.DB) (*Manager, func(), error) {
+func Provider(ctx context.Context, log logger.Logger, cfg Config, db *gorm.DB) (*Manager, func(), error) {
 	g := New(ctx, log, cfg, db)
 	return g, func() {}, nil
 }

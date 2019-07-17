@@ -9,7 +9,7 @@ import (
 
 type loggerAdapter struct {
 	level  logger.Level
-	logger *logger.Zap
+	logger logger.Logger
 }
 
 // Print write string to output
@@ -25,6 +25,6 @@ func (l *loggerAdapter) Print(v ...interface{}) {
 }
 
 // NewLoggerAdapter returns instance adapter for services/logger
-func NewLoggerAdapter(logger *logger.Zap, level logger.Level) *loggerAdapter {
+func NewLoggerAdapter(logger logger.Logger, level logger.Level) *loggerAdapter {
 	return &loggerAdapter{level: level, logger: logger}
 }

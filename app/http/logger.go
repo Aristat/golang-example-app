@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 )
 
-func Logger(l *logger.Zap) func(next http.Handler) http.Handler {
+func Logger(l logger.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)

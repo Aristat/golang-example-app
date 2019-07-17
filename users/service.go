@@ -30,7 +30,7 @@ type Service struct {
 	Template       *template.Template
 	SessionManager *session.Manager
 	DB             *gorm.DB
-	Log            *logger.Zap
+	Log            logger.Logger
 	oauth.IServer
 }
 

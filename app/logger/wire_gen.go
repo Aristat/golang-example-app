@@ -12,7 +12,7 @@ import (
 
 // Injectors from injector.go:
 
-func Build() (*Zap, func(), error) {
+func Build() (Logger, func(), error) {
 	context, cleanup, err := entrypoint.ContextProvider()
 	if err != nil {
 		return nil, nil, err

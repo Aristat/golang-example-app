@@ -33,7 +33,7 @@ func CfgTest() (Config, func(), error) {
 }
 
 // Provider
-func Provider(ctx context.Context, log *logger.Zap, cfg Config, session *session.Manager) (*OAuth, func(), error) {
+func Provider(ctx context.Context, log logger.Logger, cfg Config, session *session.Manager) (*OAuth, func(), error) {
 	g := New(ctx, log, cfg, session)
 	return g, func() {}, nil
 }

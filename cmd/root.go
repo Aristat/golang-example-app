@@ -31,7 +31,7 @@ var (
 	debug         bool
 	v             *viper.Viper
 	gracefulDelay time.Duration
-	log           *logger.Zap
+	log           logger.Logger
 )
 
 const prefix = "cmd.root"

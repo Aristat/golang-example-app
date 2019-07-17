@@ -20,7 +20,7 @@ const prefix = "app.oauth"
 type OAuth struct {
 	ctx          context.Context
 	cfg          Config
-	log          *logger.Zap
+	log          logger.Logger
 	OauthServer  IServer
 	OauthService *Routers
 }
@@ -43,7 +43,7 @@ func NewClientStore(config map[string]oauth2.ClientInfo) *store.ClientStore {
 }
 
 // New
-func New(ctx context.Context, log *logger.Zap, cfg Config, session *session.Manager) *OAuth {
+func New(ctx context.Context, log logger.Logger, cfg Config, session *session.Manager) *OAuth {
 	oauthConfig := oauthRedis.Options{
 		Addr: cfg.RedisUrl,
 		DB:   cfg.RedisDB,

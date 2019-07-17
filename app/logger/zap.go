@@ -3,24 +3,9 @@ package logger
 import (
 	"context"
 
-	"go.uber.org/zap/zapcore"
-
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
-
-type (
-	Fields map[string]interface{}
-	Tags   []string
-)
-
-type opts struct {
-	args   []interface{}
-	tags   Tags
-	fields Fields
-}
-
-// Option is func hook for underling logic call
-type Option func(*opts) error
 
 // Zap is uber/zap logger implemented of Logger interface
 type Zap struct {
@@ -28,17 +13,11 @@ type Zap struct {
 	cfg    Config
 	logger *zap.SugaredLogger
 	fields map[string]interface{}
-	tags   []string
 }
 
 // Printf is like fmt.Printf, push to log entry with debug level
 func (z *Zap) Printf(format string, a ...interface{}) {
 	z.Debug(format, Args(a...))
-}
-
-// Verbose should return true when verbose logging output is wanted
-func (z *Zap) Verbose() bool {
-	return z.cfg.Verbose
 }
 
 // Emergency push to log entry with emergency level & throw panic
@@ -95,19 +74,8 @@ func (z *Zap) Log(level Level, format string, o ...Option) {
 	}
 	var (
 		wargs = []interface{}{"level", level.String()}
-		tags  []string
 	)
-	// tags
-	if len(z.tags) > 0 {
-		tags = make([]string, len(z.tags))
-		copy(tags, z.tags)
-	}
-	if len(opts.tags) > 0 {
-		tags = append(tags, opts.tags...)
-	}
-	if len(tags) > 0 {
-		wargs = append(wargs, "tags", tags)
-	}
+
 	// fields
 	for k, v := range z.fields {
 		wargs = append(wargs, k, v)
@@ -115,10 +83,12 @@ func (z *Zap) Log(level Level, format string, o ...Option) {
 	for k, v := range opts.fields {
 		wargs = append(wargs, k, v)
 	}
+
 	var logger = z.logger
 	if len(wargs) > 0 {
 		logger = logger.With(wargs...)
 	}
+
 	if len(opts.args) == 0 {
 		var fn func(args ...interface{})
 		switch level {
@@ -153,36 +123,13 @@ func (z *Zap) Log(level Level, format string, o ...Option) {
 }
 
 // WithFields create new instance with fields
-func (z *Zap) WithFields(fields Fields) *Zap {
+func (z *Zap) WithFields(fields Fields) Logger {
 	nz := &Zap{}
-	copyZap(nz, z, nil, fields)
+	copyZap(nz, z, fields)
 	return nz
 }
 
-// WithTags create new instance with tags
-func (z *Zap) WithTags(tags Tags) *Zap {
-	nz := &Zap{}
-	copyZap(nz, z, tags, nil)
-	return nz
-}
-
-// Args returns func hook a logger for replace fmt placeholders on represent values
-func Args(a ...interface{}) Option {
-	return func(f *opts) error {
-		f.args = a
-		return nil
-	}
-}
-
-func copyZap(dst, src *Zap, tags []string, fields map[string]interface{}) {
-	// tags
-	var cTags []string
-	cTags = make([]string, len(src.tags))
-	copy(cTags, src.tags)
-	dst.tags = cTags
-	if tags != nil {
-		dst.tags = append(dst.tags, tags...)
-	}
+func copyZap(dst, src *Zap, fields map[string]interface{}) {
 	var cFields = map[string]interface{}{}
 	// fields
 	for k, v := range src.fields {
@@ -200,6 +147,7 @@ func copyZap(dst, src *Zap, tags []string, fields map[string]interface{}) {
 // NewZap returns zap logger
 func NewZap(ctx context.Context, cfg Config) *Zap {
 	var logger *zap.Logger
+
 	if !cfg.Debug {
 		cfg := zap.NewProductionConfig()
 		logger, _ = cfg.Build(zap.AddCallerSkip(2), zap.AddStacktrace(zap.PanicLevel))
@@ -208,9 +156,11 @@ func NewZap(ctx context.Context, cfg Config) *Zap {
 		cfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 		logger, _ = cfg.Build(zap.AddCallerSkip(2))
 	}
+
 	go func(logger *zap.Logger) {
 		<-ctx.Done()
 		_ = logger.Sync()
 	}(logger)
+
 	return &Zap{ctx: ctx, cfg: cfg, logger: logger.Sugar()}
 }

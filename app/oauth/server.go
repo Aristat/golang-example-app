@@ -26,7 +26,7 @@ func NewServer(srv *server.Server) IServer {
 	return &oauth2Server{Server: srv}
 }
 
-func NewOauthServer(oauth2Service *Service, log *logger.Zap) IServer {
+func NewOauthServer(oauth2Service *Service, log logger.Logger) IServer {
 	manager := manage.NewDefaultManager()
 	manager.SetAuthorizeCodeTokenCfg(
 		&manage.Config{
