@@ -2,12 +2,14 @@ package db
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/jinzhu/gorm"
 
 	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 
 	"github.com/google/wire"
+	mocket "github.com/selvatico/go-mocket"
 	"github.com/spf13/viper"
 )
 
@@ -50,6 +52,28 @@ func ProviderGORM(ctx context.Context, log logger.Logger, cfg Config) (*gorm.DB,
 	return db, cleanup, err
 }
 
+func ProviderGORMTest() (*gorm.DB, func(), error) {
+	var db *gorm.DB
+
+	cleanup := func() {
+		if db != nil {
+			_ = db.Close()
+		}
+	}
+
+	mocket.Catcher.Register()
+
+	sqlDB, err := sql.Open(mocket.DriverName, "gorm")
+	if err != nil {
+		return db, cleanup, err
+	}
+
+	db, err = gorm.Open("postgres", sqlDB)
+	db.LogMode(false)
+
+	return db, cleanup, err
+}
+
 // Provider
 func Provider(ctx context.Context, log logger.Logger, cfg Config, db *gorm.DB) (*Manager, func(), error) {
 	g := New(ctx, log, cfg, db)
@@ -58,5 +82,5 @@ func Provider(ctx context.Context, log logger.Logger, cfg Config, db *gorm.DB) (
 
 var (
 	ProviderProductionSet = wire.NewSet(Provider, ProviderGORM, Cfg)
-	ProviderTestSet       = wire.NewSet(Provider, ProviderGORM, CfgTest)
+	ProviderTestSet       = wire.NewSet(Provider, ProviderGORMTest, CfgTest)
 )

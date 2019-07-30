@@ -12,3 +12,8 @@ var AwareProductionSet = wire.NewSet(
 	logger.ProviderProductionSet,
 	config.ProviderSet,
 )
+
+var AwareTestSet = wire.NewSet(
+	entrypoint.ProviderTestSet,
+	logger.ProviderTestSet,
+)

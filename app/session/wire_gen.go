@@ -43,3 +43,13 @@ func Build() (*session.Manager, func(), error) {
 		cleanup()
 	}, nil
 }
+
+func BuildTest() (*session.Manager, func(), error) {
+	manager, cleanup, err := ProviderTest()
+	if err != nil {
+		return nil, nil, err
+	}
+	return manager, func() {
+		cleanup()
+	}, nil
+}

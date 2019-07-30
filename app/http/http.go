@@ -11,8 +11,6 @@ import (
 	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 
 	"github.com/aristat/golang-gin-oauth2-example-app/app/oauth"
-
-	"github.com/aristat/golang-gin-oauth2-example-app/app/db"
 )
 
 const prefix = "app.http"
@@ -29,7 +27,6 @@ type Http struct {
 	cfg     Config
 	oauth   *oauth.OAuth
 	session *session.Manager
-	db      *db.Manager
 	log     logger.Logger
 	mux     *chi.Mux
 }
@@ -68,13 +65,12 @@ func (m *Http) ListenAndServe(bind ...string) (err error) {
 }
 
 // New
-func New(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config, oauth *oauth.OAuth, session *session.Manager, db *db.Manager) *Http {
+func New(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config, oauth *oauth.OAuth, session *session.Manager) *Http {
 	return &Http{
 		ctx:     ctx,
 		cfg:     cfg,
 		oauth:   oauth,
 		session: session,
-		db:      db,
 		mux:     mux,
 		log:     log.WithFields(logger.Fields{"service": prefix}),
 	}

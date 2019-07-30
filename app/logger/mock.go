@@ -118,6 +118,7 @@ func copyMock(dst, src *Mock, fields map[string]interface{}) {
 			dst.fields[k] = v
 		}
 	}
+	dst.ch = src.ch
 }
 
 // Catch returns channel of entity structure for testing event content
@@ -128,8 +129,9 @@ func (m *Mock) Catch() <-chan Entity {
 // NewMock returns mock instance implemented of Logger interface
 func NewMock(ctx context.Context, cfg Config, discard bool) *Mock {
 	return &Mock{
-		ctx: ctx,
-		cfg: cfg, ch: make(chan Entity),
+		ctx:     ctx,
+		cfg:     cfg,
+		ch:      make(chan Entity),
 		discard: discard,
 	}
 }

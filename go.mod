@@ -2,10 +2,12 @@ module github.com/aristat/golang-gin-oauth2-example-app
 
 require (
 	cloud.google.com/go v0.41.0 // indirect
+	github.com/Selvatico/go-mocket v1.0.7 // indirect
 	github.com/ajg/form v0.0.0-20160822230020-523a5da1a92f // indirect
+	github.com/carlescere/goback v0.0.0-20150314180917-ebe10501f4c4
 	github.com/denisenkom/go-mssqldb v0.0.0-20190710001350-29e7b2419f38 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
-	github.com/gavv/httpexpect v0.0.0-20180803094507-bdde30871313 // indirect
+	github.com/gavv/httpexpect v0.0.0-20180803094507-bdde30871313
 	github.com/gavv/monotime v0.0.0-20171021193802-6f8212e8d10d // indirect
 	github.com/go-chi/chi v4.0.2+incompatible
 	github.com/go-oauth2/oauth2 v3.9.2+incompatible
@@ -24,15 +26,17 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/moul/http2curl v1.0.0 // indirect
+	github.com/nats-io/nats.go v1.8.1 // indirect
 	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/pkg/errors v0.8.1
+	github.com/selvatico/go-mocket v1.0.7
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190306220146-200a235640ff // indirect
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.4.0
-	github.com/stretchr/testify v1.3.0 // indirect
+	github.com/stretchr/testify v1.3.0
 	github.com/tidwall/btree v0.0.0-20170113224114-9876f1454cf0 // indirect
 	github.com/tidwall/buntdb v0.0.0-20180503164307-6249481c29c2 // indirect
 	github.com/tidwall/gjson v1.1.4 // indirect

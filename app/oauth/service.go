@@ -1,7 +1,6 @@
 package oauth
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/go-session/session"
@@ -17,7 +16,6 @@ type Service struct {
 
 func userAuthorization(service *Service) func(w http.ResponseWriter, r *http.Request) (userID string, err error) {
 	return func(w http.ResponseWriter, r *http.Request) (userID string, err error) {
-		log.Printf("[INFO] userAuthorization %s", r.URL)
 		sessionStore, err := service.SessionManager.Start(r.Context(), w, r)
 		if err != nil {
 			return

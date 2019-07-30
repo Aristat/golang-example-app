@@ -18,17 +18,16 @@ func Cfg(cfg *viper.Viper) (Config, func(), error) {
 	return c, func() {}, nil
 }
 
-// CfgTest
-func CfgTest() (Config, func(), error) {
-	return Config{}, func() {}, nil
-}
-
 // Provider
 func Provider(ctx context.Context, cfg Config) (*session.Manager, func(), error) {
 	return New(ctx, cfg)
 }
 
+func ProviderTest() (*session.Manager, func(), error) {
+	return session.NewManager(), func() {}, nil
+}
+
 var (
 	ProviderProductionSet = wire.NewSet(Provider, Cfg)
-	ProviderTestSet       = wire.NewSet(Provider, CfgTest)
+	ProviderTestSet       = wire.NewSet(ProviderTest)
 )

@@ -12,3 +12,7 @@ import (
 func Build() (Logger, func(), error) {
 	panic(wire.Build(ProviderProductionSet, entrypoint.ProviderProductionSet, config.ProviderSet))
 }
+
+func BuildTest() (Logger, func(), error) {
+	panic(wire.Build(ProviderTestSet, entrypoint.ProviderTestSet))
+}

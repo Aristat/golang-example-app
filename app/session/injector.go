@@ -12,3 +12,7 @@ import (
 func Build() (*session.Manager, func(), error) {
 	panic(wire.Build(ProviderProductionSet, provider.AwareProductionSet))
 }
+
+func BuildTest() (*session.Manager, func(), error) {
+	panic(wire.Build(ProviderTestSet))
+}

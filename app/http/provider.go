@@ -52,7 +52,7 @@ func Mux(oauth *oauth.OAuth, db *db.Manager, session *session.Manager, log logge
 	usersService := &users.Service{
 		SessionManager: session,
 		DB:             db.DB,
-		IServer:        oauth.OauthServer,
+		Server:         oauth.OauthService.Server,
 		Log:            log,
 		Template:       tmp,
 	}
@@ -64,8 +64,8 @@ func Mux(oauth *oauth.OAuth, db *db.Manager, session *session.Manager, log logge
 }
 
 // Provider
-func Provider(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config, oauth *oauth.OAuth, session *session.Manager, db *db.Manager) (*Http, func(), error) {
-	g := New(ctx, mux, log, cfg, oauth, session, db)
+func Provider(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config, oauth *oauth.OAuth, session *session.Manager) (*Http, func(), error) {
+	g := New(ctx, mux, log, cfg, oauth, session)
 	return g, func() {}, nil
 }
 

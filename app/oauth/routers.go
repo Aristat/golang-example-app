@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/go-chi/chi"
+	"gopkg.in/oauth2.v3/server"
 
-	"github.com/go-session/session"
+	"github.com/go-chi/chi"
 )
 
 var (
@@ -15,8 +15,8 @@ var (
 )
 
 type Routers struct {
-	SessionManager *session.Manager
-	IServer
+	Server        *server.Server
+	OauthService2 *Service
 }
 
 func (service *Routers) Run(router *chi.Mux) {
@@ -28,7 +28,7 @@ func (service *Routers) Run(router *chi.Mux) {
 }
 
 func (service *Routers) Authorize(w http.ResponseWriter, r *http.Request) {
-	store, err := service.SessionManager.Start(r.Context(), w, r)
+	store, err := service.OauthService2.SessionManager.Start(r.Context(), w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -52,7 +52,7 @@ func (service *Routers) Authorize(w http.ResponseWriter, r *http.Request) {
 	store.Delete("ReturnUri")
 	store.Save()
 
-	err = service.IServer.HandleAuthorizeRequest(w, r)
+	err = service.Server.HandleAuthorizeRequest(w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -60,7 +60,7 @@ func (service *Routers) Authorize(w http.ResponseWriter, r *http.Request) {
 }
 
 func (service *Routers) Token(w http.ResponseWriter, r *http.Request) {
-	err := service.IServer.HandleTokenRequest(w, r)
+	err := service.Server.HandleTokenRequest(w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

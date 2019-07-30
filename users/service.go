@@ -1,20 +1,20 @@
 package users
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"html/template"
 	"net/http"
 
+	"gopkg.in/oauth2.v3/server"
+
 	"github.com/jinzhu/gorm"
 
 	"github.com/go-chi/chi"
 
-	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/oauth"
-
 	"fmt"
+
+	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 
 	"github.com/aristat/golang-gin-oauth2-example-app/common"
 	"github.com/go-session/session"
@@ -31,7 +31,7 @@ type Service struct {
 	SessionManager *session.Manager
 	DB             *gorm.DB
 	Log            logger.Logger
-	oauth.IServer
+	*server.Server
 }
 
 func Run(router *chi.Mux, service *Service) {
@@ -55,7 +55,7 @@ func (service *Service) GetLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (service *Service) PostLogin(w http.ResponseWriter, r *http.Request) {
-	store, err := service.SessionManager.Start(context.Background(), w, r)
+	store, err := service.SessionManager.Start(r.Context(), w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -90,7 +90,7 @@ func (service *Service) PostLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (service *Service) Auth(w http.ResponseWriter, r *http.Request) {
-	store, err := service.SessionManager.Start(context.Background(), w, r)
+	store, err := service.SessionManager.Start(r.Context(), w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -109,7 +109,7 @@ func (service *Service) Auth(w http.ResponseWriter, r *http.Request) {
 }
 
 func (service *Service) User(w http.ResponseWriter, r *http.Request) {
-	ti, err := service.IServer.ValidationBearerToken(r)
+	ti, err := service.Server.ValidationBearerToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return

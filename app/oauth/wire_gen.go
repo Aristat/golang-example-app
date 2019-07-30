@@ -45,7 +45,7 @@ func Build() (*OAuth, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	sessionConfig, cleanup6, err := session.Cfg(viper)
+	tokenStore, cleanup6, err := TokenStore(oauthConfig)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -54,7 +54,7 @@ func Build() (*OAuth, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	manager, cleanup7, err := session.Provider(context, sessionConfig)
+	sessionConfig, cleanup7, err := session.Cfg(viper)
 	if err != nil {
 		cleanup6()
 		cleanup5()
@@ -64,8 +64,20 @@ func Build() (*OAuth, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oAuth, cleanup8, err := Provider(context, zap, oauthConfig, manager)
+	manager, cleanup8, err := session.Provider(context, sessionConfig)
 	if err != nil {
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	oAuth, cleanup9, err := Provider(context, zap, tokenStore, manager)
+	if err != nil {
+		cleanup8()
 		cleanup7()
 		cleanup6()
 		cleanup5()
@@ -76,8 +88,59 @@ func Build() (*OAuth, func(), error) {
 		return nil, nil, err
 	}
 	return oAuth, func() {
+		cleanup9()
 		cleanup8()
 		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+	}, nil
+}
+
+func BuildTest() (*OAuth, func(), error) {
+	context, cleanup, err := entrypoint.ContextProviderTest()
+	if err != nil {
+		return nil, nil, err
+	}
+	loggerConfig, cleanup2, err := logger.ProviderCfgTest()
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	mock, cleanup3, err := logger.ProviderTest(context, loggerConfig)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	tokenStore, cleanup4, err := TokenStoreTest()
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	manager, cleanup5, err := session.ProviderTest()
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	oAuth, cleanup6, err := Provider(context, mock, tokenStore, manager)
+	if err != nil {
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	return oAuth, func() {
 		cleanup6()
 		cleanup5()
 		cleanup4()

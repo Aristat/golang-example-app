@@ -10,3 +10,7 @@ import (
 func Build() (*Manager, func(), error) {
 	panic(wire.Build(ProviderProductionSet, provider.AwareProductionSet))
 }
+
+func BuildTest() (*Manager, func(), error) {
+	panic(wire.Build(ProviderTestSet, provider.AwareTestSet))
+}

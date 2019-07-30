@@ -32,7 +32,14 @@ func Provider(ctx context.Context, cfg Config) (*Zap, func(), error) {
 
 // ProviderTest returns stub/mock logger instance implemented of Logger interface with resolved dependencies
 func ProviderTest(ctx context.Context, cfg Config) (*Mock, func(), error) {
-	return NewMock(ctx, cfg, true), func() {}, nil
+	mock := NewMock(ctx, cfg, true)
+
+	cleanup := func() {
+		if mock.ch != nil {
+			close(mock.ch)
+		}
+	}
+	return mock, cleanup, nil
 }
 
 var (

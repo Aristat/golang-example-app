@@ -42,3 +42,26 @@ func Build() (Logger, func(), error) {
 		cleanup()
 	}, nil
 }
+
+func BuildTest() (Logger, func(), error) {
+	context, cleanup, err := entrypoint.ContextProviderTest()
+	if err != nil {
+		return nil, nil, err
+	}
+	loggerConfig, cleanup2, err := ProviderCfgTest()
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	mock, cleanup3, err := ProviderTest(context, loggerConfig)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	return mock, func() {
+		cleanup3()
+		cleanup2()
+		cleanup()
+	}, nil
+}
