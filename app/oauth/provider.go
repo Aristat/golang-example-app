@@ -54,7 +54,7 @@ func TokenStoreTest() (oauth2.TokenStore, func(), error) {
 }
 
 // Provider
-func Provider(ctx context.Context, log logger.Logger, tokenStore oauth2.TokenStore, session *session.Manager) (*OAuth, func(), error) {
+func Provider(ctx context.Context, log logger.Logger, tokenStore oauth2.TokenStore, session *session.Manager) (*Manager, func(), error) {
 	g := New(ctx, log, tokenStore, session)
 	return g, func() {}, nil
 }

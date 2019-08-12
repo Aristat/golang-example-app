@@ -3,7 +3,7 @@
 //go:generate wire
 //+build !wireinject
 
-package http
+package users
 
 import (
 	"github.com/aristat/golang-gin-oauth2-example-app/app/config"
@@ -12,12 +12,11 @@ import (
 	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 	"github.com/aristat/golang-gin-oauth2-example-app/app/oauth"
 	"github.com/aristat/golang-gin-oauth2-example-app/app/session"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/users"
 )
 
 // Injectors from injector.go:
 
-func Build() (*Http, func(), error) {
+func Build() (*Manager, func(), error) {
 	context, cleanup, err := entrypoint.ContextProvider()
 	if err != nil {
 		return nil, nil, err
@@ -40,7 +39,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthConfig, cleanup5, err := oauth.Cfg(viper)
+	dbConfig, cleanup5, err := db.Cfg(viper)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -48,7 +47,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	tokenStore, cleanup6, err := oauth.TokenStore(oauthConfig)
+	gormDB, cleanup6, err := db.ProviderGORM(context, zap, dbConfig)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -57,7 +56,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	sessionConfig, cleanup7, err := session.Cfg(viper)
+	manager, cleanup7, err := db.Provider(context, zap, dbConfig, gormDB)
 	if err != nil {
 		cleanup6()
 		cleanup5()
@@ -67,7 +66,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	manager, cleanup8, err := session.Provider(context, sessionConfig)
+	sessionConfig, cleanup8, err := session.Cfg(viper)
 	if err != nil {
 		cleanup7()
 		cleanup6()
@@ -78,7 +77,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthManager, cleanup9, err := oauth.Provider(context, zap, tokenStore, manager)
+	sessionManager, cleanup9, err := session.Provider(context, sessionConfig)
 	if err != nil {
 		cleanup8()
 		cleanup7()
@@ -90,7 +89,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	dbConfig, cleanup10, err := db.Cfg(viper)
+	oauthConfig, cleanup10, err := oauth.Cfg(viper)
 	if err != nil {
 		cleanup9()
 		cleanup8()
@@ -103,7 +102,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	gormDB, cleanup11, err := db.ProviderGORM(context, zap, dbConfig)
+	tokenStore, cleanup11, err := oauth.TokenStore(oauthConfig)
 	if err != nil {
 		cleanup10()
 		cleanup9()
@@ -117,7 +116,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	dbManager, cleanup12, err := db.Provider(context, zap, dbConfig, gormDB)
+	oauthManager, cleanup12, err := oauth.Provider(context, zap, tokenStore, sessionManager)
 	if err != nil {
 		cleanup11()
 		cleanup10()
@@ -132,7 +131,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	usersManager, cleanup13, err := users.Provider(context, zap, dbManager, manager, oauthManager)
+	usersManager, cleanup13, err := Provider(context, zap, manager, sessionManager, oauthManager)
 	if err != nil {
 		cleanup12()
 		cleanup11()
@@ -148,12 +147,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	managers := Managers{
-		session: manager,
-		users:   usersManager,
-	}
-	chiMux, cleanup14, err := Mux(oauthManager, dbManager, managers, zap)
-	if err != nil {
+	return usersManager, func() {
 		cleanup13()
 		cleanup12()
 		cleanup11()
@@ -167,15 +161,84 @@ func Build() (*Http, func(), error) {
 		cleanup3()
 		cleanup2()
 		cleanup()
+	}, nil
+}
+
+func BuildTest() (*Manager, func(), error) {
+	context, cleanup, err := entrypoint.ContextProviderTest()
+	if err != nil {
 		return nil, nil, err
 	}
-	httpConfig, cleanup15, err := Cfg(viper)
+	loggerConfig, cleanup2, err := logger.ProviderCfgTest()
 	if err != nil {
-		cleanup14()
-		cleanup13()
-		cleanup12()
-		cleanup11()
-		cleanup10()
+		cleanup()
+		return nil, nil, err
+	}
+	mock, cleanup3, err := logger.ProviderTest(context, loggerConfig)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	dbConfig, cleanup4, err := db.CfgTest()
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	gormDB, cleanup5, err := db.ProviderGORMTest()
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	manager, cleanup6, err := db.Provider(context, mock, dbConfig, gormDB)
+	if err != nil {
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	sessionManager, cleanup7, err := session.ProviderTest()
+	if err != nil {
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	tokenStore, cleanup8, err := oauth.TokenStoreTest()
+	if err != nil {
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	oauthManager, cleanup9, err := oauth.Provider(context, mock, tokenStore, sessionManager)
+	if err != nil {
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	usersManager, cleanup10, err := Provider(context, mock, manager, sessionManager, oauthManager)
+	if err != nil {
 		cleanup9()
 		cleanup8()
 		cleanup7()
@@ -187,32 +250,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	http, cleanup16, err := Provider(context, chiMux, zap, httpConfig, oauthManager, managers)
-	if err != nil {
-		cleanup15()
-		cleanup14()
-		cleanup13()
-		cleanup12()
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	return http, func() {
-		cleanup16()
-		cleanup15()
-		cleanup14()
-		cleanup13()
-		cleanup12()
-		cleanup11()
+	return usersManager, func() {
 		cleanup10()
 		cleanup9()
 		cleanup8()

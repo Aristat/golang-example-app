@@ -14,7 +14,7 @@ import (
 
 // Injectors from injector.go:
 
-func Build() (*OAuth, func(), error) {
+func Build() (*Manager, func(), error) {
 	context, cleanup, err := entrypoint.ContextProvider()
 	if err != nil {
 		return nil, nil, err
@@ -75,7 +75,7 @@ func Build() (*OAuth, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oAuth, cleanup9, err := Provider(context, zap, tokenStore, manager)
+	oauthManager, cleanup9, err := Provider(context, zap, tokenStore, manager)
 	if err != nil {
 		cleanup8()
 		cleanup7()
@@ -87,7 +87,7 @@ func Build() (*OAuth, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	return oAuth, func() {
+	return oauthManager, func() {
 		cleanup9()
 		cleanup8()
 		cleanup7()
@@ -100,7 +100,7 @@ func Build() (*OAuth, func(), error) {
 	}, nil
 }
 
-func BuildTest() (*OAuth, func(), error) {
+func BuildTest() (*Manager, func(), error) {
 	context, cleanup, err := entrypoint.ContextProviderTest()
 	if err != nil {
 		return nil, nil, err
@@ -131,7 +131,7 @@ func BuildTest() (*OAuth, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oAuth, cleanup6, err := Provider(context, mock, tokenStore, manager)
+	oauthManager, cleanup6, err := Provider(context, mock, tokenStore, manager)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -140,7 +140,7 @@ func BuildTest() (*OAuth, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	return oAuth, func() {
+	return oauthManager, func() {
 		cleanup6()
 		cleanup5()
 		cleanup4()

@@ -25,7 +25,7 @@ type Config struct {
 type Http struct {
 	ctx     context.Context
 	cfg     Config
-	oauth   *oauth.OAuth
+	oauth   *oauth.Manager
 	session *session.Manager
 	log     logger.Logger
 	mux     *chi.Mux
@@ -65,12 +65,12 @@ func (m *Http) ListenAndServe(bind ...string) (err error) {
 }
 
 // New
-func New(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config, oauth *oauth.OAuth, session *session.Manager) *Http {
+func New(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config, oauth *oauth.Manager, managers Managers) *Http {
 	return &Http{
 		ctx:     ctx,
 		cfg:     cfg,
 		oauth:   oauth,
-		session: session,
+		session: managers.session,
 		mux:     mux,
 		log:     log.WithFields(logger.Fields{"service": prefix}),
 	}

@@ -14,17 +14,17 @@ import (
 const prefix = "app.oauth"
 
 // OAuth
-type OAuth struct {
-	ctx          context.Context
-	Logger       logger.Logger
-	OauthService *Routers
+type Manager struct {
+	ctx    context.Context
+	Logger logger.Logger
+	Router *Router
 }
 
 var ClientsConfig = map[string]oauth2.ClientInfo{
 	"123456": &models.Client{
 		ID:     "123456",
 		Secret: "12345678",
-		Domain: "http://127.0.0.1:8090",
+		Domain: "http://localhost:9094",
 	},
 }
 
@@ -38,22 +38,23 @@ func NewClientStore(config map[string]oauth2.ClientInfo) *store.ClientStore {
 }
 
 // New
-func New(ctx context.Context, log logger.Logger, tokenStore oauth2.TokenStore, session *session.Manager) *OAuth {
-	oauth2Service := &Service{
+func New(ctx context.Context, log logger.Logger, tokenStore oauth2.TokenStore, session *session.Manager) *Manager {
+	service := &Service{
 		TokenStore:     tokenStore,
 		ClientStore:    NewClientStore(ClientsConfig),
 		SessionManager: session,
 	}
 
-	oauthServer := NewOauthServer(oauth2Service, log)
-	authService := &Routers{
-		Server:        oauthServer,
-		OauthService2: oauth2Service,
+	server := NewServer(service, log)
+	router := &Router{
+		ctx:     ctx,
+		Server:  server,
+		Service: service,
 	}
 
-	return &OAuth{
-		ctx:          ctx,
-		Logger:       log.WithFields(logger.Fields{"service": prefix}),
-		OauthService: authService,
+	return &Manager{
+		ctx:    ctx,
+		Logger: log.WithFields(logger.Fields{"service": prefix}),
+		Router: router,
 	}
 }

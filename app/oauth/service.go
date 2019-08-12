@@ -28,7 +28,10 @@ func userAuthorization(service *Service) func(w http.ResponseWriter, r *http.Req
 			}
 
 			sessionStore.Set("ReturnUri", r.Form.Encode())
-			sessionStore.Save()
+			err = sessionStore.Save()
+			if err != nil {
+				return
+			}
 
 			w.Header().Set("Location", "/login")
 			w.WriteHeader(http.StatusFound)
@@ -38,7 +41,10 @@ func userAuthorization(service *Service) func(w http.ResponseWriter, r *http.Req
 
 		// Authorization for receiving a token
 		sessionStore.Delete("LoggedInUserID")
-		sessionStore.Save()
+		err = sessionStore.Save()
+		if err != nil {
+			return
+		}
 
 		return
 	}

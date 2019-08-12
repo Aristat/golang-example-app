@@ -4,7 +4,7 @@ require (
 	cloud.google.com/go v0.41.0 // indirect
 	github.com/Selvatico/go-mocket v1.0.7 // indirect
 	github.com/ajg/form v0.0.0-20160822230020-523a5da1a92f // indirect
-	github.com/carlescere/goback v0.0.0-20150314180917-ebe10501f4c4
+	github.com/carlescere/goback v0.0.0-20150314180917-ebe10501f4c4 // indirect
 	github.com/denisenkom/go-mssqldb v0.0.0-20190710001350-29e7b2419f38 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/gavv/httpexpect v0.0.0-20180803094507-bdde30871313

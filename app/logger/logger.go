@@ -127,5 +127,4 @@ type Logger interface {
 	Log(level Level, format string, opts ...Option)
 	// WithFields create new instance with fields
 	WithFields(fields Fields) Logger
-	Catch() <-chan Entity
 }

@@ -129,11 +129,6 @@ func (z *Zap) WithFields(fields Fields) Logger {
 	return nz
 }
 
-// Catch returns channel of entity structure for testing event content
-func (z *Zap) Catch() <-chan Entity {
-	return nil
-}
-
 func copyZap(dst, src *Zap, fields map[string]interface{}) {
 	var cFields = map[string]interface{}{}
 	// fields

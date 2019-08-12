@@ -9,10 +9,10 @@ import (
 )
 
 // Build
-func Build() (*OAuth, func(), error) {
+func Build() (*Manager, func(), error) {
 	panic(wire.Build(ProviderProductionSet, session.ProviderProductionSet, provider.AwareProductionSet))
 }
 
-func BuildTest() (*OAuth, func(), error) {
+func BuildTest() (*Manager, func(), error) {
 	panic(wire.Build(ProviderTestSet, session.ProviderTestSet, provider.AwareTestSet))
 }
