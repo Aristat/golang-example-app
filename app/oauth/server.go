@@ -3,6 +3,10 @@ package oauth
 import (
 	"time"
 
+	"gopkg.in/oauth2.v3/store"
+
+	"gopkg.in/oauth2.v3"
+
 	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 
 	"gopkg.in/oauth2.v3/errors"
@@ -10,7 +14,7 @@ import (
 	"gopkg.in/oauth2.v3/server"
 )
 
-func NewServer(oauth2Service *Service, log logger.Logger) *server.Server {
+func NewServer(log logger.Logger, tokenStore oauth2.TokenStore, clientStore *store.ClientStore) *server.Server {
 	manager := manage.NewDefaultManager()
 	manager.SetAuthorizeCodeTokenCfg(
 		&manage.Config{
@@ -20,11 +24,10 @@ func NewServer(oauth2Service *Service, log logger.Logger) *server.Server {
 		},
 	)
 
-	manager.MapTokenStorage(oauth2Service.TokenStore)
-	manager.MapClientStorage(oauth2Service.ClientStore)
+	manager.MapTokenStorage(tokenStore)
+	manager.MapClientStorage(clientStore)
 
 	s := server.NewDefaultServer(manager)
-	s.UserAuthorizationHandler = userAuthorization(oauth2Service)
 
 	s.SetInternalErrorHandler(func(err error) (re *errors.Response) {
 		log.Error("Internal Error: %s", logger.Args(err.Error()))

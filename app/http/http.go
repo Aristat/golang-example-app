@@ -65,11 +65,11 @@ func (m *Http) ListenAndServe(bind ...string) (err error) {
 }
 
 // New
-func New(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config, oauth *oauth.Manager, managers Managers) *Http {
+func New(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config, managers Managers) *Http {
 	return &Http{
 		ctx:     ctx,
 		cfg:     cfg,
-		oauth:   oauth,
+		oauth:   managers.oauth,
 		session: managers.session,
 		mux:     mux,
 		log:     log.WithFields(logger.Fields{"service": prefix}),

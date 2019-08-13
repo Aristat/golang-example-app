@@ -3,12 +3,11 @@ package oauth
 import (
 	"context"
 
-	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
-	"github.com/go-oauth2/oauth2/models"
+	"gopkg.in/oauth2.v3/store"
 
+	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
 	"github.com/go-session/session"
 	"gopkg.in/oauth2.v3"
-	"gopkg.in/oauth2.v3/store"
 )
 
 const prefix = "app.oauth"
@@ -20,41 +19,21 @@ type Manager struct {
 	Router *Router
 }
 
-var ClientsConfig = map[string]oauth2.ClientInfo{
-	"123456": &models.Client{
-		ID:     "123456",
-		Secret: "12345678",
-		Domain: "http://localhost:9094",
-	},
-}
-
-func NewClientStore(config map[string]oauth2.ClientInfo) *store.ClientStore {
-	clientStore := store.NewClientStore()
-	for key, value := range config {
-		clientStore.Set(key, value)
-	}
-
-	return clientStore
-}
-
 // New
-func New(ctx context.Context, log logger.Logger, tokenStore oauth2.TokenStore, session *session.Manager) *Manager {
-	service := &Service{
-		TokenStore:     tokenStore,
-		ClientStore:    NewClientStore(ClientsConfig),
+func New(ctx context.Context, log logger.Logger, tokenStore oauth2.TokenStore, session *session.Manager, clientStore *store.ClientStore) *Manager {
+	log = log.WithFields(logger.Fields{"service": prefix})
+
+	server := NewServer(log, tokenStore, clientStore)
+	router := &Router{
+		ctx:            ctx,
+		Server:         server,
 		SessionManager: session,
 	}
-
-	server := NewServer(service, log)
-	router := &Router{
-		ctx:     ctx,
-		Server:  server,
-		Service: service,
-	}
+	router.Server.UserAuthorizationHandler = userAuthorization(router)
 
 	return &Manager{
 		ctx:    ctx,
-		Logger: log.WithFields(logger.Fields{"service": prefix}),
+		Logger: log,
 		Router: router,
 	}
 }

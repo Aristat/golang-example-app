@@ -116,7 +116,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthManager, cleanup12, err := oauth.Provider(context, zap, tokenStore, sessionManager)
+	clientStore, cleanup12, err := oauth.ClientStore()
 	if err != nil {
 		cleanup11()
 		cleanup10()
@@ -131,7 +131,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	usersManager, cleanup13, err := Provider(context, zap, manager, sessionManager, oauthManager)
+	oauthManager, cleanup13, err := oauth.Provider(context, zap, tokenStore, sessionManager, clientStore)
 	if err != nil {
 		cleanup12()
 		cleanup11()
@@ -147,7 +147,25 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	usersManager, cleanup14, err := Provider(context, zap, manager, sessionManager, oauthManager)
+	if err != nil {
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return usersManager, func() {
+		cleanup14()
 		cleanup13()
 		cleanup12()
 		cleanup11()
@@ -225,7 +243,7 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthManager, cleanup9, err := oauth.Provider(context, mock, tokenStore, sessionManager)
+	clientStore, cleanup9, err := oauth.ClientStoreTest()
 	if err != nil {
 		cleanup8()
 		cleanup7()
@@ -237,7 +255,7 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	usersManager, cleanup10, err := Provider(context, mock, manager, sessionManager, oauthManager)
+	oauthManager, cleanup10, err := oauth.Provider(context, mock, tokenStore, sessionManager, clientStore)
 	if err != nil {
 		cleanup9()
 		cleanup8()
@@ -250,7 +268,22 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	usersManager, cleanup11, err := Provider(context, mock, manager, sessionManager, oauthManager)
+	if err != nil {
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return usersManager, func() {
+		cleanup11()
 		cleanup10()
 		cleanup9()
 		cleanup8()

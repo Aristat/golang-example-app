@@ -75,7 +75,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthManager, cleanup9, err := Provider(context, zap, tokenStore, manager)
+	clientStore, cleanup9, err := ClientStore()
 	if err != nil {
 		cleanup8()
 		cleanup7()
@@ -87,7 +87,21 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	oauthManager, cleanup10, err := Provider(context, zap, tokenStore, manager, clientStore)
+	if err != nil {
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return oauthManager, func() {
+		cleanup10()
 		cleanup9()
 		cleanup8()
 		cleanup7()
@@ -131,7 +145,7 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthManager, cleanup6, err := Provider(context, mock, tokenStore, manager)
+	clientStore, cleanup6, err := ClientStoreTest()
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -140,7 +154,18 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	oauthManager, cleanup7, err := Provider(context, mock, tokenStore, manager, clientStore)
+	if err != nil {
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return oauthManager, func() {
+		cleanup7()
 		cleanup6()
 		cleanup5()
 		cleanup4()

@@ -3,6 +3,8 @@ package oauth
 import (
 	"context"
 
+	"github.com/go-oauth2/oauth2/models"
+
 	"gopkg.in/oauth2.v3/store"
 
 	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
@@ -53,13 +55,52 @@ func TokenStoreTest() (oauth2.TokenStore, func(), error) {
 	return tokenStore, func() {}, err
 }
 
+func ClientStore() (*store.ClientStore, func(), error) {
+	clientsConfig := map[string]oauth2.ClientInfo{
+		"123456": &models.Client{
+			ID:     "123456",
+			Secret: "12345678",
+			Domain: "http://localhost:9094",
+		},
+	}
+
+	clientStore, err := NewClientStore(clientsConfig)
+	return clientStore, func() {}, err
+}
+
+func ClientStoreTest() (*store.ClientStore, func(), error) {
+	clientsConfig := map[string]oauth2.ClientInfo{
+		"123456": &models.Client{
+			ID:     "123456",
+			Secret: "12345678",
+			Domain: "http://127.0.0.1:8090",
+		},
+	}
+
+	clientStore, err := NewClientStore(clientsConfig)
+	return clientStore, func() {}, err
+}
+
+func NewClientStore(config map[string]oauth2.ClientInfo) (*store.ClientStore, error) {
+	clientStore := store.NewClientStore()
+	for key, value := range config {
+		err := clientStore.Set(key, value)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return clientStore, nil
+}
+
 // Provider
-func Provider(ctx context.Context, log logger.Logger, tokenStore oauth2.TokenStore, session *session.Manager) (*Manager, func(), error) {
-	g := New(ctx, log, tokenStore, session)
+func Provider(ctx context.Context, log logger.Logger, tokenStore oauth2.TokenStore, session *session.Manager, clientStore *store.ClientStore) (*Manager, func(), error) {
+	g := New(ctx, log, tokenStore, session, clientStore)
 	return g, func() {}, nil
 }
 
 var (
-	ProviderProductionSet = wire.NewSet(Provider, Cfg, TokenStore)
-	ProviderTestSet       = wire.NewSet(Provider, CfgTest, TokenStoreTest)
+	ProviderProductionSet = wire.NewSet(Provider, Cfg, TokenStore, ClientStore)
+	ProviderTestSet       = wire.NewSet(Provider, CfgTest, TokenStoreTest, ClientStoreTest)
 )

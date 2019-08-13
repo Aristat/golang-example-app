@@ -40,7 +40,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthConfig, cleanup5, err := oauth.Cfg(viper)
+	dbConfig, cleanup5, err := db.Cfg(viper)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -48,7 +48,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	tokenStore, cleanup6, err := oauth.TokenStore(oauthConfig)
+	gormDB, cleanup6, err := db.ProviderGORM(context, zap, dbConfig)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -57,7 +57,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	sessionConfig, cleanup7, err := session.Cfg(viper)
+	manager, cleanup7, err := db.Provider(context, zap, dbConfig, gormDB)
 	if err != nil {
 		cleanup6()
 		cleanup5()
@@ -67,7 +67,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	manager, cleanup8, err := session.Provider(context, sessionConfig)
+	sessionConfig, cleanup8, err := session.Cfg(viper)
 	if err != nil {
 		cleanup7()
 		cleanup6()
@@ -78,7 +78,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthManager, cleanup9, err := oauth.Provider(context, zap, tokenStore, manager)
+	sessionManager, cleanup9, err := session.Provider(context, sessionConfig)
 	if err != nil {
 		cleanup8()
 		cleanup7()
@@ -90,7 +90,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	dbConfig, cleanup10, err := db.Cfg(viper)
+	oauthConfig, cleanup10, err := oauth.Cfg(viper)
 	if err != nil {
 		cleanup9()
 		cleanup8()
@@ -103,7 +103,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	gormDB, cleanup11, err := db.ProviderGORM(context, zap, dbConfig)
+	tokenStore, cleanup11, err := oauth.TokenStore(oauthConfig)
 	if err != nil {
 		cleanup10()
 		cleanup9()
@@ -117,7 +117,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	dbManager, cleanup12, err := db.Provider(context, zap, dbConfig, gormDB)
+	clientStore, cleanup12, err := oauth.ClientStore()
 	if err != nil {
 		cleanup11()
 		cleanup10()
@@ -132,7 +132,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	usersManager, cleanup13, err := users.Provider(context, zap, dbManager, manager, oauthManager)
+	oauthManager, cleanup13, err := oauth.Provider(context, zap, tokenStore, sessionManager, clientStore)
 	if err != nil {
 		cleanup12()
 		cleanup11()
@@ -148,11 +148,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	managers := Managers{
-		session: manager,
-		users:   usersManager,
-	}
-	chiMux, cleanup14, err := Mux(oauthManager, dbManager, managers, zap)
+	usersManager, cleanup14, err := users.Provider(context, zap, manager, sessionManager, oauthManager)
 	if err != nil {
 		cleanup13()
 		cleanup12()
@@ -169,7 +165,12 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	httpConfig, cleanup15, err := Cfg(viper)
+	managers := Managers{
+		session: sessionManager,
+		users:   usersManager,
+		oauth:   oauthManager,
+	}
+	chiMux, cleanup15, err := Mux(manager, managers, zap)
 	if err != nil {
 		cleanup14()
 		cleanup13()
@@ -187,7 +188,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	http, cleanup16, err := Provider(context, chiMux, zap, httpConfig, oauthManager, managers)
+	httpConfig, cleanup16, err := Cfg(viper)
 	if err != nil {
 		cleanup15()
 		cleanup14()
@@ -206,7 +207,28 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	http, cleanup17, err := Provider(context, chiMux, zap, httpConfig, managers)
+	if err != nil {
+		cleanup16()
+		cleanup15()
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return http, func() {
+		cleanup17()
 		cleanup16()
 		cleanup15()
 		cleanup14()

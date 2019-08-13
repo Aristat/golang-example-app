@@ -36,7 +36,7 @@ func CfgTest() (Config, func(), error) {
 }
 
 // Mux
-func Mux(oauth *oauth.Manager, db *db.Manager, managers Managers, log logger.Logger) (*chi.Mux, func(), error) {
+func Mux(db *db.Manager, managers Managers, log logger.Logger) (*chi.Mux, func(), error) {
 	if mux != nil {
 		return mux, func() {}, nil
 	}
@@ -46,7 +46,7 @@ func Mux(oauth *oauth.Manager, db *db.Manager, managers Managers, log logger.Log
 	mux.Use(Logger(log))
 
 	managers.users.Router.Run(mux)
-	oauth.Router.Run(mux)
+	managers.oauth.Router.Run(mux)
 
 	return mux, func() {}, nil
 }
@@ -55,6 +55,7 @@ func Mux(oauth *oauth.Manager, db *db.Manager, managers Managers, log logger.Log
 type Managers struct {
 	session *session.Manager
 	users   *users.Manager
+	oauth   *oauth.Manager
 }
 
 var ProviderManagers = wire.NewSet(
@@ -62,8 +63,8 @@ var ProviderManagers = wire.NewSet(
 )
 
 // Provider
-func Provider(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config, oauth *oauth.Manager, managers Managers) (*Http, func(), error) {
-	g := New(ctx, mux, log, cfg, oauth, managers)
+func Provider(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config, managers Managers) (*Http, func(), error) {
+	g := New(ctx, mux, log, cfg, managers)
 	return g, func() {}, nil
 }
 

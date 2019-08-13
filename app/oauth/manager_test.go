@@ -25,12 +25,12 @@ var (
 )
 
 var requestTests = []struct {
-	init             func(s *oauth.Service)
+	init             func(s *oauth.Router)
 	authorizeRequest func(e *httpexpect.Expect)
 	tokenRequest     func(e *httpexpect.Expect, code string) *httpexpect.Object
 }{
 	{
-		func(service *oauth.Service) {},
+		func(router *oauth.Router) {},
 		func(e *httpexpect.Expect) {
 			e.GET("/authorize").
 				WithQuery("response_type", "code").
@@ -53,7 +53,7 @@ var requestTests = []struct {
 		},
 	},
 	{
-		func(service *oauth.Service) {},
+		func(router *oauth.Router) {},
 		func(e *httpexpect.Expect) {
 			e.GET("/authorize").
 				WithQuery("response_type", "code").
@@ -77,14 +77,14 @@ var requestTests = []struct {
 		},
 	},
 	{
-		func(service *oauth.Service) {},
+		func(router *oauth.Router) {},
 		func(e *httpexpect.Expect) {
 			e.GET("/authorize").Expect().Status(http.StatusBadRequest)
 		},
 		func(e *httpexpect.Expect, code string) *httpexpect.Object { return nil },
 	},
 	{
-		func(service *oauth.Service) {
+		func(router *oauth.Router) {
 			memoryStore := &oauth.MemoryStore{}
 
 			memoryStore.CheckFn = func(ctx context.Context, sid string) (bool, error) {
@@ -95,7 +95,7 @@ var requestTests = []struct {
 				return nil, errors.New("don't create store")
 			}
 
-			service.SessionManager = session.NewManager(
+			router.SessionManager = session.NewManager(
 				session.SetStore(memoryStore),
 			)
 		},
@@ -111,7 +111,7 @@ var requestTests = []struct {
 		func(e *httpexpect.Expect, code string) *httpexpect.Object { return nil },
 	},
 	{
-		func(service *oauth.Service) {
+		func(router *oauth.Router) {
 			store := &oauth.KeyValueStore{}
 			store.GetFn = func(key string) (interface{}, bool) {
 				return nil, false
@@ -137,10 +137,10 @@ var requestTests = []struct {
 				return store, nil
 			}
 
-			ssesionManager := session.NewManager(
+			sessionManager := session.NewManager(
 				session.SetStore(memoryStore),
 			)
-			service.SessionManager = ssesionManager
+			router.SessionManager = sessionManager
 		},
 		func(e *httpexpect.Expect) {
 			e.GET("/authorize").
@@ -190,7 +190,7 @@ func TestNew(t *testing.T) {
 	}()
 
 	for _, testData := range requestTests {
-		testData.init(manager.Router.Service)
+		testData.init(manager.Router)
 		clientSrv = httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			switch r.URL.Path {
 			case "/oauth2":
