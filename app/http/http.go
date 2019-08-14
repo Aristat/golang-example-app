@@ -44,8 +44,6 @@ func (m *Http) ListenAndServe(bind ...string) (err error) {
 		Handler: m.mux,
 	}
 
-	m.log.Debug("start: %s listen and serve http at %v", logger.Args("qwe", bindAddress))
-
 	go func() {
 		<-m.ctx.Done()
 		m.log.Info("context cancelled, shutdown is raised")
