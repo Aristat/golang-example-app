@@ -1,5 +1,6 @@
 # Golang Gin OAuth2 Example
 
+## NOTE! [Deprecated version](https://github.com/Aristat/golang-oauth2-example-app/tree/gin-example)
 > ### Golang/Gin/Oauth2 codebase containing examples
 
 # How it works
