@@ -16,7 +16,7 @@ define build_resources
 endef
 
 init:
-	mkdir -p generated artifacts ;\
+	mkdir -p artifacts ;\
     rm -rf artifacts/*
 
 vendor:
