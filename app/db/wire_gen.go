@@ -6,9 +6,9 @@
 package db
 
 import (
-	"github.com/aristat/golang-gin-oauth2-example-app/app/config"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/entrypoint"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
+	"github.com/aristat/golang-oauth2-example-app/app/config"
+	"github.com/aristat/golang-oauth2-example-app/app/entrypoint"
+	"github.com/aristat/golang-oauth2-example-app/app/logger"
 )
 
 import (

@@ -9,12 +9,12 @@ import (
 
 	"github.com/jinzhu/gorm"
 
-	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
+	"github.com/aristat/golang-oauth2-example-app/app/logger"
 	"gopkg.in/oauth2.v3/server"
 
 	"github.com/go-session/session"
 
-	"github.com/aristat/golang-gin-oauth2-example-app/common"
+	"github.com/aristat/golang-oauth2-example-app/common"
 	"github.com/go-chi/chi"
 )
 
@@ -25,6 +25,7 @@ type Router struct {
 	logger         logger.Logger
 	db             *gorm.DB
 	server         *server.Server
+	repo           *Repo
 }
 
 func (router *Router) Run(chiRouter *chi.Mux) {
@@ -58,7 +59,7 @@ func (service *Router) PostLogin(w http.ResponseWriter, r *http.Request) {
 	email := r.Form.Get("email")
 	password := r.Form.Get("password")
 
-	currentUser, err := FindByEmail(service.db, email)
+	currentUser, err := service.repo.Users.FindByEmail(email)
 	if err != nil {
 		service.template.ExecuteTemplate(w, "users/login", H{"errors": []string{userNotFound.Error()}})
 		return

@@ -6,12 +6,13 @@
 package users
 
 import (
-	"github.com/aristat/golang-gin-oauth2-example-app/app/config"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/db"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/entrypoint"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/oauth"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/session"
+	"github.com/aristat/golang-oauth2-example-app/app/config"
+	"github.com/aristat/golang-oauth2-example-app/app/db"
+	"github.com/aristat/golang-oauth2-example-app/app/db/repo"
+	"github.com/aristat/golang-oauth2-example-app/app/entrypoint"
+	"github.com/aristat/golang-oauth2-example-app/app/logger"
+	"github.com/aristat/golang-oauth2-example-app/app/oauth"
+	"github.com/aristat/golang-oauth2-example-app/app/session"
 )
 
 // Injectors from injector.go:
@@ -39,7 +40,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	dbConfig, cleanup5, err := db.Cfg(viper)
+	sessionConfig, cleanup5, err := session.Cfg(viper)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -47,7 +48,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	gormDB, cleanup6, err := db.ProviderGORM(context, zap, dbConfig)
+	manager, cleanup6, err := session.Provider(context, sessionConfig)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -56,7 +57,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	manager, cleanup7, err := db.Provider(context, zap, dbConfig, gormDB)
+	dbConfig, cleanup7, err := db.Cfg(viper)
 	if err != nil {
 		cleanup6()
 		cleanup5()
@@ -66,7 +67,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	sessionConfig, cleanup8, err := session.Cfg(viper)
+	gormDB, cleanup8, err := db.ProviderGORM(context, zap, dbConfig)
 	if err != nil {
 		cleanup7()
 		cleanup6()
@@ -77,7 +78,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	sessionManager, cleanup9, err := session.Provider(context, sessionConfig)
+	dbManager, cleanup9, err := db.Provider(context, zap, dbConfig, gormDB)
 	if err != nil {
 		cleanup8()
 		cleanup7()
@@ -131,7 +132,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthManager, cleanup13, err := oauth.Provider(context, zap, tokenStore, sessionManager, clientStore)
+	oauthManager, cleanup13, err := oauth.Provider(context, zap, tokenStore, manager, clientStore)
 	if err != nil {
 		cleanup12()
 		cleanup11()
@@ -147,7 +148,12 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	usersManager, cleanup14, err := Provider(context, zap, manager, sessionManager, oauthManager)
+	managers := Managers{
+		session: manager,
+		db:      dbManager,
+		oauth:   oauthManager,
+	}
+	usersRepo, cleanup14, err := repo.NewAuthorsRepo(gormDB)
 	if err != nil {
 		cleanup13()
 		cleanup12()
@@ -164,7 +170,29 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	repo2 := &Repo{
+		Users: usersRepo,
+	}
+	usersManager, cleanup15, err := Provider(context, zap, managers, repo2)
+	if err != nil {
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return usersManager, func() {
+		cleanup15()
 		cleanup14()
 		cleanup13()
 		cleanup12()
@@ -198,14 +226,14 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	dbConfig, cleanup4, err := db.CfgTest()
+	manager, cleanup4, err := session.ProviderTest()
 	if err != nil {
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	gormDB, cleanup5, err := db.ProviderGORMTest()
+	dbConfig, cleanup5, err := db.CfgTest()
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -213,7 +241,7 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	manager, cleanup6, err := db.Provider(context, mock, dbConfig, gormDB)
+	gormDB, cleanup6, err := db.ProviderGORMTest()
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -222,7 +250,7 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	sessionManager, cleanup7, err := session.ProviderTest()
+	dbManager, cleanup7, err := db.Provider(context, mock, dbConfig, gormDB)
 	if err != nil {
 		cleanup6()
 		cleanup5()
@@ -255,7 +283,7 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthManager, cleanup10, err := oauth.Provider(context, mock, tokenStore, sessionManager, clientStore)
+	oauthManager, cleanup10, err := oauth.Provider(context, mock, tokenStore, manager, clientStore)
 	if err != nil {
 		cleanup9()
 		cleanup8()
@@ -268,7 +296,12 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	usersManager, cleanup11, err := Provider(context, mock, manager, sessionManager, oauthManager)
+	managers := Managers{
+		session: manager,
+		db:      dbManager,
+		oauth:   oauthManager,
+	}
+	usersRepo, cleanup11, err := repo.NewAuthorsRepo(gormDB)
 	if err != nil {
 		cleanup10()
 		cleanup9()
@@ -282,7 +315,26 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	repo2 := &Repo{
+		Users: usersRepo,
+	}
+	usersManager, cleanup12, err := Provider(context, mock, managers, repo2)
+	if err != nil {
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return usersManager, func() {
+		cleanup12()
 		cleanup11()
 		cleanup10()
 		cleanup9()

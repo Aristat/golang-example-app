@@ -3,7 +3,7 @@
 package session
 
 import (
-	"github.com/aristat/golang-gin-oauth2-example-app/app/provider"
+	"github.com/aristat/golang-oauth2-example-app/app/provider"
 	"github.com/go-session/session"
 	"github.com/google/wire"
 )

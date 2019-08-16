@@ -6,13 +6,14 @@
 package http
 
 import (
-	"github.com/aristat/golang-gin-oauth2-example-app/app/config"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/db"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/entrypoint"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/oauth"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/session"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/users"
+	"github.com/aristat/golang-oauth2-example-app/app/config"
+	"github.com/aristat/golang-oauth2-example-app/app/db"
+	"github.com/aristat/golang-oauth2-example-app/app/db/repo"
+	"github.com/aristat/golang-oauth2-example-app/app/entrypoint"
+	"github.com/aristat/golang-oauth2-example-app/app/logger"
+	"github.com/aristat/golang-oauth2-example-app/app/oauth"
+	"github.com/aristat/golang-oauth2-example-app/app/session"
+	"github.com/aristat/golang-oauth2-example-app/app/users"
 )
 
 // Injectors from injector.go:
@@ -148,7 +149,12 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	usersManager, cleanup14, err := users.Provider(context, zap, manager, sessionManager, oauthManager)
+	managers := users.Managers{
+		session: sessionManager,
+		db:      manager,
+		oauth:   oauthManager,
+	}
+	usersRepo, cleanup14, err := repo.NewAuthorsRepo(gormDB)
 	if err != nil {
 		cleanup13()
 		cleanup12()
@@ -165,12 +171,10 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	managers := Managers{
-		session: sessionManager,
-		users:   usersManager,
-		oauth:   oauthManager,
+	repo2 := &users.Repo{
+		Users: usersRepo,
 	}
-	chiMux, cleanup15, err := Mux(manager, managers, zap)
+	usersManager, cleanup15, err := users.Provider(context, zap, managers, repo2)
 	if err != nil {
 		cleanup14()
 		cleanup13()
@@ -188,7 +192,12 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	httpConfig, cleanup16, err := Cfg(viper)
+	httpManagers := Managers{
+		session: sessionManager,
+		users:   usersManager,
+		oauth:   oauthManager,
+	}
+	chiMux, cleanup16, err := Mux(manager, httpManagers, zap)
 	if err != nil {
 		cleanup15()
 		cleanup14()
@@ -207,7 +216,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	http, cleanup17, err := Provider(context, chiMux, zap, httpConfig, managers)
+	httpConfig, cleanup17, err := Cfg(viper)
 	if err != nil {
 		cleanup16()
 		cleanup15()
@@ -227,7 +236,29 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	http, cleanup18, err := Provider(context, chiMux, zap, httpConfig, httpManagers)
+	if err != nil {
+		cleanup17()
+		cleanup16()
+		cleanup15()
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return http, func() {
+		cleanup18()
 		cleanup17()
 		cleanup16()
 		cleanup15()

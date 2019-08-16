@@ -15,16 +15,16 @@ define build_resources
  	find "$(GO_DIR)/resources" -maxdepth 1 -mindepth 1 -exec cp -R -f {} $(GO_DIR)/artifacts/${1} \;
 endef
 
-init:
+init: ## init packages
 	mkdir -p artifacts ;\
     rm -rf artifacts/*
 
-vendor:
+vendor: ## generate vendor
 	rm -rf $(GO_DIR)/vendor ;\
 	GO111MODULE=on \
 	go mod vendor
 
-build: init
+build: init ## build binary file
 	$(call build_resources) ;\
 	GO111MODULE=on GOOS=${GOOS} CGO_ENABLED=${CGO_ENABLED} GOARCH=${GOARCH} \
 	go build -mod vendor -ldflags "-X $(GO_PKG)/cmd/version.appVersion=$(TAG)-$$(date -u +%Y%m%d%H%M)" -o "$(GO_DIR)/artifacts/bin" main.go
@@ -37,12 +37,17 @@ test: ## test application with race
 	GO111MODULE=on \
 	go test -mod vendor  -race -v ./...
 
-coverage:
+coverage: ## test coverage
 	go test -coverprofile=coverage.out ./...
 	go tool cover -html coverage.out
 
-createdb:
+createdb: ## create database
 	createdb $(DATABASE_URL)
 
-dropdb:
+dropdb: ## drop database
 	dropdb $(DATABASE_URL)
+
+help:
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+.DEFAULT_GOAL := help

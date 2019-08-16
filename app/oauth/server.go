@@ -7,7 +7,7 @@ import (
 
 	"gopkg.in/oauth2.v3"
 
-	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
+	"github.com/aristat/golang-oauth2-example-app/app/logger"
 
 	"gopkg.in/oauth2.v3/errors"
 	"gopkg.in/oauth2.v3/manage"

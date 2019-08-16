@@ -5,12 +5,7 @@ import (
 	"errors"
 	"html/template"
 
-	"github.com/aristat/golang-gin-oauth2-example-app/app/db"
-
-	"github.com/aristat/golang-gin-oauth2-example-app/app/oauth"
-
-	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
-	"github.com/go-session/session"
+	"github.com/aristat/golang-oauth2-example-app/app/logger"
 )
 
 var (
@@ -28,17 +23,18 @@ type Manager struct {
 	Router *Router
 }
 
-func New(ctx context.Context, log logger.Logger, db *db.Manager, session *session.Manager, oauth *oauth.Manager) *Manager {
+func New(ctx context.Context, log logger.Logger, managers Managers, repo *Repo) *Manager {
 	tmp := template.Must(template.New("").ParseGlob("templates/**/*"))
 	log = log.WithFields(logger.Fields{"service": prefix})
 
 	router := &Router{
 		ctx:            ctx,
-		sessionManager: session,
+		sessionManager: managers.session,
 		template:       tmp,
 		logger:         log,
-		db:             db.DB,
-		server:         oauth.Router.Server,
+		db:             managers.db.DB,
+		server:         managers.oauth.Router.Server,
+		repo:           repo,
 	}
 
 	return &Manager{

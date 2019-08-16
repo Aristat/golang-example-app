@@ -12,14 +12,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/aristat/golang-gin-oauth2-example-app/cmd/client"
+	"github.com/aristat/golang-oauth2-example-app/cmd/client"
 
-	"github.com/aristat/golang-gin-oauth2-example-app/app/entrypoint"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
+	"github.com/aristat/golang-oauth2-example-app/app/entrypoint"
+	"github.com/aristat/golang-oauth2-example-app/app/logger"
 
 	"go.uber.org/automaxprocs/maxprocs"
 
-	"github.com/aristat/golang-gin-oauth2-example-app/cmd/daemon"
+	"github.com/aristat/golang-oauth2-example-app/cmd/daemon"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"

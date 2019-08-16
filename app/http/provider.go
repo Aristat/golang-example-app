@@ -3,16 +3,16 @@ package http
 import (
 	"context"
 
-	"github.com/aristat/golang-gin-oauth2-example-app/app/db"
-	"github.com/aristat/golang-gin-oauth2-example-app/app/users"
+	"github.com/aristat/golang-oauth2-example-app/app/db"
+	"github.com/aristat/golang-oauth2-example-app/app/users"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 
 	"github.com/go-session/session"
 
-	"github.com/aristat/golang-gin-oauth2-example-app/app/logger"
+	"github.com/aristat/golang-oauth2-example-app/app/logger"
 
-	"github.com/aristat/golang-gin-oauth2-example-app/app/oauth"
+	"github.com/aristat/golang-oauth2-example-app/app/oauth"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 )
