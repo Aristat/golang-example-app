@@ -149,11 +149,11 @@ func Build() (*Manager, func(), error) {
 		return nil, nil, err
 	}
 	managers := Managers{
-		session: manager,
-		db:      dbManager,
-		oauth:   oauthManager,
+		Session: manager,
+		DB:      dbManager,
+		Oauth:   oauthManager,
 	}
-	usersRepo, cleanup14, err := repo.NewAuthorsRepo(gormDB)
+	usersRepo, cleanup14, err := repo.NewUsersRepo(gormDB)
 	if err != nil {
 		cleanup13()
 		cleanup12()
@@ -297,11 +297,11 @@ func BuildTest() (*Manager, func(), error) {
 		return nil, nil, err
 	}
 	managers := Managers{
-		session: manager,
-		db:      dbManager,
-		oauth:   oauthManager,
+		Session: manager,
+		DB:      dbManager,
+		Oauth:   oauthManager,
 	}
-	usersRepo, cleanup11, err := repo.NewAuthorsRepo(gormDB)
+	usersRepo, cleanup11, err := repo.NewUsersRepo(gormDB)
 	if err != nil {
 		cleanup10()
 		cleanup9()

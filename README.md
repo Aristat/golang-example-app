@@ -36,7 +36,6 @@ git clone git@github.com:Aristat/golang-oauth2-example-app.git (go get)
 ## Start
 
 ```
-run server
 ➜ make createdb
 ➜ sql-migrate up (create database)
 ➜ make vendor

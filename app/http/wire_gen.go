@@ -150,11 +150,11 @@ func Build() (*Http, func(), error) {
 		return nil, nil, err
 	}
 	managers := users.Managers{
-		session: sessionManager,
-		db:      manager,
-		oauth:   oauthManager,
+		Session: sessionManager,
+		DB:      manager,
+		Oauth:   oauthManager,
 	}
-	usersRepo, cleanup14, err := repo.NewAuthorsRepo(gormDB)
+	usersRepo, cleanup14, err := repo.NewUsersRepo(gormDB)
 	if err != nil {
 		cleanup13()
 		cleanup12()

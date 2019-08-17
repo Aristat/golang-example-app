@@ -22,7 +22,7 @@ func (u *UsersRepo) FindByEmail(email string) (*domain.User, error) {
 	return user, err
 }
 
-func NewAuthorsRepo(db *gorm.DB) (domain.UsersRepo, func(), error) {
+func NewUsersRepo(db *gorm.DB) (domain.UsersRepo, func(), error) {
 	a := &UsersRepo{db: db}
 	return a, func() {}, nil
 }

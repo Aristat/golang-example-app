@@ -29,11 +29,11 @@ func New(ctx context.Context, log logger.Logger, managers Managers, repo *Repo) 
 
 	router := &Router{
 		ctx:            ctx,
-		sessionManager: managers.session,
+		sessionManager: managers.Session,
 		template:       tmp,
 		logger:         log,
-		db:             managers.db.DB,
-		server:         managers.oauth.Router.Server,
+		db:             managers.DB.DB,
+		server:         managers.Oauth.Router.Server,
 		repo:           repo,
 	}
 

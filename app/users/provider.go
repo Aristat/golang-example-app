@@ -20,20 +20,20 @@ type Repo struct {
 }
 
 var ProviderRepo = wire.NewSet(
-	repo.NewAuthorsRepo,
+	repo.NewUsersRepo,
 	wire.Struct(new(Repo), "*"),
 )
 
 var ProviderTestRepo = wire.NewSet(
-	repo.NewAuthorsRepo,
+	repo.NewUsersRepo,
 	wire.Struct(new(Repo), "*"),
 )
 
 // Managers
 type Managers struct {
-	session *session.Manager
-	db      *db.Manager
-	oauth   *oauth.Manager
+	Session *session.Manager
+	DB      *db.Manager
+	Oauth   *oauth.Manager
 }
 
 var ProviderManagers = wire.NewSet(
