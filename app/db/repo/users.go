@@ -12,12 +12,10 @@ type UsersRepo struct {
 func (u *UsersRepo) FindByEmail(email string) (*domain.User, error) {
 	user := &domain.User{}
 
-	row := u.db.Table("users").Select("users.id, users.email, users.encrypted_password").
+	err := u.db.Table("users").Select("id, email, encrypted_password").
 		Where("users.email = ?", email).
 		Limit(1).
-		Row()
-
-	err := row.Scan(&user.ID, &user.Email, &user.EncryptedPassword)
+		Scan(&user).Error
 
 	return user, err
 }

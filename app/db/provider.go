@@ -41,8 +41,6 @@ func ProviderGORM(ctx context.Context, log logger.Logger, cfg Config) (*gorm.DB,
 		db.LogMode(true)
 	}
 
-	db.SetLogger(NewLoggerAdapter(log, cfg.LogLevel))
-
 	cleanup := func() {
 		if db != nil {
 			_ = db.Close()
@@ -62,6 +60,7 @@ func ProviderGORMTest() (*gorm.DB, func(), error) {
 	}
 
 	mocket.Catcher.Register()
+	mocket.Catcher.Logging = true
 
 	sqlDB, err := sql.Open(mocket.DriverName, "gorm")
 	if err != nil {
@@ -69,7 +68,6 @@ func ProviderGORMTest() (*gorm.DB, func(), error) {
 	}
 
 	db, err = gorm.Open("postgres", sqlDB)
-	db.LogMode(false)
 
 	return db, cleanup, err
 }

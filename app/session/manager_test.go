@@ -14,8 +14,8 @@ import (
 
 func TestNew(t *testing.T) {
 	manager, _, e := session.BuildTest()
-	assert.Nil(t, e, "BuildTest is correct")
-	assert.NotNil(t, manager, "client store not nil")
+	assert.Nil(t, e, "BuildTest error should be nil")
+	assert.NotNil(t, manager, "Manager should not be nil")
 
 	w := httptest.NewRecorder()
 
