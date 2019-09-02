@@ -1,4 +1,4 @@
-# Golang Example
+# Golang Example Application
 
 ## NOTE! [Deprecated version](https://github.com/Aristat/golang-example-app/tree/gin-example)
 
