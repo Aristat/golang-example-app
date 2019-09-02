@@ -2,7 +2,70 @@
 
 package graphql
 
-type User struct {
-	ID    string  `json:"id"`
-	Email *string `json:"email"`
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
+type UsersCreateOut struct {
+	Status UsersCreateOutStatus `json:"status"`
+	ID     string               `json:"id"`
+	Email  string               `json:"email"`
+}
+
+type UsersMutation struct {
+	CreateUser *UsersCreateOut `json:"createUser"`
+}
+
+type UsersOneOut struct {
+	ID    string `json:"id"`
+	Email string `json:"email"`
+}
+
+type UsersQuery struct {
+	One *UsersOneOut `json:"one"`
+}
+
+type UsersCreateOutStatus string
+
+const (
+	UsersCreateOutStatusOk                  UsersCreateOutStatus = "OK"
+	UsersCreateOutStatusBadRequest          UsersCreateOutStatus = "BAD_REQUEST"
+	UsersCreateOutStatusServerInternalError UsersCreateOutStatus = "SERVER_INTERNAL_ERROR"
+)
+
+var AllUsersCreateOutStatus = []UsersCreateOutStatus{
+	UsersCreateOutStatusOk,
+	UsersCreateOutStatusBadRequest,
+	UsersCreateOutStatusServerInternalError,
+}
+
+func (e UsersCreateOutStatus) IsValid() bool {
+	switch e {
+	case UsersCreateOutStatusOk, UsersCreateOutStatusBadRequest, UsersCreateOutStatusServerInternalError:
+		return true
+	}
+	return false
+}
+
+func (e UsersCreateOutStatus) String() string {
+	return string(e)
+}
+
+func (e *UsersCreateOutStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UsersCreateOutStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UsersCreateOutStatus", str)
+	}
+	return nil
+}
+
+func (e UsersCreateOutStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

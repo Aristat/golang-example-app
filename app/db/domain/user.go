@@ -7,5 +7,6 @@ type User struct {
 }
 
 type UsersRepo interface {
+	CreateUser(email string, password string) (*User, error)
 	FindByEmail(email string) (*User, error)
 }

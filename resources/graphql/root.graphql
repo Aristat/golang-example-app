@@ -1,3 +1,7 @@
 type Query {
-    user(email: String!): User
+    users: UsersQuery
+}
+
+type Mutation {
+    users: UsersMutation
 }

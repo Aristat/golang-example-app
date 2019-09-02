@@ -1,4 +1,24 @@
-type User {
+type UsersOneOut {
     id: ID!
-    email: String
+    email: String!
+}
+
+type UsersQuery {
+    one(email: String!): UsersOneOut!
+}
+
+type UsersMutation {
+    createUser(email: String!, password: String!): UsersCreateOut!
+}
+
+type UsersCreateOut {
+    status: UsersCreateOutStatus!
+    id: ID!
+    email: String!
+}
+
+enum UsersCreateOutStatus {
+    OK
+    BAD_REQUEST
+    SERVER_INTERNAL_ERROR
 }

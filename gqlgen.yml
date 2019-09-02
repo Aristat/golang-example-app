@@ -10,3 +10,13 @@ model:
 resolver:
   filename: app/resolver/resolver_gen.go
   type: Resolver
+
+models:
+  UsersQuery:
+    fields:
+      one:
+        resolver: true
+  UsersMutation:
+    fields:
+      createUser:
+        resolver: true

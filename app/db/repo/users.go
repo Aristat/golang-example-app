@@ -2,6 +2,7 @@ package repo
 
 import (
 	"github.com/aristat/golang-example-app/app/db/domain"
+	"github.com/aristat/golang-example-app/common"
 	"github.com/jinzhu/gorm"
 )
 
@@ -18,6 +19,21 @@ func (u *UsersRepo) FindByEmail(email string) (*domain.User, error) {
 		Scan(&user).Error
 
 	return user, err
+}
+
+func (u *UsersRepo) CreateUser(email string, password string) (*domain.User, error) {
+	encryptedPassword, err := common.HashPassword(password, 8)
+
+	if err != nil {
+		return nil, err
+	}
+
+	user := &domain.User{Email: email, EncryptedPassword: encryptedPassword}
+	if err := u.db.Create(user).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func NewUsersRepo(db *gorm.DB) (domain.UsersRepo, func(), error) {

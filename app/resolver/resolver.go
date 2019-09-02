@@ -12,6 +12,7 @@ import (
 var prefix = "resolver"
 
 type queryResolver struct{ *Resolver }
+type mutationResolver struct{ *Resolver }
 
 // Resolver config graphql resolvers
 type Resolver struct {
@@ -19,6 +20,10 @@ type Resolver struct {
 	log  logger.Logger
 	cfg  Config
 	repo *repo.Repo
+}
+
+func (r *Resolver) Mutation() graphql1.MutationResolver {
+	return &mutationResolver{r}
 }
 
 // Query returns root graphql query resolver
