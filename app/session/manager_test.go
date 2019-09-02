@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/aristat/golang-oauth2-example-app/app/session"
+	"github.com/aristat/golang-example-app/app/session"
 	"github.com/stretchr/testify/assert"
 )
 

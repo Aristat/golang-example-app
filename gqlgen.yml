@@ -1,0 +1,18 @@
+schema:
+  - "resources/graphql/*.graphql"
+
+exec:
+  filename: generated/graphql/generated.go
+
+model:
+  filename: generated/graphql/models_gen.go
+
+resolver:
+  filename: app/resolver/resolver_gen.go
+  type: Resolver
+
+models:
+  CommonQuery:
+    fields:
+      uuid:
+        resolver: true

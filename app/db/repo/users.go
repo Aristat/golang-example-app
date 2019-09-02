@@ -1,7 +1,7 @@
 package repo
 
 import (
-	"github.com/aristat/golang-oauth2-example-app/app/db/domain"
+	"github.com/aristat/golang-example-app/app/db/domain"
 	"github.com/jinzhu/gorm"
 )
 

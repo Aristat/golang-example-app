@@ -3,8 +3,8 @@
 package oauth
 
 import (
-	"github.com/aristat/golang-oauth2-example-app/app/provider"
-	"github.com/aristat/golang-oauth2-example-app/app/session"
+	"github.com/aristat/golang-example-app/app/provider"
+	"github.com/aristat/golang-example-app/app/session"
 	"github.com/google/wire"
 )
 

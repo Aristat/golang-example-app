@@ -3,16 +3,17 @@ package http
 import (
 	"context"
 
-	"github.com/aristat/golang-oauth2-example-app/app/db"
-	"github.com/aristat/golang-oauth2-example-app/app/users"
+	"github.com/aristat/golang-example-app/app/db"
+	"github.com/aristat/golang-example-app/app/graphql"
+	"github.com/aristat/golang-example-app/app/users"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 
 	"github.com/go-session/session"
 
-	"github.com/aristat/golang-oauth2-example-app/app/logger"
+	"github.com/aristat/golang-example-app/app/logger"
 
-	"github.com/aristat/golang-oauth2-example-app/app/oauth"
+	"github.com/aristat/golang-example-app/app/oauth"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 )
@@ -47,6 +48,7 @@ func Mux(db *db.Manager, managers Managers, log logger.Logger) (*chi.Mux, func()
 
 	managers.users.Router.Run(mux)
 	managers.oauth.Router.Run(mux)
+	managers.graphql.Routers(mux)
 
 	return mux, func() {}, nil
 }
@@ -56,6 +58,7 @@ type Managers struct {
 	session *session.Manager
 	users   *users.Manager
 	oauth   *oauth.Manager
+	graphql *graphql.GraphQL
 }
 
 var ProviderManagers = wire.NewSet(

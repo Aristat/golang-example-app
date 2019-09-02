@@ -24,6 +24,9 @@ vendor: ## generate vendor
 	GO111MODULE=on \
 	go mod vendor
 
+gqlgen-generate: ## generate graphql server
+	gqlgen -v
+
 build: init ## build binary file
 	$(call build_resources) ;\
 	GO111MODULE=on GOOS=${GOOS} CGO_ENABLED=${CGO_ENABLED} GOARCH=${GOARCH} \

@@ -1,7 +1,8 @@
-module github.com/aristat/golang-oauth2-example-app
+module github.com/aristat/golang-example-app
 
 require (
 	cloud.google.com/go v0.41.0 // indirect
+	github.com/99designs/gqlgen v0.9.3
 	github.com/ajg/form v0.0.0-20160822230020-523a5da1a92f // indirect
 	github.com/denisenkom/go-mssqldb v0.0.0-20190710001350-29e7b2419f38 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
@@ -14,6 +15,7 @@ require (
 	github.com/go-session/session v3.1.2+incompatible
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
+	github.com/google/uuid v1.1.1
 	github.com/google/wire v0.3.0
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/jinzhu/gorm v1.9.10
@@ -29,7 +31,6 @@ require (
 	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/selvatico/go-mocket v1.0.7
-	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190306220146-200a235640ff // indirect
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v0.0.5
@@ -44,6 +45,7 @@ require (
 	github.com/tidwall/rtree v0.0.0-20180113144539-6cd427091e0e // indirect
 	github.com/tidwall/tinyqueue v0.0.0-20180302190814-1e39f5511563 // indirect
 	github.com/valyala/fasthttp v1.2.0 // indirect
+	github.com/vektah/gqlparser v1.1.2
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.1.0 // indirect

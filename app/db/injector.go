@@ -3,7 +3,7 @@
 package db
 
 import (
-	"github.com/aristat/golang-oauth2-example-app/app/provider"
+	"github.com/aristat/golang-example-app/app/provider"
 	"github.com/google/wire"
 )
 

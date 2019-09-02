@@ -5,7 +5,7 @@ import (
 	"errors"
 	"html/template"
 
-	"github.com/aristat/golang-oauth2-example-app/app/logger"
+	"github.com/aristat/golang-example-app/app/logger"
 )
 
 var (
@@ -23,7 +23,7 @@ type Manager struct {
 	Router *Router
 }
 
-func New(ctx context.Context, log logger.Logger, managers Managers, repo *Repo) *Manager {
+func New(ctx context.Context, log logger.Logger, managers Managers) *Manager {
 	tmp := template.Must(template.New("").ParseGlob("templates/**/*"))
 	log = log.WithFields(logger.Fields{"service": prefix})
 
@@ -34,7 +34,7 @@ func New(ctx context.Context, log logger.Logger, managers Managers, repo *Repo) 
 		logger:         log,
 		db:             managers.DB.DB,
 		server:         managers.Oauth.Router.Server,
-		repo:           repo,
+		repo:           managers.Repo,
 	}
 
 	return &Manager{

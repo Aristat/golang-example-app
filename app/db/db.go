@@ -6,7 +6,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 
-	"github.com/aristat/golang-oauth2-example-app/app/logger"
+	"github.com/aristat/golang-example-app/app/logger"
 	_ "github.com/lib/pq"
 )
 

@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/aristat/golang-oauth2-example-app/app/db"
+	"github.com/aristat/golang-example-app/app/db"
 	mocket "github.com/selvatico/go-mocket"
 	"github.com/stretchr/testify/assert"
 )

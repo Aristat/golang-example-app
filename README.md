@@ -21,11 +21,12 @@ In the deprecated version using only `gin` package.
 
 https://golang.org/doc/install
 
-## Install sql-migrate/wire
+## Install packages
 
 ```
 go get -v github.com/rubenv/sql-migrate/...
 go get -v github.com/google/wire/cmd/wire
+go get -u github.com/99designs/gqlgen
 ```
 
 ## Clone repository

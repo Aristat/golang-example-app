@@ -3,21 +3,18 @@
 //go:generate wire
 //+build !wireinject
 
-package db
+package repo
 
 import (
 	"github.com/aristat/golang-example-app/app/config"
+	"github.com/aristat/golang-example-app/app/db"
 	"github.com/aristat/golang-example-app/app/entrypoint"
 	"github.com/aristat/golang-example-app/app/logger"
 )
 
-import (
-	_ "github.com/lib/pq"
-)
-
 // Injectors from injector.go:
 
-func Build() (*Manager, func(), error) {
+func Build() (*Repo, func(), error) {
 	context, cleanup, err := entrypoint.ContextProvider()
 	if err != nil {
 		return nil, nil, err
@@ -40,7 +37,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	dbConfig, cleanup5, err := Cfg(viper)
+	dbConfig, cleanup5, err := db.Cfg(viper)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -48,7 +45,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	db, cleanup6, err := ProviderGORM(context, zap, dbConfig)
+	gormDB, cleanup6, err := db.ProviderGORM(context, zap, dbConfig)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -57,7 +54,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	manager, cleanup7, err := Provider(context, zap, dbConfig, db)
+	usersRepo, cleanup7, err := NewUsersRepo(gormDB)
 	if err != nil {
 		cleanup6()
 		cleanup5()
@@ -67,7 +64,19 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	return manager, func() {
+	repo, cleanup8, err := Provider(usersRepo)
+	if err != nil {
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	return repo, func() {
+		cleanup8()
 		cleanup7()
 		cleanup6()
 		cleanup5()
@@ -78,50 +87,23 @@ func Build() (*Manager, func(), error) {
 	}, nil
 }
 
-func BuildTest() (*Manager, func(), error) {
-	context, cleanup, err := entrypoint.ContextProviderTest()
+func BuildTest() (*Repo, func(), error) {
+	gormDB, cleanup, err := db.ProviderGORMTest()
 	if err != nil {
 		return nil, nil, err
 	}
-	loggerConfig, cleanup2, err := logger.ProviderCfgTest()
+	usersRepo, cleanup2, err := NewUsersRepo(gormDB)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	mock, cleanup3, err := logger.ProviderTest(context, loggerConfig)
+	repo, cleanup3, err := Provider(usersRepo)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	dbConfig, cleanup4, err := CfgTest()
-	if err != nil {
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	db, cleanup5, err := ProviderGORMTest()
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	manager, cleanup6, err := Provider(context, mock, dbConfig, db)
-	if err != nil {
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	return manager, func() {
-		cleanup6()
-		cleanup5()
-		cleanup4()
+	return repo, func() {
 		cleanup3()
 		cleanup2()
 		cleanup()

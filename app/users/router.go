@@ -9,12 +9,13 @@ import (
 
 	"github.com/jinzhu/gorm"
 
-	"github.com/aristat/golang-oauth2-example-app/app/logger"
+	"github.com/aristat/golang-example-app/app/db/repo"
+	"github.com/aristat/golang-example-app/app/logger"
 	"gopkg.in/oauth2.v3/server"
 
 	"github.com/go-session/session"
 
-	"github.com/aristat/golang-oauth2-example-app/common"
+	"github.com/aristat/golang-example-app/common"
 	"github.com/go-chi/chi"
 )
 
@@ -25,7 +26,7 @@ type Router struct {
 	logger         logger.Logger
 	db             *gorm.DB
 	server         *server.Server
-	repo           *Repo
+	repo           *repo.Repo
 }
 
 func (router *Router) Run(chiRouter *chi.Mux) {

@@ -1,8 +1,8 @@
 package daemon
 
 import (
-	"github.com/aristat/golang-oauth2-example-app/app/http"
-	"github.com/aristat/golang-oauth2-example-app/app/logger"
+	"github.com/aristat/golang-example-app/app/http"
+	"github.com/aristat/golang-example-app/app/logger"
 
 	"github.com/spf13/cobra"
 )
