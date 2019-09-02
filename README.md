@@ -1,6 +1,6 @@
-# Golang OAuth2 Example
+# Golang Example
 
-## NOTE! [Deprecated version](https://github.com/Aristat/golang-oauth2-example-app/tree/gin-example)
+## NOTE! [Deprecated version](https://github.com/Aristat/golang-example-app/tree/gin-example)
 
 In the deprecated version using only `gin` package.
 
@@ -15,6 +15,7 @@ In the deprecated version using only `gin` package.
 5. [gorm](https://github.com/jinzhu/gorm) - database ORM
 6. [zap](https://github.com/uber-go/zap) - logger
 7. [mux](https://github.com/gorilla/mux) - http router
+8. [oauth2](https://github.com/go-oauth2/oauth2) - simple oauth2 server
 
 ## Install the Golang and GO environment
 
@@ -30,7 +31,7 @@ go get -v github.com/google/wire/cmd/wire
 ## Clone repository
 
 ```
-git clone git@github.com:Aristat/golang-oauth2-example-app.git (go get)
+git clone git@github.com:Aristat/golang-example-app.git (go get)
 ```
 
 ## Start
