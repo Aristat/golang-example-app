@@ -2,6 +2,7 @@
 
 package graphql
 
-type CommonQuery struct {
-	UUID string `json:"uuid"`
+type User struct {
+	ID    string  `json:"id"`
+	Email *string `json:"email"`
 }

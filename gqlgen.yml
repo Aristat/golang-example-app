@@ -10,9 +10,3 @@ model:
 resolver:
   filename: app/resolver/resolver_gen.go
   type: Resolver
-
-models:
-  CommonQuery:
-    fields:
-      uuid:
-        resolver: true
