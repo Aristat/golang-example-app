@@ -39,9 +39,6 @@ func (g *GraphQL) Routers(router *chi.Mux) {
 	options := []handler.Option{
 		handler.IntrospectionEnabled(g.cfg.Introspection),
 		handler.RecoverFunc(func(ctx context.Context, err interface{}) error {
-			if e, ok := err.(error); ok {
-				return e
-			}
 			g.log.Alert("unhandled panic, err: %v", logger.Args(err))
 			return nil
 		}),

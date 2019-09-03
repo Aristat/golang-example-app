@@ -9,7 +9,7 @@ DOCKER_IMAGE ?= unknown
 TAG ?= unknown
 CACHE_TAG ?= unknown_cache
 
-DATABASE_URL ?= oauth2_development
+DATABASE_URL ?= golang_example_development
 
 define build_resources
  	find "$(GO_DIR)/resources" -maxdepth 1 -mindepth 1 -exec cp -R -f {} $(GO_DIR)/artifacts/${1} \;
