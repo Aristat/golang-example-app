@@ -12,10 +12,12 @@ In the deprecated version using only `gin` package.
 2. [wire](https://github.com/google/wire) - dependency Injection
 3. [viper](https://github.com/spf13/viper) - environment configuration
 4. [cobra](https://github.com/spf13/cobra) - create commands
-5. [gorm](https://github.com/jinzhu/gorm) - database ORM
-6. [zap](https://github.com/uber-go/zap) - logger
-7. [mux](https://github.com/gorilla/mux) - http router
-8. [oauth2](https://github.com/go-oauth2/oauth2) - simple oauth2 server
+5. [cast](https://github.com/spf13/cast) - easy casting from one type to another
+6. [gorm](https://github.com/jinzhu/gorm) - database ORM
+7. [zap](https://github.com/uber-go/zap) - logger
+8. [mux](https://github.com/gorilla/mux) - http router
+9. [oauth2](https://github.com/go-oauth2/oauth2) - simple oauth2 server
+10. [gqlgen](https://github.com/99designs/gqlgen) - graphql server library
 
 ## Install the Golang and GO environment
 
