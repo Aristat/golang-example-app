@@ -113,7 +113,7 @@ func init() {
 		shutdownSignal := make(chan os.Signal)
 		signal.Notify(shutdownSignal, syscall.SIGTERM, syscall.SIGINT)
 		sig := <-shutdownSignal
-		fmt.Printf("OS signaled `%v`, graceful shutdown in %s", sig.String(), gracefulDelay)
+		fmt.Printf("OS signaled `%v`, graceful shutdown in %s\n", sig.String(), gracefulDelay)
 		ctx, _ := context.WithTimeout(context.Background(), gracefulDelay)
 		ep.Shutdown(ctx, 0)
 	}()

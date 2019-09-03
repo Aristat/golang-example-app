@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-chi/chi"
+
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 )
@@ -36,12 +38,14 @@ var (
 		Run: func(_ *cobra.Command, _ []string) {
 			log.SetFlags(log.Lshortfile | log.LstdFlags)
 
-			http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+			r := chi.NewRouter()
+
+			r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
 				u := config.AuthCodeURL("xyz")
 				http.Redirect(w, r, u, http.StatusFound)
 			})
 
-			http.HandleFunc("/oauth2", func(w http.ResponseWriter, r *http.Request) {
+			r.Get("/oauth2", func(w http.ResponseWriter, r *http.Request) {
 				r.ParseForm()
 				state := r.Form.Get("state")
 				if state != "xyz" {
@@ -66,7 +70,7 @@ var (
 
 			})
 
-			http.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
+			r.Get("/user", func(w http.ResponseWriter, r *http.Request) {
 				res, err := config.Client(context.Background(), token).Get("http://localhost:9096/user")
 				if err != nil {
 					log.Printf("[ERROR] %s", err.Error())
@@ -85,7 +89,12 @@ var (
 			})
 
 			log.Println("[INFO] Client is running at 9094 port.")
-			log.Fatal(http.ListenAndServe(":9094", nil))
+
+			server := &http.Server{
+				Addr:    ":9094",
+				Handler: r,
+			}
+			log.Fatal(server.ListenAndServe())
 		},
 	}
 )

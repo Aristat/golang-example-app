@@ -47,8 +47,8 @@ git clone git@github.com:Aristat/golang-example-app.git (go get)
 ➜ cd artifacts/
 ➜ ./bin daemon -c ./configs/local.yaml -d (run server with debug mod)
 ➜ ./bin client (client for oauth2)
-➜  http://localhost:9094/login (testing oauth2)
-➜  http://localhost:9096/query (graphql route)
+➜ http://localhost:9094/login (testing oauth2)
+➜ http://localhost:9096/query (graphql route)
 ```
 
 #### Graphql 
