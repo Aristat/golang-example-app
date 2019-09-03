@@ -21,36 +21,61 @@ In the deprecated version using only `gin` package.
 
 https://golang.org/doc/install
 
-## Install packages
-
-```
-go get -v github.com/rubenv/sql-migrate/...
-go get -v github.com/google/wire/cmd/wire
-go get -u github.com/99designs/gqlgen
-```
-
 ## Clone repository
 
 ```
 git clone git@github.com:Aristat/golang-example-app.git (go get)
 ```
 
-## Start
+## Install
 
 ```
+➜ make install
 ➜ make createdb
 ➜ sql-migrate up (create database)
 ➜ make vendor
 ➜ make build
+```
+
+##  Start
+
+#### Run Server and Client(only for oauth2)
+
+```
 ➜ cd artifacts/
 ➜ ./bin daemon -c ./configs/local.yaml -d (run server with debug mod)
-➜ ./bin client
+➜ ./bin client (client for oauth2)
+➜  http://localhost:9094/login (testing oauth2)
+➜  http://localhost:9096/query (graphql route)
+```
 
-➜  http://localhost:9094/login
+#### Graphql 
+
+##### User query
+```
+query oneUser {
+  users {
+    one(email: "test@gmail.com") {
+      email
+      id
+    }
+  }
+}
+```
+
+##### Create User mutation
+```
+mutation createUser {
+  users {
+    createUser(email: "test1@gmail.com", password: "123456789") {
+      id
+      email
+    }
+  }
+}
 ```
 
 ## Testing
 ```
-➜  sql-migrate up -env="test"
 ➜  make test
 ```

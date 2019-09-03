@@ -15,6 +15,12 @@ define build_resources
  	find "$(GO_DIR)/resources" -maxdepth 1 -mindepth 1 -exec cp -R -f {} $(GO_DIR)/artifacts/${1} \;
 endef
 
+install: init ## install cli tools
+	export GO111MODULE=off ;\
+    go get -v github.com/rubenv/sql-migrate/... ;\
+    go get -u github.com/google/wire/cmd/wire ;\
+    go get -u github.com/99designs/gqlgen ;
+
 init: ## init packages
 	mkdir -p artifacts ;\
     rm -rf artifacts/*
@@ -50,7 +56,7 @@ createdb: ## create database
 dropdb: ## drop database
 	dropdb $(DATABASE_URL)
 
-.PHONY: vendor
+.PHONY: install init vendor
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
