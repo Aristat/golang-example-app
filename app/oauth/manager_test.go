@@ -9,19 +9,21 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/aristat/golang-example-app/app/logger"
+
 	"github.com/go-session/session"
 
-	"github.com/aristat/golang-example-app/app/logger"
 	"github.com/aristat/golang-example-app/app/oauth"
 	"github.com/gavv/httpexpect"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	testSrv      *httptest.Server
-	clientSrv    *httptest.Server
-	clientID     = "123456"
-	clientSecret = "12345678"
+	testSrv         *httptest.Server
+	clientSrv       *httptest.Server
+	clientID        = "123456"
+	clientSecret    = "12345678"
+	invalidClientID = "111111"
 )
 
 var requestTests = []struct {
@@ -29,6 +31,19 @@ var requestTests = []struct {
 	authorizeRequest func(e *httpexpect.Expect)
 	tokenRequest     func(e *httpexpect.Expect, code string) *httpexpect.Object
 }{
+	{
+		func(router *oauth.Router) {},
+		func(e *httpexpect.Expect) {
+			e.GET("/authorize").
+				WithQuery("response_type", "code").
+				WithQuery("client_id", invalidClientID).
+				WithQuery("scope", "all").
+				WithQuery("state", "123").
+				WithQuery("redirect_uri", clientSrv.URL+"/oauth2").
+				Expect().Status(http.StatusOK)
+		},
+		func(e *httpexpect.Expect, code string) *httpexpect.Object { return nil },
+	},
 	{
 		func(router *oauth.Router) {},
 		func(e *httpexpect.Expect) {
@@ -185,8 +200,9 @@ func TestNew(t *testing.T) {
 
 	mockLogger := manager.Logger.(*logger.Mock)
 	go func() {
-		val := <-mockLogger.Catch()
-		t.Logf("Log trace, level: %s, format: %#v\n", val.Level, val.Format)
+		for val := range mockLogger.Catch() {
+			t.Logf("Log trace, level: %s, format: %#v\n", val.Level, val.Format)
+		}
 	}()
 
 	for _, testData := range requestTests {

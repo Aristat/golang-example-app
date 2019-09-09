@@ -91,12 +91,15 @@ func (m *Mock) Log(level Level, format string, o ...Option) {
 	for k, v := range opts.fields {
 		fields[k] = v
 	}
-	m.ch <- Entity{
-		Level:  level,
-		Format: format,
-		Args:   opts.args,
-		Fields: fields,
-	}
+
+	go func() {
+		m.ch <- Entity{
+			Level:  level,
+			Format: format,
+			Args:   opts.args,
+			Fields: fields,
+		}
+	}()
 }
 
 // WithFields create new instance with fields
@@ -118,6 +121,7 @@ func copyMock(dst, src *Mock, fields map[string]interface{}) {
 			dst.fields[k] = v
 		}
 	}
+	dst.discard = src.discard
 	dst.ch = src.ch
 }
 
