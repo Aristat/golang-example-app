@@ -12,6 +12,12 @@ import (
 
 const prefix = "app.oauth"
 
+// Config
+type Config struct {
+	RedisUrl string
+	RedisDB  int
+}
+
 // OAuth
 type Manager struct {
 	ctx    context.Context

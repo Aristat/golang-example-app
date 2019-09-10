@@ -5,10 +5,12 @@ import (
 	"github.com/google/wire"
 )
 
+// Repo for all records
 type Repo struct {
 	Users domain.UsersRepo
 }
 
+// Provider
 func Provider(userDomain domain.UsersRepo) (*Repo, func(), error) {
 	repo := &Repo{
 		Users: userDomain,

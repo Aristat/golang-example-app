@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	prefix = "graphql"
+	prefix = "app.graphql"
 )
 
 var errInternalServer = errors.New("internal server error")

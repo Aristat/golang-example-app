@@ -3,7 +3,6 @@ package resolver
 import (
 	"context"
 
-	"github.com/aristat/golang-example-app/app/db/repo"
 	"github.com/aristat/golang-example-app/app/logger"
 	"github.com/aristat/golang-example-app/generated/graphql"
 	"github.com/google/wire"
@@ -20,14 +19,6 @@ func Cfg(cfg *viper.Viper) (Config, func(), error) {
 // CfgTest
 func CfgTest() (Config, func(), error) {
 	return Config{}, func() {}, nil
-}
-
-type Config struct {
-}
-
-// Managers
-type Managers struct {
-	Repo *repo.Repo
 }
 
 var ProviderManagers = wire.NewSet(

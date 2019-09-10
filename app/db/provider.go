@@ -50,6 +50,7 @@ func ProviderGORM(ctx context.Context, log logger.Logger, cfg Config) (*gorm.DB,
 	return db, cleanup, err
 }
 
+// ProviderGORMTest for test, using go-mocket
 func ProviderGORMTest() (*gorm.DB, func(), error) {
 	var db *gorm.DB
 

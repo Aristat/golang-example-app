@@ -10,17 +10,6 @@ type UsersRepo struct {
 	db *gorm.DB
 }
 
-func (u *UsersRepo) FindByEmail(email string) (*domain.User, error) {
-	user := &domain.User{}
-
-	err := u.db.Table("users").Select("id, email, encrypted_password").
-		Where("users.email = ?", email).
-		Limit(1).
-		Scan(&user).Error
-
-	return user, err
-}
-
 func (u *UsersRepo) CreateUser(email string, password string) (*domain.User, error) {
 	encryptedPassword, err := common.HashPassword(password, 8)
 
@@ -34,6 +23,17 @@ func (u *UsersRepo) CreateUser(email string, password string) (*domain.User, err
 	}
 
 	return user, nil
+}
+
+func (u *UsersRepo) FindByEmail(email string) (*domain.User, error) {
+	user := &domain.User{}
+
+	err := u.db.Table("users").Select("id, email, encrypted_password").
+		Where("users.email = ?", email).
+		Limit(1).
+		Scan(&user).Error
+
+	return user, err
 }
 
 func NewUsersRepo(db *gorm.DB) (domain.UsersRepo, func(), error) {

@@ -100,7 +100,7 @@ var requestTests = []struct {
 	},
 	{
 		func(router *oauth.Router) {
-			memoryStore := &oauth.MemoryStore{}
+			memoryStore := &oauth.MockMemoryStore{}
 
 			memoryStore.CheckFn = func(ctx context.Context, sid string) (bool, error) {
 				return false, nil
@@ -127,7 +127,7 @@ var requestTests = []struct {
 	},
 	{
 		func(router *oauth.Router) {
-			store := &oauth.KeyValueStore{}
+			store := &oauth.MockKeyValueStore{}
 			store.GetFn = func(key string) (interface{}, bool) {
 				return nil, false
 			}
@@ -140,7 +140,7 @@ var requestTests = []struct {
 				return
 			}
 
-			memoryStore := &oauth.MemoryStore{}
+			memoryStore := &oauth.MockMemoryStore{}
 			memoryStore.CheckFn = func(ctx context.Context, sid string) (bool, error) {
 				return true, nil
 			}

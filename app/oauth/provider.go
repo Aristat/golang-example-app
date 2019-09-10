@@ -19,12 +19,6 @@ import (
 	oauthRedis "gopkg.in/go-oauth2/redis.v3"
 )
 
-// Config
-type Config struct {
-	RedisUrl string
-	RedisDB  int
-}
-
 // Cfg
 func Cfg(cfg *viper.Viper) (Config, func(), error) {
 	c := Config{}
@@ -40,6 +34,7 @@ func CfgTest() (Config, func(), error) {
 	return Config{}, func() {}, nil
 }
 
+// TokenStore
 func TokenStore(cfg Config) (oauth2.TokenStore, func(), error) {
 	oauthConfig := oauthRedis.Options{
 		Addr: cfg.RedisUrl,
@@ -50,11 +45,13 @@ func TokenStore(cfg Config) (oauth2.TokenStore, func(), error) {
 	return tokenStore, func() {}, nil
 }
 
+// TokenStoreTest
 func TokenStoreTest() (oauth2.TokenStore, func(), error) {
 	tokenStore, err := store.NewMemoryTokenStore()
 	return tokenStore, func() {}, err
 }
 
+// ClientStore
 func ClientStore() (*store.ClientStore, func(), error) {
 	clientsConfig := map[string]oauth2.ClientInfo{
 		"123456": &models.Client{
@@ -68,6 +65,7 @@ func ClientStore() (*store.ClientStore, func(), error) {
 	return clientStore, func() {}, err
 }
 
+// ClientStoreTest
 func ClientStoreTest() (*store.ClientStore, func(), error) {
 	clientsConfig := map[string]oauth2.ClientInfo{
 		"123456": &models.Client{
@@ -81,6 +79,7 @@ func ClientStoreTest() (*store.ClientStore, func(), error) {
 	return clientStore, func() {}, err
 }
 
+// NewClientStore
 func NewClientStore(config map[string]oauth2.ClientInfo) (*store.ClientStore, error) {
 	clientStore := store.NewClientStore()
 	for key, value := range config {
