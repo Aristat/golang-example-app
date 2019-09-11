@@ -64,19 +64,24 @@ func (service *Router) GetProducts(w http.ResponseWriter, r *http.Request) {
 
 	conn, err := grpc.Dial("localhost:50051", opts...)
 	if err != nil {
+		service.logger.Printf("[ERROR] %s", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	defer conn.Close()
+
 	c := products.NewProductsClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second)
 	defer cancel()
-	productOut, err := c.ListProduct(ctx, &products.ListProductIn{Id: 1})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
 
 	e := json.NewEncoder(w)
+
+	productOut, err := c.ListProduct(ctx, &products.ListProductIn{Id: 1})
+	if err != nil {
+		e.Encode("{}")
+		return
+	}
 	e.Encode(productOut)
 }
 

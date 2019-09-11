@@ -33,6 +33,9 @@ vendor: ## generate vendor
 gqlgen-generate: ## generate graphql server
 	gqlgen -v
 
+prototool-generate: ## generate proto file
+	prototool generate resources/proto
+
 build: init ## build binary file
 	$(call build_resources) ;\
 	GO111MODULE=on GOOS=${GOOS} CGO_ENABLED=${CGO_ENABLED} GOARCH=${GOARCH} \
@@ -56,7 +59,7 @@ createdb: ## create database
 dropdb: ## drop database
 	dropdb $(DATABASE_URL)
 
-.PHONY: install init vendor
+.PHONY: install init vendor gqlgen-generate prototool-generate
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

@@ -7,14 +7,13 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/aristat/golang-example-app/common"
+
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 
 	"github.com/go-chi/chi"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
-
-	"github.com/uber/jaeger-client-go"
-	jaegerConfig "github.com/uber/jaeger-client-go/config"
 )
 
 var (
@@ -42,22 +41,7 @@ var (
 		Run: func(_ *cobra.Command, _ []string) {
 			log.SetFlags(log.Lshortfile | log.LstdFlags)
 
-			jaegerCfg := jaegerConfig.Configuration{
-				ServiceName: "golang-example-app-client",
-				Sampler: &jaegerConfig.SamplerConfig{
-					Type:  "const",
-					Param: 1,
-				},
-				Reporter: &jaegerConfig.ReporterConfig{
-					LogSpans: false,
-				},
-			}
-
-			tracer, _, e := jaegerCfg.NewTracer(jaegerConfig.Logger(jaeger.StdLogger))
-			if e != nil {
-				log.Fatal("Jaeger initialize error")
-			}
-
+			tracer := common.GenerateTracerForTestClient("golang-example-app-client")
 			client := &http.Client{Transport: &nethttp.Transport{}}
 
 			r := chi.NewRouter()

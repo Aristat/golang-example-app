@@ -2,11 +2,17 @@ package product_service
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net"
+	"time"
 
-	"github.com/uber/jaeger-client-go"
+	"github.com/opentracing/opentracing-go"
 
+	"github.com/aristat/golang-example-app/common"
+
+	"github.com/aristat/golang-example-app/generated/resources/proto/health_checks"
+	"github.com/golang/protobuf/ptypes/empty"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 
@@ -14,8 +20,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
-
-	jaegerConfig "github.com/uber/jaeger-client-go/config"
 )
 
 const (
@@ -27,12 +31,43 @@ type server struct{}
 func (s *server) ListProduct(ctx context.Context, in *products.ListProductIn) (*products.ListProductOut, error) {
 	log.Printf("Received ListProduct: %v", in.Id)
 
+	tracer := opentracing.GlobalTracer()
+
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithInsecure())
+	opts = append(opts,
+		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
+			otgrpc.OpenTracingClientInterceptor(tracer),
+		)))
+	opts = append(opts, grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(
+		otgrpc.OpenTracingStreamClientInterceptor(tracer),
+	)))
+
+	conn, err := grpc.Dial("localhost:50052", opts...)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	c := health_checks.NewHealthChecksClient(conn)
+
+	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	defer cancel()
+	isAliveOut, err := c.IsAlive(ctx, &empty.Empty{})
+	if err != nil {
+		return nil, err
+	}
+
+	if isAliveOut.Status != health_checks.IsAliveOut_OK {
+		return nil, errors.New("Heal checks not working")
+	}
+
 	out := &products.ListProductOut{Status: products.ListProductOut_OK, Products: []*products.Product{}}
 	out.Products = append(out.Products, &products.Product{Id: 2, Name: "first_product"})
 
 	return out, nil
 }
 
+// Example service, which gives some data
 var (
 	//bind string
 	Cmd = &cobra.Command{
@@ -43,21 +78,8 @@ var (
 		Run: func(_ *cobra.Command, _ []string) {
 			log.SetFlags(log.Lshortfile | log.LstdFlags)
 
-			jaegerCfg := jaegerConfig.Configuration{
-				ServiceName: "golang-example-app-product-service",
-				Sampler: &jaegerConfig.SamplerConfig{
-					Type:  "const",
-					Param: 1,
-				},
-				Reporter: &jaegerConfig.ReporterConfig{
-					LogSpans: false,
-				},
-			}
-
-			tracer, _, e := jaegerCfg.NewTracer(jaegerConfig.Logger(jaeger.StdLogger))
-			if e != nil {
-				log.Fatal("Jaeger initialize error")
-			}
+			tracer := common.GenerateTracerForTestClient("golang-example-app-product-service")
+			opentracing.SetGlobalTracer(tracer)
 
 			lis, err := net.Listen("tcp", port)
 			if err != nil {

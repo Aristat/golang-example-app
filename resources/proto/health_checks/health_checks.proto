@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package health_checks;
+
+import "google/protobuf/empty.proto";
+
+service HealthChecks {
+    rpc IsAlive (google.protobuf.Empty) returns (IsAliveOut) {
+        }
+}
+
+message IsAliveOut {
+    enum Status {
+        OK = 0;
+        NOT_OK = 2;
+    }
+    Status status = 1;
+}

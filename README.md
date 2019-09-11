@@ -52,7 +52,7 @@ git clone git@github.com:Aristat/golang-example-app.git (go get)
  ➜ http://localhost:16686
 ```
 
-##### or disable Jaeger in
+##### or disable Jaeger(and rebuild binary file) in
 
 ```
 resources/configs/*.yaml
@@ -111,8 +111,12 @@ mutation createUser {
 ➜ cd artifacts/
 ➜ ./bin daemon -c ./configs/local.yaml -d
 ➜ ./bin product_service
+➜ ./bin health-check
 ➜ http://localhost:9096/products
 ```
+
+You with a probability of 50/50 will receive either the correct answer or an error on one of the services.
+It's needed for check jaeger in http://localhost:16686
 
 ## Testing
 ```
