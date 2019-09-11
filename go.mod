@@ -28,6 +28,8 @@ require (
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
+	github.com/opentracing-contrib/go-stdlib v0.0.0-20190519235532-cf7a6c988dc9
+	github.com/opentracing/opentracing-go v1.1.0
 	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/selvatico/go-mocket v1.0.7
@@ -46,6 +48,8 @@ require (
 	github.com/tidwall/match v1.0.1 // indirect
 	github.com/tidwall/rtree v0.0.0-20180113144539-6cd427091e0e // indirect
 	github.com/tidwall/tinyqueue v0.0.0-20180302190814-1e39f5511563 // indirect
+	github.com/uber/jaeger-client-go v2.17.0+incompatible
+	github.com/uber/jaeger-lib v2.1.1+incompatible // indirect
 	github.com/valyala/fasthttp v1.2.0 // indirect
 	github.com/vektah/gqlparser v1.1.2
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect

@@ -15,6 +15,7 @@ import (
 	"github.com/aristat/golang-example-app/app/oauth"
 	"github.com/aristat/golang-example-app/app/resolver"
 	"github.com/aristat/golang-example-app/app/session"
+	"github.com/aristat/golang-example-app/app/tracing"
 	"github.com/aristat/golang-example-app/app/users"
 )
 
@@ -30,20 +31,20 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	loggerConfig, cleanup3, err := logger.ProviderCfg(viper)
+	sessionConfig, cleanup3, err := session.Cfg(viper)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	zap, cleanup4, err := logger.Provider(context, loggerConfig)
+	manager, cleanup4, err := session.Provider(context, sessionConfig)
 	if err != nil {
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	dbConfig, cleanup5, err := db.Cfg(viper)
+	loggerConfig, cleanup5, err := logger.ProviderCfg(viper)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -51,7 +52,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	gormDB, cleanup6, err := db.ProviderGORM(context, zap, dbConfig)
+	zap, cleanup6, err := logger.Provider(context, loggerConfig)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -60,7 +61,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	manager, cleanup7, err := db.Provider(context, zap, dbConfig, gormDB)
+	dbConfig, cleanup7, err := db.Cfg(viper)
 	if err != nil {
 		cleanup6()
 		cleanup5()
@@ -70,7 +71,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	sessionConfig, cleanup8, err := session.Cfg(viper)
+	gormDB, cleanup8, err := db.ProviderGORM(context, zap, dbConfig)
 	if err != nil {
 		cleanup7()
 		cleanup6()
@@ -81,7 +82,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	sessionManager, cleanup9, err := session.Provider(context, sessionConfig)
+	dbManager, cleanup9, err := db.Provider(context, zap, dbConfig, gormDB)
 	if err != nil {
 		cleanup8()
 		cleanup7()
@@ -135,7 +136,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthManager, cleanup13, err := oauth.Provider(context, zap, tokenStore, sessionManager, clientStore)
+	oauthManager, cleanup13, err := oauth.Provider(context, zap, tokenStore, manager, clientStore)
 	if err != nil {
 		cleanup12()
 		cleanup11()
@@ -187,8 +188,8 @@ func Build() (*Http, func(), error) {
 		return nil, nil, err
 	}
 	managers := users.Managers{
-		Session: sessionManager,
-		DB:      manager,
+		Session: manager,
+		DB:      dbManager,
 		Oauth:   oauthManager,
 		Repo:    repoRepo,
 	}
@@ -301,12 +302,12 @@ func Build() (*Http, func(), error) {
 		return nil, nil, err
 	}
 	httpManagers := Managers{
-		session: sessionManager,
+		session: manager,
 		users:   usersManager,
 		oauth:   oauthManager,
 		graphql: graphQL,
 	}
-	chiMux, cleanup21, err := Mux(manager, httpManagers, zap)
+	configuration, cleanup21, err := tracing.ProviderCfg(viper)
 	if err != nil {
 		cleanup20()
 		cleanup19()
@@ -330,7 +331,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	httpConfig, cleanup22, err := Cfg(viper)
+	tracer, cleanup22, err := tracing.Provider(context, configuration, zap)
 	if err != nil {
 		cleanup21()
 		cleanup20()
@@ -355,7 +356,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	http, cleanup23, err := Provider(context, chiMux, zap, httpConfig, httpManagers)
+	chiMux, cleanup23, err := Mux(httpManagers, zap, tracer)
 	if err != nil {
 		cleanup22()
 		cleanup21()
@@ -381,7 +382,64 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	httpConfig, cleanup24, err := Cfg(viper)
+	if err != nil {
+		cleanup23()
+		cleanup22()
+		cleanup21()
+		cleanup20()
+		cleanup19()
+		cleanup18()
+		cleanup17()
+		cleanup16()
+		cleanup15()
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	http, cleanup25, err := Provider(context, chiMux, zap, httpConfig, httpManagers)
+	if err != nil {
+		cleanup24()
+		cleanup23()
+		cleanup22()
+		cleanup21()
+		cleanup20()
+		cleanup19()
+		cleanup18()
+		cleanup17()
+		cleanup16()
+		cleanup15()
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return http, func() {
+		cleanup25()
+		cleanup24()
 		cleanup23()
 		cleanup22()
 		cleanup21()

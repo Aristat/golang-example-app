@@ -7,10 +7,14 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/go-chi/chi"
+	"github.com/opentracing-contrib/go-stdlib/nethttp"
 
+	"github.com/go-chi/chi"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
+
+	"github.com/uber/jaeger-client-go"
+	jaegerConfig "github.com/uber/jaeger-client-go/config"
 )
 
 var (
@@ -38,8 +42,25 @@ var (
 		Run: func(_ *cobra.Command, _ []string) {
 			log.SetFlags(log.Lshortfile | log.LstdFlags)
 
-			r := chi.NewRouter()
+			jaegerCfg := jaegerConfig.Configuration{
+				ServiceName: "golang-example-app-client",
+				Sampler: &jaegerConfig.SamplerConfig{
+					Type:  "const",
+					Param: 1,
+				},
+				Reporter: &jaegerConfig.ReporterConfig{
+					LogSpans: false,
+				},
+			}
 
+			tracer, _, e := jaegerCfg.NewTracer(jaegerConfig.Logger(jaeger.StdLogger))
+			if e != nil {
+				log.Fatal("Jaeger initialize error")
+			}
+
+			client := &http.Client{Transport: &nethttp.Transport{}}
+
+			r := chi.NewRouter()
 			r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
 				u := config.AuthCodeURL("xyz")
 				http.Redirect(w, r, u, http.StatusFound)
@@ -71,7 +92,20 @@ var (
 			})
 
 			r.Get("/user", func(w http.ResponseWriter, r *http.Request) {
-				res, err := config.Client(context.Background(), token).Get("http://localhost:9096/user")
+				req, err := http.NewRequest("GET", "http://localhost:9096/user", nil)
+				if err != nil {
+					log.Printf("[ERROR] %s", err.Error())
+					http.Redirect(w, r, "/login", http.StatusFound)
+					return
+				}
+
+				req.Header.Set("Authorization", token.Type()+" "+token.AccessToken)
+
+				req = req.WithContext(r.Context())
+				req, ht := nethttp.TraceRequest(tracer, req, nethttp.OperationName("HTTP GET"))
+				defer ht.Finish()
+
+				res, err := client.Do(req)
 				if err != nil {
 					log.Printf("[ERROR] %s", err.Error())
 					http.Redirect(w, r, "/login", http.StatusFound)

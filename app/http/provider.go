@@ -3,11 +3,11 @@ package http
 import (
 	"context"
 
-	"github.com/aristat/golang-example-app/app/db"
 	"github.com/aristat/golang-example-app/app/graphql"
 	"github.com/aristat/golang-example-app/app/users"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/opentracing/opentracing-go"
 
 	"github.com/go-session/session"
 
@@ -37,7 +37,7 @@ func CfgTest() (Config, func(), error) {
 }
 
 // Mux
-func Mux(db *db.Manager, managers Managers, log logger.Logger) (*chi.Mux, func(), error) {
+func Mux(managers Managers, log logger.Logger, tracer opentracing.Tracer) (*chi.Mux, func(), error) {
 	if mux != nil {
 		return mux, func() {}, nil
 	}
@@ -45,6 +45,7 @@ func Mux(db *db.Manager, managers Managers, log logger.Logger) (*chi.Mux, func()
 	mux = chi.NewRouter()
 	mux.Use(middleware.RequestID)
 	mux.Use(Logger(log))
+	mux.Use(Tracer(tracer))
 
 	managers.users.Router.Run(mux)
 	managers.oauth.Router.Run(mux)

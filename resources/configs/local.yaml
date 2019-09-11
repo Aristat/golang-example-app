@@ -14,3 +14,7 @@ logger:
   debug: true
 graphql:
   introspection: true
+tracing:
+  jaeger:
+    disabled: false
+    serviceName: golang-example-app-server
