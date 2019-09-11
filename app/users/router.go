@@ -6,6 +6,16 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"time"
+
+	"github.com/opentracing/opentracing-go"
+
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+
+	"github.com/aristat/golang-example-app/generated/resources/proto/products"
+
+	"google.golang.org/grpc"
 
 	"github.com/jinzhu/gorm"
 
@@ -37,6 +47,37 @@ func (router *Router) Run(chiRouter *chi.Mux) {
 	chiRouter.Post("/auth", router.Auth)
 
 	chiRouter.Get("/user", router.User)
+
+	chiRouter.Get("/products", router.GetProducts)
+}
+
+func (service *Router) GetProducts(w http.ResponseWriter, r *http.Request) {
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithInsecure())
+	opts = append(opts,
+		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
+			otgrpc.OpenTracingClientInterceptor(opentracing.GlobalTracer()),
+		)))
+	opts = append(opts, grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(
+		otgrpc.OpenTracingStreamClientInterceptor(opentracing.GlobalTracer()),
+	)))
+
+	conn, err := grpc.Dial("localhost:50051", opts...)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	defer conn.Close()
+	c := products.NewProductsClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	productOut, err := c.ListProduct(ctx, &products.ListProductIn{Id: 1})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	e := json.NewEncoder(w)
+	e.Encode(productOut)
 }
 
 func (service *Router) GetLogin(w http.ResponseWriter, r *http.Request) {

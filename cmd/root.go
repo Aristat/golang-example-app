@@ -12,6 +12,8 @@ import (
 	"syscall"
 	"time"
 
+	product_service "github.com/aristat/golang-example-app/cmd/product-service"
+
 	"github.com/aristat/golang-example-app/cmd/client"
 
 	"github.com/aristat/golang-example-app/app/entrypoint"
@@ -120,7 +122,7 @@ func init() {
 }
 
 func Execute() {
-	rootCmd.AddCommand(daemon.Cmd, client.Cmd)
+	rootCmd.AddCommand(daemon.Cmd, client.Cmd, product_service.Cmd)
 	if e := rootCmd.Execute(); e != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%v\n", e.Error())
 		os.Exit(1)

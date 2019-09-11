@@ -18,6 +18,9 @@ In the deprecated version using only `gin` package.
 8. [mux](https://github.com/gorilla/mux) - http router
 9. [oauth2](https://github.com/go-oauth2/oauth2) - simple oauth2 server
 10. [gqlgen](https://github.com/99designs/gqlgen) - graphql server library
+11. [protobuf](https://github.com/golang/protobuf) - Google's data interchange format
+12. [grpc](google.golang.org/grpc) - RPC framework
+13. [jaeger](http://github.com/uber/jaeger-client-go) - Jaeger Bindings for Go OpenTracing API
 
 ## Install the Golang and GO environment
 
@@ -39,19 +42,43 @@ git clone git@github.com:Aristat/golang-example-app.git (go get)
 ➜ make build
 ```
 
+## Jaeger Tracing
+
+
+##### Run this command
+
+```
+ ➜ docker-compose up jaeger
+ ➜ http://localhost:16686
+```
+
+##### or disable Jaeger in
+
+```
+resources/configs/*.yaml
+```
+
 ##  Start
 
-#### Run Server and Client(only for oauth2)
+#### Oauth2
+ 
+#### Run
 
 ```
 ➜ cd artifacts/
-➜ ./bin daemon -c ./configs/local.yaml -d (run server with debug mod)
-➜ ./bin client (client for oauth2)
-➜ http://localhost:9094/login (testing oauth2)
-➜ http://localhost:9096/query (graphql route)
+➜ ./bin daemon -c ./configs/local.yaml -d
+➜ ./bin client
+➜ http://localhost:9094/login
 ```
 
 #### Graphql 
+
+##### Run
+```
+➜ cd artifacts/
+➜ ./bin daemon -c ./configs/local.yaml -d
+➜ http://localhost:9096/query
+```
 
 ##### User query
 ```
@@ -75,6 +102,16 @@ mutation createUser {
     }
   }
 }
+```
+
+#### Grpc Testing
+
+##### Run
+```
+➜ cd artifacts/
+➜ ./bin daemon -c ./configs/local.yaml -d
+➜ ./bin product_service
+➜ http://localhost:9096/products
 ```
 
 ## Testing

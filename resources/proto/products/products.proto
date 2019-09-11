@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package products;
+
+message Product {
+    int64 id = 1;
+    string name = 2;
+}
+
+
+service Products {
+    rpc ListProduct (ListProductIn) returns (ListProductOut) {
+        }
+}
+
+message ListProductIn {
+    int64 id = 1;
+}
+
+message ListProductOut {
+    enum Status {
+        OK = 0;
+        NOT_FOUND = 2;
+    }
+    Status status = 1;
+    repeated Product products = 2;
+}
