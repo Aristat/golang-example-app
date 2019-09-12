@@ -12,11 +12,10 @@ import (
 	"github.com/aristat/golang-example-app/common"
 
 	"github.com/aristat/golang-example-app/generated/resources/proto/health_checks"
+	"github.com/aristat/golang-example-app/generated/resources/proto/products"
 	"github.com/golang/protobuf/ptypes/empty"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
-
-	"github.com/aristat/golang-example-app/generated/resources/proto/products"
+	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
@@ -35,13 +34,14 @@ func (s *server) ListProduct(ctx context.Context, in *products.ListProductIn) (*
 
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithInsecure())
-	opts = append(opts,
-		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
-			otgrpc.OpenTracingClientInterceptor(tracer),
+	opts = append(opts, grpc.WithUnaryInterceptor(
+		grpc_middleware.ChainUnaryClient(
+			grpc_opentracing.UnaryClientInterceptor(grpc_opentracing.WithTracer(tracer)),
 		)))
-	opts = append(opts, grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(
-		otgrpc.OpenTracingStreamClientInterceptor(tracer),
-	)))
+	opts = append(opts, grpc.WithStreamInterceptor(
+		grpc_middleware.ChainStreamClient(
+			grpc_opentracing.StreamClientInterceptor(grpc_opentracing.WithTracer(tracer)),
+		)))
 
 	conn, err := grpc.Dial("localhost:50052", opts...)
 	if err != nil {
@@ -88,12 +88,12 @@ var (
 			s := grpc.NewServer(
 				grpc.StreamInterceptor(
 					grpc_middleware.ChainStreamServer(
-						otgrpc.OpenTracingStreamServerInterceptor(tracer),
+						grpc_opentracing.StreamServerInterceptor(grpc_opentracing.WithTracer(tracer)),
 					),
 				),
 				grpc.UnaryInterceptor(
 					grpc_middleware.ChainUnaryServer(
-						otgrpc.OpenTracingServerInterceptor(tracer),
+						grpc_opentracing.UnaryServerInterceptor(grpc_opentracing.WithTracer(tracer)),
 					),
 				),
 			)

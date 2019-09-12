@@ -7,6 +7,8 @@ import (
 	"net"
 	"time"
 
+	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
+
 	"github.com/aristat/golang-example-app/common"
 
 	"github.com/aristat/golang-example-app/generated/resources/proto/health_checks"
@@ -14,7 +16,6 @@ import (
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 
-	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 )
@@ -59,12 +60,12 @@ var (
 			s := grpc.NewServer(
 				grpc.StreamInterceptor(
 					grpc_middleware.ChainStreamServer(
-						otgrpc.OpenTracingStreamServerInterceptor(tracer),
+						grpc_opentracing.StreamServerInterceptor(grpc_opentracing.WithTracer(tracer)),
 					),
 				),
 				grpc.UnaryInterceptor(
 					grpc_middleware.ChainUnaryServer(
-						otgrpc.OpenTracingServerInterceptor(tracer),
+						grpc_opentracing.UnaryServerInterceptor(grpc_opentracing.WithTracer(tracer)),
 					),
 				),
 			)

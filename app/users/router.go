@@ -8,12 +8,12 @@ import (
 	"net/http"
 	"time"
 
+	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
+
 	"github.com/opentracing/opentracing-go"
 
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
-
 	"github.com/aristat/golang-example-app/generated/resources/proto/products"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 
 	"google.golang.org/grpc"
 
@@ -56,10 +56,10 @@ func (service *Router) GetProducts(w http.ResponseWriter, r *http.Request) {
 	opts = append(opts, grpc.WithInsecure())
 	opts = append(opts,
 		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
-			otgrpc.OpenTracingClientInterceptor(opentracing.GlobalTracer()),
+			grpc_opentracing.UnaryClientInterceptor(grpc_opentracing.WithTracer(opentracing.GlobalTracer())),
 		)))
 	opts = append(opts, grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(
-		otgrpc.OpenTracingStreamClientInterceptor(opentracing.GlobalTracer()),
+		grpc_opentracing.StreamClientInterceptor(grpc_opentracing.WithTracer(opentracing.GlobalTracer())),
 	)))
 
 	conn, err := grpc.Dial("localhost:50051", opts...)
