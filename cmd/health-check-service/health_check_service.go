@@ -2,10 +2,11 @@ package health_check_service
 
 import (
 	"context"
-	"log"
 	"math/rand"
 	"net"
 	"time"
+
+	"github.com/aristat/golang-example-app/app/logger"
 
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 
@@ -49,29 +50,45 @@ var (
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		Run: func(_ *cobra.Command, _ []string) {
-			log.SetFlags(log.Lshortfile | log.LstdFlags)
+			log, c, e := logger.Build()
+			if e != nil {
+				panic(e)
+			}
+			defer c()
+
+			defer func() {
+				if r := recover(); r != nil {
+					if re, _ := r.(error); re != nil {
+						log.Error(re.Error())
+					} else {
+						log.Alert("unhandled panic, err: %v", logger.Args(r))
+					}
+				}
+			}()
 
 			tracer := common.GenerateTracerForTestClient("golang-example-app-health-check-service")
 
 			lis, err := net.Listen("tcp", port)
 			if err != nil {
-				log.Fatalf("failed to listen: %v", err)
+				panic(err)
 			}
 			s := grpc.NewServer(
-				grpc.StreamInterceptor(
-					grpc_middleware.ChainStreamServer(
-						grpc_opentracing.StreamServerInterceptor(grpc_opentracing.WithTracer(tracer)),
-					),
-				),
 				grpc.UnaryInterceptor(
 					grpc_middleware.ChainUnaryServer(
+						logger.UnaryServerInterceptor(log, true),
 						grpc_opentracing.UnaryServerInterceptor(grpc_opentracing.WithTracer(tracer)),
+					),
+				),
+				grpc.StreamInterceptor(
+					grpc_middleware.ChainStreamServer(
+						logger.StreamServerInterceptor(log, true),
+						grpc_opentracing.StreamServerInterceptor(grpc_opentracing.WithTracer(tracer)),
 					),
 				),
 			)
 			health_checks.RegisterHealthChecksServer(s, &server{})
 			if err := s.Serve(lis); err != nil {
-				log.Fatalf("failed to serve: %v", err)
+				panic(err)
 			}
 		},
 	}

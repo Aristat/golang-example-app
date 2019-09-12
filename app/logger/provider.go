@@ -14,7 +14,7 @@ func ProviderCfg(cfg *viper.Viper) (Config, func(), error) {
 	if e != nil {
 		return c, func() {}, e
 	}
-	if cfg.IsSet("debug") {
+	if cfg.IsSet("debug") && !c.Debug {
 		c.Debug = cfg.GetBool("debug")
 	}
 	return c, func() {}, nil

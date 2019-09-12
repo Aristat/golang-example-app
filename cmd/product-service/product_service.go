@@ -3,13 +3,12 @@ package product_service
 import (
 	"context"
 	"errors"
-	"log"
 	"net"
 	"time"
 
-	"github.com/opentracing/opentracing-go"
-
+	"github.com/aristat/golang-example-app/app/logger"
 	"github.com/aristat/golang-example-app/common"
+	"github.com/opentracing/opentracing-go"
 
 	"github.com/aristat/golang-example-app/generated/resources/proto/health_checks"
 	"github.com/aristat/golang-example-app/generated/resources/proto/products"
@@ -25,10 +24,12 @@ const (
 	port = ":50051"
 )
 
-type server struct{}
+type server struct {
+	logger logger.Logger
+}
 
 func (s *server) ListProduct(ctx context.Context, in *products.ListProductIn) (*products.ListProductOut, error) {
-	log.Printf("Received ListProduct: %v", in.Id)
+	s.logger.Printf("Received ListProduct: %v", in.Id)
 
 	tracer := opentracing.GlobalTracer()
 
@@ -36,10 +37,12 @@ func (s *server) ListProduct(ctx context.Context, in *products.ListProductIn) (*
 	opts = append(opts, grpc.WithInsecure())
 	opts = append(opts, grpc.WithUnaryInterceptor(
 		grpc_middleware.ChainUnaryClient(
+			logger.UnaryClientInterceptor(s.logger, true),
 			grpc_opentracing.UnaryClientInterceptor(grpc_opentracing.WithTracer(tracer)),
 		)))
 	opts = append(opts, grpc.WithStreamInterceptor(
 		grpc_middleware.ChainStreamClient(
+			logger.StreamClientInterceptor(s.logger, true),
 			grpc_opentracing.StreamClientInterceptor(grpc_opentracing.WithTracer(tracer)),
 		)))
 
@@ -76,30 +79,48 @@ var (
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		Run: func(_ *cobra.Command, _ []string) {
-			log.SetFlags(log.Lshortfile | log.LstdFlags)
+			log, c, e := logger.Build()
+			if e != nil {
+				panic(e)
+			}
+			defer c()
+
+			defer func() {
+				if r := recover(); r != nil {
+					if re, _ := r.(error); re != nil {
+						log.Error(re.Error())
+					} else {
+						log.Alert("unhandled panic, err: %v", logger.Args(r))
+					}
+				}
+			}()
 
 			tracer := common.GenerateTracerForTestClient("golang-example-app-product-service")
 			opentracing.SetGlobalTracer(tracer)
 
 			lis, err := net.Listen("tcp", port)
 			if err != nil {
-				log.Fatalf("failed to listen: %v", err)
+				panic(err)
 			}
+
 			s := grpc.NewServer(
-				grpc.StreamInterceptor(
-					grpc_middleware.ChainStreamServer(
-						grpc_opentracing.StreamServerInterceptor(grpc_opentracing.WithTracer(tracer)),
-					),
-				),
 				grpc.UnaryInterceptor(
 					grpc_middleware.ChainUnaryServer(
+						logger.UnaryServerInterceptor(log, true),
 						grpc_opentracing.UnaryServerInterceptor(grpc_opentracing.WithTracer(tracer)),
 					),
 				),
+				grpc.StreamInterceptor(
+					grpc_middleware.ChainStreamServer(
+						logger.StreamServerInterceptor(log, true),
+						grpc_opentracing.StreamServerInterceptor(grpc_opentracing.WithTracer(tracer)),
+					),
+				),
 			)
-			products.RegisterProductsServer(s, &server{})
+			products.RegisterProductsServer(s, &server{logger: log})
+
 			if err := s.Serve(lis); err != nil {
-				log.Fatalf("failed to serve: %v", err)
+				panic(err)
 			}
 		},
 	}

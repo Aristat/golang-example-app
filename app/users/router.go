@@ -14,7 +14,6 @@ import (
 
 	"github.com/aristat/golang-example-app/generated/resources/proto/products"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-
 	"google.golang.org/grpc"
 
 	"github.com/jinzhu/gorm"
@@ -56,9 +55,11 @@ func (service *Router) GetProducts(w http.ResponseWriter, r *http.Request) {
 	opts = append(opts, grpc.WithInsecure())
 	opts = append(opts,
 		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
+			logger.UnaryClientInterceptor(service.logger, true),
 			grpc_opentracing.UnaryClientInterceptor(grpc_opentracing.WithTracer(opentracing.GlobalTracer())),
 		)))
 	opts = append(opts, grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(
+		logger.StreamClientInterceptor(service.logger, true),
 		grpc_opentracing.StreamClientInterceptor(grpc_opentracing.WithTracer(opentracing.GlobalTracer())),
 	)))
 

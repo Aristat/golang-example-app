@@ -5,6 +5,7 @@ require (
 	github.com/99designs/gqlgen v0.9.3
 	github.com/ajg/form v0.0.0-20160822230020-523a5da1a92f // indirect
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
+	github.com/davecgh/go-spew v1.1.1
 	github.com/denisenkom/go-mssqldb v0.0.0-20190710001350-29e7b2419f38 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/gavv/httpexpect v0.0.0-20180803094507-bdde30871313
