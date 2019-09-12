@@ -20,7 +20,7 @@ var (
 	wd                    string
 )
 
-const prefix = "services.entrypoint"
+const prefix = "app.entrypoint"
 
 func init() {
 	shutdownCtx, cancelFn = context.WithCancel(context.Background())

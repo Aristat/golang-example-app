@@ -71,6 +71,20 @@ resources/configs/*.yaml
 ➜ http://localhost:9094/login
 ```
 
+#### Grpc Testing
+
+##### Run
+```
+➜ cd artifacts/
+➜ ./bin daemon -c ./configs/local.yaml -d
+➜ ./bin product_service
+➜ ./bin health-check
+➜ http://localhost:9096/products
+```
+
+You with a probability of 50/50 will receive either the correct answer or an error on one of the services.
+It's needed for check jaeger in http://localhost:16686
+
 #### Graphql 
 
 ##### Run
@@ -81,6 +95,9 @@ resources/configs/*.yaml
 ```
 
 ##### User query
+
+You with a probability of 50/50 will receive the correct result. It's needed for check jaeger
+
 ```
 query oneUser {
   users {
@@ -103,20 +120,6 @@ mutation createUser {
   }
 }
 ```
-
-#### Grpc Testing
-
-##### Run
-```
-➜ cd artifacts/
-➜ ./bin daemon -c ./configs/local.yaml -d
-➜ ./bin product_service
-➜ ./bin health-check
-➜ http://localhost:9096/products
-```
-
-You with a probability of 50/50 will receive either the correct answer or an error on one of the services.
-It's needed for check jaeger in http://localhost:16686
 
 ## Testing
 ```

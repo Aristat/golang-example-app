@@ -18,7 +18,9 @@ func Cfg(cfg *viper.Viper) (Config, func(), error) {
 	if e != nil {
 		return c, func() {}, e
 	}
-	c.Debug = cfg.GetBool("debug")
+	if cfg.IsSet("debug") && !c.Debug {
+		c.Debug = cfg.GetBool("debug")
+	}
 	return c, func() {}, nil
 }
 

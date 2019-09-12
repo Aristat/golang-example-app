@@ -9,7 +9,7 @@ import (
 	graphql1 "github.com/aristat/golang-example-app/generated/graphql"
 )
 
-var prefix = "resolver"
+var prefix = "app.resolver"
 
 // Config
 type Config struct {

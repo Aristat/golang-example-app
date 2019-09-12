@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
+
+	"github.com/aristat/golang-example-app/app/logger"
 
 	"github.com/aristat/golang-example-app/common"
 
@@ -39,7 +40,21 @@ var (
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		Run: func(_ *cobra.Command, _ []string) {
-			log.SetFlags(log.Lshortfile | log.LstdFlags)
+			log, c, e := logger.Build()
+			if e != nil {
+				panic(e)
+			}
+			defer c()
+
+			defer func() {
+				if r := recover(); r != nil {
+					if re, _ := r.(error); re != nil {
+						log.Error(re.Error())
+					} else {
+						log.Alert("unhandled panic, err: %v", logger.Args(r))
+					}
+				}
+			}()
 
 			tracer := common.GenerateTracerForTestClient("golang-example-app-client")
 			client := &http.Client{Transport: &nethttp.Transport{}}
@@ -106,13 +121,17 @@ var (
 				w.Write(d)
 			})
 
-			log.Println("[INFO] Client is running at 9094 port.")
+			log.Info("[INFO] Client is running at 9094 port.")
 
 			server := &http.Server{
 				Addr:    ":9094",
 				Handler: r,
 			}
-			log.Fatal(server.ListenAndServe())
+
+			err := server.ListenAndServe()
+			if err != nil {
+				panic(err)
+			}
 		},
 	}
 )
