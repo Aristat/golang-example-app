@@ -29,8 +29,6 @@ type server struct {
 }
 
 func (s *server) ListProduct(ctx context.Context, in *products.ListProductIn) (*products.ListProductOut, error) {
-	s.logger.Printf("Received ListProduct: %v", in.Id)
-
 	tracer := opentracing.GlobalTracer()
 
 	var opts []grpc.DialOption
@@ -65,7 +63,8 @@ func (s *server) ListProduct(ctx context.Context, in *products.ListProductIn) (*
 	}
 
 	out := &products.ListProductOut{Status: products.ListProductOut_OK, Products: []*products.Product{}}
-	out.Products = append(out.Products, &products.Product{Id: 2, Name: "first_product"})
+	out.Products = append(out.Products, &products.Product{Id: 1, Name: "first_product"})
+	out.Products = append(out.Products, &products.Product{Id: 2, Name: "second_product"})
 
 	return out, nil
 }

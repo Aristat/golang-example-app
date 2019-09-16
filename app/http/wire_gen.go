@@ -270,14 +270,14 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	managers := users.Managers{
+	serviceManagers := users.ServiceManagers{
 		Session:     manager,
 		DB:          dbManager,
 		Oauth:       oauthManager,
 		Repo:        repoRepo,
 		PoolManager: poolManager,
 	}
-	usersManager, cleanup20, err := users.Provider(context, zap, managers)
+	usersManager, cleanup20, err := users.Provider(context, zap, serviceManagers)
 	if err != nil {
 		cleanup19()
 		cleanup18()
@@ -324,10 +324,11 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	resolverManagers := resolver.Managers{
-		Repo: repoRepo,
+	managers := resolver.Managers{
+		Repo:        repoRepo,
+		PollManager: poolManager,
 	}
-	graphqlConfig, cleanup22, err := resolver.Provider(context, zap, resolverConfig, resolverManagers)
+	graphqlConfig, cleanup22, err := resolver.Provider(context, zap, resolverConfig, managers)
 	if err != nil {
 		cleanup21()
 		cleanup20()

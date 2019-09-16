@@ -2,17 +2,9 @@ package resolver
 
 import (
 	"context"
-	"time"
 
-	"github.com/aristat/golang-example-app/generated/resources/proto/products"
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
-
-	"github.com/aristat/golang-example-app/app/logger"
 	graphql1 "github.com/aristat/golang-example-app/generated/graphql"
-	"github.com/opentracing/opentracing-go"
 	"github.com/spf13/cast"
-	"google.golang.org/grpc"
 )
 
 type usersQueryResolver struct{ *Resolver }
@@ -32,36 +24,6 @@ func (r *queryResolver) Users(ctx context.Context) (*graphql1.UsersQuery, error)
 }
 
 func (r *usersQueryResolver) One(ctx context.Context, obj *graphql1.UsersQuery, email string) (*graphql1.UsersOneOut, error) {
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
-	opts = append(opts,
-		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
-			logger.UnaryClientInterceptor(r.log, true),
-			grpc_opentracing.UnaryClientInterceptor(grpc_opentracing.WithTracer(opentracing.GlobalTracer())),
-		)))
-	opts = append(opts, grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(
-		logger.StreamClientInterceptor(r.log, true),
-		grpc_opentracing.StreamClientInterceptor(grpc_opentracing.WithTracer(opentracing.GlobalTracer())),
-	)))
-
-	conn, err := grpc.Dial("localhost:50051", opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	defer conn.Close()
-
-	c := products.NewProductsClient(conn)
-
-	ctx, cancel := context.WithTimeout(ctx, time.Second)
-	defer cancel()
-
-	productOut, err := c.ListProduct(ctx, &products.ListProductIn{Id: 1})
-	if err != nil {
-		return nil, err
-	}
-	r.log.Info("Products %v", logger.Args(productOut.Products))
-
 	user, err := r.repo.Users.FindByEmail(email)
 
 	if err != nil {

@@ -54,7 +54,7 @@ func Mux(managers Managers, log logger.Logger, tracer opentracing.Tracer) (*chi.
 	return mux, func() {}, nil
 }
 
-// Managers
+// ServiceManagers
 type Managers struct {
 	session *session.Manager
 	users   *users.Manager

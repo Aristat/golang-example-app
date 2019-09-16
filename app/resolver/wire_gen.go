@@ -10,7 +10,9 @@ import (
 	"github.com/aristat/golang-example-app/app/db"
 	"github.com/aristat/golang-example-app/app/db/repo"
 	"github.com/aristat/golang-example-app/app/entrypoint"
+	"github.com/aristat/golang-example-app/app/grpc"
 	"github.com/aristat/golang-example-app/app/logger"
+	"github.com/aristat/golang-example-app/app/tracing"
 	"github.com/aristat/golang-example-app/generated/graphql"
 )
 
@@ -89,10 +91,7 @@ func Build() (graphql.Config, func(), error) {
 		cleanup()
 		return graphql.Config{}, nil, err
 	}
-	managers := Managers{
-		Repo: repoRepo,
-	}
-	graphqlConfig, cleanup10, err := Provider(context, zap, resolverConfig, managers)
+	configuration, cleanup10, err := tracing.ProviderCfg(viper)
 	if err != nil {
 		cleanup9()
 		cleanup8()
@@ -105,7 +104,77 @@ func Build() (graphql.Config, func(), error) {
 		cleanup()
 		return graphql.Config{}, nil, err
 	}
+	tracer, cleanup11, err := tracing.Provider(context, configuration, zap)
+	if err != nil {
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return graphql.Config{}, nil, err
+	}
+	grpcConfig, cleanup12, err := grpc.Cfg(viper)
+	if err != nil {
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return graphql.Config{}, nil, err
+	}
+	poolManager, cleanup13, err := grpc.Provider(context, tracer, zap, grpcConfig)
+	if err != nil {
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return graphql.Config{}, nil, err
+	}
+	managers := Managers{
+		Repo:        repoRepo,
+		PollManager: poolManager,
+	}
+	graphqlConfig, cleanup14, err := Provider(context, zap, resolverConfig, managers)
+	if err != nil {
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return graphql.Config{}, nil, err
+	}
 	return graphqlConfig, func() {
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
 		cleanup10()
 		cleanup9()
 		cleanup8()
@@ -169,10 +238,7 @@ func BuildTest() (graphql.Config, func(), error) {
 		cleanup()
 		return graphql.Config{}, nil, err
 	}
-	managers := Managers{
-		Repo: repoRepo,
-	}
-	graphqlConfig, cleanup8, err := Provider(context, mock, resolverConfig, managers)
+	tracer, cleanup8, err := tracing.ProviderTest()
 	if err != nil {
 		cleanup7()
 		cleanup6()
@@ -183,7 +249,53 @@ func BuildTest() (graphql.Config, func(), error) {
 		cleanup()
 		return graphql.Config{}, nil, err
 	}
+	grpcConfig, cleanup9, err := grpc.CfgTest()
+	if err != nil {
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return graphql.Config{}, nil, err
+	}
+	poolManager, cleanup10, err := grpc.Provider(context, tracer, mock, grpcConfig)
+	if err != nil {
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return graphql.Config{}, nil, err
+	}
+	managers := Managers{
+		Repo:        repoRepo,
+		PollManager: poolManager,
+	}
+	graphqlConfig, cleanup11, err := Provider(context, mock, resolverConfig, managers)
+	if err != nil {
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return graphql.Config{}, nil, err
+	}
 	return graphqlConfig, func() {
+		cleanup11()
+		cleanup10()
+		cleanup9()
 		cleanup8()
 		cleanup7()
 		cleanup6()

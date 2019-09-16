@@ -8,6 +8,19 @@ import (
 	"strconv"
 )
 
+type Product struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type ProductsListOut struct {
+	Products []*Product `json:"products"`
+}
+
+type ProductsQuery struct {
+	List *ProductsListOut `json:"list"`
+}
+
 type UsersCreateOut struct {
 	Status UsersCreateOutStatus `json:"status"`
 	ID     string               `json:"id"`

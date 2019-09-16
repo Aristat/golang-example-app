@@ -1,5 +1,6 @@
 type Query {
     users: UsersQuery
+    products: ProductsQuery
 }
 
 type Mutation {

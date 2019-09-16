@@ -16,6 +16,10 @@ models:
     fields:
       one:
         resolver: true
+  ProductsQuery:
+    fields:
+      list:
+        resolver: true
   UsersMutation:
     fields:
       createUser:

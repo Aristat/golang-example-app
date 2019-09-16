@@ -5,6 +5,12 @@ import (
 	"errors"
 	"html/template"
 
+	"github.com/aristat/golang-example-app/app/db"
+	"github.com/aristat/golang-example-app/app/db/repo"
+	"github.com/aristat/golang-example-app/app/grpc"
+	"github.com/aristat/golang-example-app/app/oauth"
+	"github.com/go-session/session"
+
 	"github.com/aristat/golang-example-app/app/logger"
 )
 
@@ -16,14 +22,23 @@ type H map[string]interface{}
 
 const prefix = "app.users"
 
-// OAuth
+// OAuth Manager
 type Manager struct {
 	ctx    context.Context
 	logger logger.Logger
 	Router *Router
 }
 
-func New(ctx context.Context, log logger.Logger, managers Managers) *Manager {
+// ServiceManagers
+type ServiceManagers struct {
+	Session     *session.Manager
+	DB          *db.Manager
+	Oauth       *oauth.Manager
+	Repo        *repo.Repo
+	PoolManager *grpc.PoolManager
+}
+
+func New(ctx context.Context, log logger.Logger, managers ServiceManagers) *Manager {
 	tmp := template.Must(template.New("").ParseGlob("templates/**/*"))
 	log = log.WithFields(logger.Fields{"service": prefix})
 

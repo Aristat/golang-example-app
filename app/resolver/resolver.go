@@ -3,6 +3,8 @@ package resolver
 import (
 	"context"
 
+	"github.com/aristat/golang-example-app/app/grpc"
+
 	"github.com/aristat/golang-example-app/app/db/repo"
 
 	"github.com/aristat/golang-example-app/app/logger"
@@ -17,7 +19,8 @@ type Config struct {
 
 // Managers
 type Managers struct {
-	Repo *repo.Repo
+	Repo        *repo.Repo
+	PollManager *grpc.PoolManager
 }
 
 type queryResolver struct{ *Resolver }
@@ -25,10 +28,11 @@ type mutationResolver struct{ *Resolver }
 
 // Resolver config graphql resolvers
 type Resolver struct {
-	ctx  context.Context
-	log  logger.Logger
-	cfg  Config
-	repo *repo.Repo
+	ctx         context.Context
+	log         logger.Logger
+	cfg         Config
+	repo        *repo.Repo
+	pollManager *grpc.PoolManager
 }
 
 // Mutation returns root graphql mutation resolver
@@ -46,10 +50,11 @@ func New(ctx context.Context, log logger.Logger, cfg Config, managers Managers) 
 	log = log.WithFields(logger.Fields{"service": prefix})
 	c := graphql1.Config{
 		Resolvers: &Resolver{
-			ctx:  ctx,
-			log:  log,
-			cfg:  cfg,
-			repo: managers.Repo,
+			ctx:         ctx,
+			log:         log,
+			cfg:         cfg,
+			repo:        managers.Repo,
+			pollManager: managers.PollManager,
 		},
 	}
 	return c

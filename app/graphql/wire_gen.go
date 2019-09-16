@@ -10,8 +10,10 @@ import (
 	"github.com/aristat/golang-example-app/app/db"
 	"github.com/aristat/golang-example-app/app/db/repo"
 	"github.com/aristat/golang-example-app/app/entrypoint"
+	"github.com/aristat/golang-example-app/app/grpc"
 	"github.com/aristat/golang-example-app/app/logger"
 	"github.com/aristat/golang-example-app/app/resolver"
+	"github.com/aristat/golang-example-app/app/tracing"
 )
 
 // Injectors from injector.go:
@@ -89,10 +91,7 @@ func Build() (*GraphQL, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	managers := resolver.Managers{
-		Repo: repoRepo,
-	}
-	graphqlConfig, cleanup10, err := resolver.Provider(context, zap, resolverConfig, managers)
+	configuration, cleanup10, err := tracing.ProviderCfg(viper)
 	if err != nil {
 		cleanup9()
 		cleanup8()
@@ -105,7 +104,7 @@ func Build() (*GraphQL, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	config2, cleanup11, err := Cfg(viper)
+	tracer, cleanup11, err := tracing.Provider(context, configuration, zap)
 	if err != nil {
 		cleanup10()
 		cleanup9()
@@ -119,7 +118,7 @@ func Build() (*GraphQL, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	graphQL, cleanup12, err := Provider(context, graphqlConfig, zap, config2)
+	grpcConfig, cleanup12, err := grpc.Cfg(viper)
 	if err != nil {
 		cleanup11()
 		cleanup10()
@@ -134,7 +133,85 @@ func Build() (*GraphQL, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	poolManager, cleanup13, err := grpc.Provider(context, tracer, zap, grpcConfig)
+	if err != nil {
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	managers := resolver.Managers{
+		Repo:        repoRepo,
+		PollManager: poolManager,
+	}
+	graphqlConfig, cleanup14, err := resolver.Provider(context, zap, resolverConfig, managers)
+	if err != nil {
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	config2, cleanup15, err := Cfg(viper)
+	if err != nil {
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	graphQL, cleanup16, err := Provider(context, graphqlConfig, zap, config2)
+	if err != nil {
+		cleanup15()
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return graphQL, func() {
+		cleanup16()
+		cleanup15()
+		cleanup14()
+		cleanup13()
 		cleanup12()
 		cleanup11()
 		cleanup10()
@@ -200,10 +277,7 @@ func BuildTest() (*GraphQL, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	managers := resolver.Managers{
-		Repo: repoRepo,
-	}
-	graphqlConfig, cleanup8, err := resolver.Provider(context, mock, resolverConfig, managers)
+	tracer, cleanup8, err := tracing.ProviderTest()
 	if err != nil {
 		cleanup7()
 		cleanup6()
@@ -214,7 +288,7 @@ func BuildTest() (*GraphQL, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	config2, cleanup9, err := CfgTest()
+	grpcConfig, cleanup9, err := grpc.CfgTest()
 	if err != nil {
 		cleanup8()
 		cleanup7()
@@ -226,7 +300,7 @@ func BuildTest() (*GraphQL, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	graphQL, cleanup10, err := Provider(context, graphqlConfig, mock, config2)
+	poolManager, cleanup10, err := grpc.Provider(context, tracer, mock, grpcConfig)
 	if err != nil {
 		cleanup9()
 		cleanup8()
@@ -239,7 +313,59 @@ func BuildTest() (*GraphQL, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	managers := resolver.Managers{
+		Repo:        repoRepo,
+		PollManager: poolManager,
+	}
+	graphqlConfig, cleanup11, err := resolver.Provider(context, mock, resolverConfig, managers)
+	if err != nil {
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	config2, cleanup12, err := CfgTest()
+	if err != nil {
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	graphQL, cleanup13, err := Provider(context, graphqlConfig, mock, config2)
+	if err != nil {
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return graphQL, func() {
+		cleanup13()
+		cleanup12()
+		cleanup11()
 		cleanup10()
 		cleanup9()
 		cleanup8()

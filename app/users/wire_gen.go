@@ -267,14 +267,14 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	managers := Managers{
+	serviceManagers := ServiceManagers{
 		Session:     manager,
 		DB:          dbManager,
 		Oauth:       oauthManager,
 		Repo:        repoRepo,
 		PoolManager: poolManager,
 	}
-	usersManager, cleanup20, err := Provider(context, zap, managers)
+	usersManager, cleanup20, err := Provider(context, zap, serviceManagers)
 	if err != nil {
 		cleanup19()
 		cleanup18()
@@ -487,14 +487,14 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	managers := Managers{
+	serviceManagers := ServiceManagers{
 		Session:     manager,
 		DB:          dbManager,
 		Oauth:       oauthManager,
 		Repo:        repoRepo,
 		PoolManager: poolManager,
 	}
-	usersManager, cleanup16, err := Provider(context, mock, managers)
+	usersManager, cleanup16, err := Provider(context, mock, serviceManagers)
 	if err != nil {
 		cleanup15()
 		cleanup14()
