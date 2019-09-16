@@ -36,6 +36,7 @@ require (
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/pkg/errors v0.8.1
+	github.com/processout/grpc-go-pool v1.2.1
 	github.com/selvatico/go-mocket v1.0.7
 	github.com/smartystreets/goconvey v0.0.0-20190306220146-200a235640ff // indirect
 	github.com/spf13/afero v1.2.2 // indirect

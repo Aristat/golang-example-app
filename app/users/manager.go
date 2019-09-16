@@ -35,6 +35,7 @@ func New(ctx context.Context, log logger.Logger, managers Managers) *Manager {
 		db:             managers.DB.DB,
 		server:         managers.Oauth.Router.Server,
 		repo:           managers.Repo,
+		poolManager:    managers.PoolManager,
 	}
 
 	return &Manager{

@@ -3,6 +3,8 @@ package users
 import (
 	"context"
 
+	"github.com/aristat/golang-example-app/app/grpc"
+
 	"github.com/aristat/golang-example-app/app/db/repo"
 
 	"github.com/aristat/golang-example-app/app/db"
@@ -15,10 +17,11 @@ import (
 
 // Managers
 type Managers struct {
-	Session *session.Manager
-	DB      *db.Manager
-	Oauth   *oauth.Manager
-	Repo    *repo.Repo
+	Session     *session.Manager
+	DB          *db.Manager
+	Oauth       *oauth.Manager
+	Repo        *repo.Repo
+	PoolManager *grpc.PoolManager
 }
 
 var ProviderManagers = wire.NewSet(

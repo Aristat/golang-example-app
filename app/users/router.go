@@ -8,14 +8,9 @@ import (
 	"net/http"
 	"time"
 
-	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
-
-	"github.com/opentracing/opentracing-go"
+	"github.com/aristat/golang-example-app/app/grpc"
 
 	"github.com/aristat/golang-example-app/generated/resources/proto/products"
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	"google.golang.org/grpc"
-
 	"github.com/jinzhu/gorm"
 
 	"github.com/aristat/golang-example-app/app/db/repo"
@@ -36,6 +31,7 @@ type Router struct {
 	db             *gorm.DB
 	server         *server.Server
 	repo           *repo.Repo
+	poolManager    *grpc.PoolManager
 }
 
 func (router *Router) Run(chiRouter *chi.Mux) {
@@ -51,25 +47,14 @@ func (router *Router) Run(chiRouter *chi.Mux) {
 }
 
 func (service *Router) GetProducts(w http.ResponseWriter, r *http.Request) {
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
-	opts = append(opts,
-		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
-			logger.UnaryClientInterceptor(service.logger, true),
-			grpc_opentracing.UnaryClientInterceptor(grpc_opentracing.WithTracer(opentracing.GlobalTracer())),
-		)))
-	opts = append(opts, grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(
-		logger.StreamClientInterceptor(service.logger, true),
-		grpc_opentracing.StreamClientInterceptor(grpc_opentracing.WithTracer(opentracing.GlobalTracer())),
-	)))
+	conn, d, err := grpc.GetConnGRPC(service.poolManager, common.SrvProducts)
+	defer d()
 
-	conn, err := grpc.Dial("localhost:50051", opts...)
 	if err != nil {
 		service.logger.Printf("[ERROR] %s", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer conn.Close()
 
 	c := products.NewProductsClient(conn)
 

@@ -10,9 +10,11 @@ import (
 	"github.com/aristat/golang-example-app/app/db"
 	"github.com/aristat/golang-example-app/app/db/repo"
 	"github.com/aristat/golang-example-app/app/entrypoint"
+	"github.com/aristat/golang-example-app/app/grpc"
 	"github.com/aristat/golang-example-app/app/logger"
 	"github.com/aristat/golang-example-app/app/oauth"
 	"github.com/aristat/golang-example-app/app/session"
+	"github.com/aristat/golang-example-app/app/tracing"
 )
 
 // Injectors from injector.go:
@@ -183,13 +185,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	managers := Managers{
-		Session: manager,
-		DB:      dbManager,
-		Oauth:   oauthManager,
-		Repo:    repoRepo,
-	}
-	usersManager, cleanup16, err := Provider(context, zap, managers)
+	configuration, cleanup16, err := tracing.ProviderCfg(viper)
 	if err != nil {
 		cleanup15()
 		cleanup14()
@@ -208,7 +204,104 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	tracer, cleanup17, err := tracing.Provider(context, configuration, zap)
+	if err != nil {
+		cleanup16()
+		cleanup15()
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	grpcConfig, cleanup18, err := grpc.Cfg(viper)
+	if err != nil {
+		cleanup17()
+		cleanup16()
+		cleanup15()
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	poolManager, cleanup19, err := grpc.Provider(context, tracer, zap, grpcConfig)
+	if err != nil {
+		cleanup18()
+		cleanup17()
+		cleanup16()
+		cleanup15()
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	managers := Managers{
+		Session:     manager,
+		DB:          dbManager,
+		Oauth:       oauthManager,
+		Repo:        repoRepo,
+		PoolManager: poolManager,
+	}
+	usersManager, cleanup20, err := Provider(context, zap, managers)
+	if err != nil {
+		cleanup19()
+		cleanup18()
+		cleanup17()
+		cleanup16()
+		cleanup15()
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return usersManager, func() {
+		cleanup20()
+		cleanup19()
+		cleanup18()
+		cleanup17()
 		cleanup16()
 		cleanup15()
 		cleanup14()
@@ -343,13 +436,7 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	managers := Managers{
-		Session: manager,
-		DB:      dbManager,
-		Oauth:   oauthManager,
-		Repo:    repoRepo,
-	}
-	usersManager, cleanup13, err := Provider(context, mock, managers)
+	tracer, cleanup13, err := tracing.ProviderTest()
 	if err != nil {
 		cleanup12()
 		cleanup11()
@@ -365,7 +452,71 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	grpcConfig, cleanup14, err := grpc.CfgTest()
+	if err != nil {
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	poolManager, cleanup15, err := grpc.Provider(context, tracer, mock, grpcConfig)
+	if err != nil {
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	managers := Managers{
+		Session:     manager,
+		DB:          dbManager,
+		Oauth:       oauthManager,
+		Repo:        repoRepo,
+		PoolManager: poolManager,
+	}
+	usersManager, cleanup16, err := Provider(context, mock, managers)
+	if err != nil {
+		cleanup15()
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return usersManager, func() {
+		cleanup16()
+		cleanup15()
+		cleanup14()
 		cleanup13()
 		cleanup12()
 		cleanup11()

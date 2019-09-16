@@ -7,6 +7,18 @@ db:
   maxIdleConns: 3
   connMaxLifetime: 15m
   logLevel: debug
+grpc:
+  services:
+    products:
+      target: localhost:50051
+      maxConn: 10
+      initConn: 1
+      maxLifeDuration: 5m
+      idleTimeout: 1s
+  clientParameters:
+    time: 5m
+    timeout: 10s
+    permitWithoutStream: false
 oauth:
   redisUrl: 127.0.0.1:6379
   redisDB: 10
