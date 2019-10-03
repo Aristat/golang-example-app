@@ -20,7 +20,8 @@ In the deprecated version using only `gin` package.
 10. [gqlgen](https://github.com/99designs/gqlgen) - graphql server library
 11. [protobuf](https://github.com/golang/protobuf) - Google's data interchange format
 12. [grpc](google.golang.org/grpc) - RPC framework
-13. [jaeger](http://github.com/uber/jaeger-client-go) - Jaeger Bindings for Go OpenTracing API
+13. [jaeger](https://github.com/uber/jaeger-client-go) - Jaeger Bindings for Go OpenTracing API
+14. [casbin](https://github.com/casbin/casbin) - Supports access control
 
 ## Install the Golang and GO environment
 
@@ -86,6 +87,13 @@ You with a probability of 50/50 will receive either the correct answer or an err
 It's needed for check jaeger in http://localhost:16686
 
 #### Graphql 
+
+Add `Authorization` in header by Bearer JWT token
+
+Example token:
+```
+eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJvd25lciIsImlzcyI6InRlc3Qtc2VydmljZSJ9.WY1deEZU5IWJ4Kx-udiKakCm0Q7PEVs6ZsUje6StJLy6gzZ8MHPI89rdsM9FkhiA1ZhjxsNGM93e2huwjRsTRhV_fIwQSFrH72M2g7c7lxh4U_q8C1OfSee2Ffy4wVh3dCQ5Nz3BKoKYVh2E1PSzMSm-3SDs6q-UTTjzRCWOORKdh9gisyhHbL8zbjHLBHSsiG1DPWin0beGSmA92cpwpaICEEK-lSNhDRlrCHYMJYAjKBphwpQY4PjMC_rKykQM_mAeKFdj4pXiReDw0QuCKXseWo_b46PO-YnukYM26fogrbwFb0bhz9FuQOuusZAz-ONmAaCVeZ_OK9nHyCuswg
+```
 
 ##### Run
 ```
