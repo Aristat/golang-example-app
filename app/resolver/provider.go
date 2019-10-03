@@ -3,6 +3,8 @@ package resolver
 import (
 	"context"
 
+	"github.com/casbin/casbin"
+
 	"github.com/aristat/golang-example-app/app/logger"
 	"github.com/aristat/golang-example-app/generated/graphql"
 	"github.com/google/wire"
@@ -26,8 +28,8 @@ var ProviderManagers = wire.NewSet(
 )
 
 // Provider
-func Provider(ctx context.Context, log logger.Logger, cfg Config, managers Managers) (graphql.Config, func(), error) {
-	c := New(ctx, log, cfg, managers)
+func Provider(ctx context.Context, log logger.Logger, cfg Config, enforcer *casbin.Enforcer, managers Managers) (graphql.Config, func(), error) {
+	c := New(ctx, log, cfg, enforcer, managers)
 	return c, func() {}, nil
 }
 

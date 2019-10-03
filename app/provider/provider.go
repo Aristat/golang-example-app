@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"github.com/aristat/golang-example-app/app/casbin"
 	"github.com/aristat/golang-example-app/app/config"
 	"github.com/aristat/golang-example-app/app/entrypoint"
 	"github.com/aristat/golang-example-app/app/grpc"
@@ -15,6 +16,7 @@ var AwareProductionSet = wire.NewSet(
 	config.ProviderSet,
 	tracing.ProviderProductionSet,
 	grpc.ProviderProductionSet,
+	casbin.ProviderProductionSet,
 )
 
 var AwareTestSet = wire.NewSet(
@@ -22,4 +24,5 @@ var AwareTestSet = wire.NewSet(
 	logger.ProviderTestSet,
 	tracing.ProviderTestSet,
 	grpc.ProviderTestSet,
+	casbin.ProviderTestSet,
 )

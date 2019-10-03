@@ -34,7 +34,7 @@ type Router struct {
 	poolManager    *grpc.PoolManager
 }
 
-func (router *Router) Run(chiRouter *chi.Mux) {
+func (router *Router) Run(chiRouter chi.Router) {
 	chiRouter.Get("/login", router.GetLogin)
 	chiRouter.Post("/login", router.PostLogin)
 

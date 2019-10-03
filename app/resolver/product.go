@@ -4,12 +4,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/spf13/cast"
-
 	"github.com/aristat/golang-example-app/app/grpc"
 	"github.com/aristat/golang-example-app/common"
-	graphql1 "github.com/aristat/golang-example-app/generated/graphql"
 	"github.com/aristat/golang-example-app/generated/resources/proto/products"
+	"github.com/spf13/cast"
+
+	graphql1 "github.com/aristat/golang-example-app/generated/graphql"
 )
 
 type productsQueryResolver struct{ *Resolver }

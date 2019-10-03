@@ -4,11 +4,11 @@ type UsersOneOut {
 }
 
 type UsersQuery {
-    one(email: String!): UsersOneOut!
+    one(email: String!): UsersOneOut! @hasUsersPermission(permission: READ)
 }
 
 type UsersMutation {
-    createUser(email: String!, password: String!): UsersCreateOut!
+    createUser(email: String!, password: String!): UsersCreateOut! @hasUsersPermission(permission: WRITE)
 }
 
 type UsersCreateOut {
@@ -21,4 +21,11 @@ enum UsersCreateOutStatus {
     OK
     BAD_REQUEST
     SERVER_INTERNAL_ERROR
+}
+
+directive @hasUsersPermission(permission: UsersPermissionEnum!) on FIELD_DEFINITION
+
+enum UsersPermissionEnum {
+    READ
+    WRITE
 }

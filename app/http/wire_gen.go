@@ -6,6 +6,7 @@
 package http
 
 import (
+	"github.com/aristat/golang-example-app/app/casbin"
 	"github.com/aristat/golang-example-app/app/config"
 	"github.com/aristat/golang-example-app/app/db"
 	"github.com/aristat/golang-example-app/app/db/repo"
@@ -324,11 +325,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	managers := resolver.Managers{
-		Repo:        repoRepo,
-		PollManager: poolManager,
-	}
-	graphqlConfig, cleanup22, err := resolver.Provider(context, zap, resolverConfig, managers)
+	enforcer, cleanup22, err := casbin.Provider()
 	if err != nil {
 		cleanup21()
 		cleanup20()
@@ -353,7 +350,11 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	config2, cleanup23, err := graphql.Cfg(viper)
+	managers := resolver.Managers{
+		Repo:        repoRepo,
+		PollManager: poolManager,
+	}
+	graphqlConfig, cleanup23, err := resolver.Provider(context, zap, resolverConfig, enforcer, managers)
 	if err != nil {
 		cleanup22()
 		cleanup21()
@@ -379,8 +380,36 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	graphQL, cleanup24, err := graphql.Provider(context, graphqlConfig, zap, config2)
+	config2, cleanup24, err := graphql.Cfg(viper)
 	if err != nil {
+		cleanup23()
+		cleanup22()
+		cleanup21()
+		cleanup20()
+		cleanup19()
+		cleanup18()
+		cleanup17()
+		cleanup16()
+		cleanup15()
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	graphQL, cleanup25, err := graphql.Provider(context, graphqlConfig, zap, config2)
+	if err != nil {
+		cleanup24()
 		cleanup23()
 		cleanup22()
 		cleanup21()
@@ -412,35 +441,7 @@ func Build() (*Http, func(), error) {
 		oauth:   oauthManager,
 		graphql: graphQL,
 	}
-	chiMux, cleanup25, err := Mux(httpManagers, zap, tracer)
-	if err != nil {
-		cleanup24()
-		cleanup23()
-		cleanup22()
-		cleanup21()
-		cleanup20()
-		cleanup19()
-		cleanup18()
-		cleanup17()
-		cleanup16()
-		cleanup15()
-		cleanup14()
-		cleanup13()
-		cleanup12()
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	httpConfig, cleanup26, err := Cfg(viper)
+	chiMux, cleanup26, err := Mux(httpManagers, zap, tracer)
 	if err != nil {
 		cleanup25()
 		cleanup24()
@@ -469,7 +470,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	http, cleanup27, err := Provider(context, chiMux, zap, httpConfig, httpManagers)
+	httpConfig, cleanup27, err := Cfg(viper)
 	if err != nil {
 		cleanup26()
 		cleanup25()
@@ -499,7 +500,39 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	http, cleanup28, err := Provider(context, chiMux, zap, httpConfig, httpManagers)
+	if err != nil {
+		cleanup27()
+		cleanup26()
+		cleanup25()
+		cleanup24()
+		cleanup23()
+		cleanup22()
+		cleanup21()
+		cleanup20()
+		cleanup19()
+		cleanup18()
+		cleanup17()
+		cleanup16()
+		cleanup15()
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return http, func() {
+		cleanup28()
 		cleanup27()
 		cleanup26()
 		cleanup25()

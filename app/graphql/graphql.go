@@ -35,7 +35,7 @@ func (g *GraphQL) Use(router *chi.Mux) {
 }
 
 // Routers
-func (g *GraphQL) Routers(router *chi.Mux) {
+func (g *GraphQL) Routers(router chi.Router) {
 	options := []handler.Option{
 		handler.IntrospectionEnabled(g.cfg.Introspection),
 		handler.RecoverFunc(func(ctx context.Context, err interface{}) error {

@@ -2,16 +2,24 @@ package resolver
 
 import (
 	"context"
+	"strings"
+
+	"github.com/pkg/errors"
+
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/casbin/casbin"
 
 	"github.com/aristat/golang-example-app/app/grpc"
 
 	"github.com/aristat/golang-example-app/app/db/repo"
 
+	appContext "github.com/aristat/golang-example-app/app/context"
 	"github.com/aristat/golang-example-app/app/logger"
 	graphql1 "github.com/aristat/golang-example-app/generated/graphql"
 )
 
 var prefix = "app.resolver"
+var errPermission = errors.WithMessage(errors.New("No have permission"), prefix)
 
 // Config
 type Config struct {
@@ -46,7 +54,7 @@ func (r *Resolver) Query() graphql1.QueryResolver {
 }
 
 // New
-func New(ctx context.Context, log logger.Logger, cfg Config, managers Managers) graphql1.Config {
+func New(ctx context.Context, log logger.Logger, cfg Config, enforcer *casbin.Enforcer, managers Managers) graphql1.Config {
 	log = log.WithFields(logger.Fields{"service": prefix})
 	c := graphql1.Config{
 		Resolvers: &Resolver{
@@ -57,5 +65,20 @@ func New(ctx context.Context, log logger.Logger, cfg Config, managers Managers) 
 			pollManager: managers.PollManager,
 		},
 	}
+
+	c.Directives.HasUsersPermission = func(ctx context.Context, obj interface{}, next graphql.Resolver, role graphql1.UsersPermissionEnum) (res interface{}, err error) {
+		m, err := appContext.NewManager(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		mapping := m.ToMapping()
+		if !enforcer.Enforce(mapping.Subject, "users", strings.ToLower(string(role))) {
+			return nil, errPermission
+		}
+
+		return next(ctx)
+	}
+
 	return c
 }

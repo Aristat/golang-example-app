@@ -3,6 +3,8 @@ package http
 import (
 	"context"
 
+	"github.com/aristat/golang-example-app/app/auth"
+
 	"github.com/aristat/golang-example-app/app/graphql"
 	"github.com/aristat/golang-example-app/app/users"
 	"github.com/go-chi/chi"
@@ -42,6 +44,12 @@ func Mux(managers Managers, log logger.Logger, tracer opentracing.Tracer) (*chi.
 		return mux, func() {}, nil
 	}
 
+	authMiddleware, callback, err := auth.Build()
+
+	if err != nil {
+		return nil, callback, err
+	}
+
 	mux = chi.NewRouter()
 	mux.Use(middleware.RequestID)
 	mux.Use(Logger(log))
@@ -49,7 +57,7 @@ func Mux(managers Managers, log logger.Logger, tracer opentracing.Tracer) (*chi.
 
 	managers.users.Router.Run(mux)
 	managers.oauth.Router.Run(mux)
-	managers.graphql.Routers(mux)
+	managers.graphql.Routers(mux.With(authMiddleware.Handler))
 
 	return mux, func() {}, nil
 }

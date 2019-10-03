@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -42,6 +43,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	HasUsersPermission func(ctx context.Context, obj interface{}, next graphql.Resolver, permission UsersPermissionEnum) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -317,11 +319,11 @@ type Mutation {
 }
 
 type UsersQuery {
-    one(email: String!): UsersOneOut!
+    one(email: String!): UsersOneOut! @hasUsersPermission(permission: READ)
 }
 
 type UsersMutation {
-    createUser(email: String!, password: String!): UsersCreateOut!
+    createUser(email: String!, password: String!): UsersCreateOut! @hasUsersPermission(permission: WRITE)
 }
 
 type UsersCreateOut {
@@ -335,12 +337,33 @@ enum UsersCreateOutStatus {
     BAD_REQUEST
     SERVER_INTERNAL_ERROR
 }
+
+directive @hasUsersPermission(permission: UsersPermissionEnum!) on FIELD_DEFINITION
+
+enum UsersPermissionEnum {
+    READ
+    WRITE
+}
 `},
 )
 
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_hasUsersPermission_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 UsersPermissionEnum
+	if tmp, ok := rawArgs["permission"]; ok {
+		arg0, err = ec.unmarshalNUsersPermissionEnum2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐUsersPermissionEnum(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["permission"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -889,8 +912,32 @@ func (ec *executionContext) _UsersMutation_createUser(ctx context.Context, field
 	rctx.Args = args
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UsersMutation().CreateUser(rctx, obj, args["email"].(string), args["password"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UsersMutation().CreateUser(rctx, obj, args["email"].(string), args["password"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalNUsersPermissionEnum2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐUsersPermissionEnum(ctx, "WRITE")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasUsersPermission == nil {
+				return nil, errors.New("directive hasUsersPermission is not implemented")
+			}
+			return ec.directives.HasUsersPermission(ctx, obj, directive0, permission)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*UsersCreateOut); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/aristat/golang-example-app/generated/graphql.UsersCreateOut`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1007,8 +1054,32 @@ func (ec *executionContext) _UsersQuery_one(ctx context.Context, field graphql.C
 	rctx.Args = args
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.UsersQuery().One(rctx, obj, args["email"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UsersQuery().One(rctx, obj, args["email"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalNUsersPermissionEnum2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐUsersPermissionEnum(ctx, "READ")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasUsersPermission == nil {
+				return nil, errors.New("directive hasUsersPermission is not implemented")
+			}
+			return ec.directives.HasUsersPermission(ctx, obj, directive0, permission)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*UsersOneOut); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/aristat/golang-example-app/generated/graphql.UsersOneOut`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2888,6 +2959,15 @@ func (ec *executionContext) marshalNUsersOneOut2ᚖgithubᚗcomᚋaristatᚋgola
 		return graphql.Null
 	}
 	return ec._UsersOneOut(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUsersPermissionEnum2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐUsersPermissionEnum(ctx context.Context, v interface{}) (UsersPermissionEnum, error) {
+	var res UsersPermissionEnum
+	return res, res.UnmarshalGQL(v)
+}
+
+func (ec *executionContext) marshalNUsersPermissionEnum2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐUsersPermissionEnum(ctx context.Context, sel ast.SelectionSet, v UsersPermissionEnum) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

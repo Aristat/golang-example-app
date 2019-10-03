@@ -7,6 +7,7 @@ import (
 
 	"github.com/aristat/golang-example-app/app/db"
 	"github.com/aristat/golang-example-app/app/db/repo"
+	"github.com/aristat/golang-example-app/app/entrypoint"
 	"github.com/aristat/golang-example-app/app/grpc"
 	"github.com/aristat/golang-example-app/app/oauth"
 	"github.com/go-session/session"
@@ -39,7 +40,8 @@ type ServiceManagers struct {
 }
 
 func New(ctx context.Context, log logger.Logger, managers ServiceManagers) *Manager {
-	tmp := template.Must(template.New("").ParseGlob("templates/**/*"))
+	wd := entrypoint.WorkDir()
+	tmp := template.Must(template.New("").ParseGlob(wd + "/templates/**/*"))
 	log = log.WithFields(logger.Fields{"service": prefix})
 
 	router := &Router{

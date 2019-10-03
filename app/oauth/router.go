@@ -18,7 +18,7 @@ type Router struct {
 	SessionManager *session.Manager
 }
 
-func (router *Router) Run(chiRouter *chi.Mux) {
+func (router *Router) Run(chiRouter chi.Router) {
 	chiRouter.Get("/authorize", router.Authorize)
 	chiRouter.Post("/authorize", router.Authorize)
 

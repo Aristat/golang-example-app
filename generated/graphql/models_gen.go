@@ -82,3 +82,44 @@ func (e *UsersCreateOutStatus) UnmarshalGQL(v interface{}) error {
 func (e UsersCreateOutStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
+
+type UsersPermissionEnum string
+
+const (
+	UsersPermissionEnumRead  UsersPermissionEnum = "READ"
+	UsersPermissionEnumWrite UsersPermissionEnum = "WRITE"
+)
+
+var AllUsersPermissionEnum = []UsersPermissionEnum{
+	UsersPermissionEnumRead,
+	UsersPermissionEnumWrite,
+}
+
+func (e UsersPermissionEnum) IsValid() bool {
+	switch e {
+	case UsersPermissionEnumRead, UsersPermissionEnumWrite:
+		return true
+	}
+	return false
+}
+
+func (e UsersPermissionEnum) String() string {
+	return string(e)
+}
+
+func (e *UsersPermissionEnum) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UsersPermissionEnum(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UsersPermissionEnum", str)
+	}
+	return nil
+}
+
+func (e UsersPermissionEnum) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}

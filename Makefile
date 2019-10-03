@@ -25,6 +25,9 @@ init: ## init packages
 	mkdir -p artifacts ;\
     rm -rf artifacts/*
 
+start: ## start daemon on local mode
+	./artifacts/bin daemon -c ./artifacts/configs/local.yaml -d
+
 vendor: ## generate vendor
 	rm -rf $(GO_DIR)/vendor ;\
 	GO111MODULE=on \

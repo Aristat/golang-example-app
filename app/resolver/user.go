@@ -3,6 +3,7 @@ package resolver
 import (
 	"context"
 
+	appContext "github.com/aristat/golang-example-app/app/context"
 	graphql1 "github.com/aristat/golang-example-app/generated/graphql"
 	"github.com/spf13/cast"
 )
@@ -24,6 +25,8 @@ func (r *queryResolver) Users(ctx context.Context) (*graphql1.UsersQuery, error)
 }
 
 func (r *usersQueryResolver) One(ctx context.Context, obj *graphql1.UsersQuery, email string) (*graphql1.UsersOneOut, error) {
+	appContext.NewManager(ctx)
+
 	user, err := r.repo.Users.FindByEmail(email)
 
 	if err != nil {
