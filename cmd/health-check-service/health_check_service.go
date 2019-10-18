@@ -6,6 +6,8 @@ import (
 	"net"
 	"time"
 
+	"github.com/aristat/golang-example-app/app/config"
+
 	"github.com/aristat/golang-example-app/app/logger"
 
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
@@ -50,6 +52,12 @@ var (
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		Run: func(_ *cobra.Command, _ []string) {
+			conf, c, e := config.Build()
+			if e != nil {
+				panic(e)
+			}
+			defer c()
+
 			log, c, e := logger.Build()
 			if e != nil {
 				panic(e)
@@ -66,7 +74,7 @@ var (
 				}
 			}()
 
-			tracer := common.GenerateTracerForTestClient("golang-example-app-health-check-service")
+			tracer := common.GenerateTracerForTestClient("golang-example-app-health-check-service", conf)
 
 			lis, err := net.Listen("tcp", port)
 			if err != nil {

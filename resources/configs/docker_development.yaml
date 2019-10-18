@@ -1,8 +1,8 @@
 session:
-  redisUrl: 127.0.0.1:6379
+  redisUrl: redis:6379
   redisDB: 10
 db:
-  url: postgresql://localhost:5432/golang_example_development?sslmode=disable
+  url: postgres://postgres@postgres:5432/golang_example_development?sslmode=disable
   maxOpenConns: 5
   maxIdleConns: 3
   connMaxLifetime: 15m
@@ -10,7 +10,7 @@ db:
 grpc:
   services:
     products:
-      target: localhost:50051
+      target: product_service:50051
       maxConn: 10
       initConn: 1
       maxLifeDuration: 5m
@@ -20,8 +20,13 @@ grpc:
     timeout: 10s
     permitWithoutStream: false
 oauth:
-  redisUrl: 127.0.0.1:6379
+  redisUrl: redis:6379
   redisDB: 10
+  clientStoreInfo:
+    123456:
+      id: 123456
+      secret: 12345678
+      domain: http://localhost:9094
 auth:
   services:
     test-service: 1
@@ -32,5 +37,7 @@ graphql:
   introspection: true
 tracing:
   jaeger:
+    reporter:
+      localAgentHostPort: jaeger:6831
     disabled: false
     serviceName: golang-example-app-server

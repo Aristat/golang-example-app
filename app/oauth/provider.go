@@ -52,13 +52,15 @@ func TokenStoreTest() (oauth2.TokenStore, func(), error) {
 }
 
 // ClientStore
-func ClientStore() (*store.ClientStore, func(), error) {
-	clientsConfig := map[string]oauth2.ClientInfo{
-		"123456": &models.Client{
-			ID:     "123456",
-			Secret: "12345678",
-			Domain: "http://localhost:9094",
-		},
+func ClientStore(cfg Config) (*store.ClientStore, func(), error) {
+	clientsConfig := map[string]oauth2.ClientInfo{}
+
+	for k, v := range cfg.ClientStoreInfo {
+		clientsConfig[k] = &models.Client{
+			ID:     v.ID,
+			Secret: v.Secret,
+			Domain: v.Domain,
+		}
 	}
 
 	clientStore, err := NewClientStore(clientsConfig)

@@ -75,7 +75,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	clientStore, cleanup9, err := ClientStore()
+	clientStore, cleanup9, err := ClientStore(oauthConfig)
 	if err != nil {
 		cleanup8()
 		cleanup7()

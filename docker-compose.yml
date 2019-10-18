@@ -3,7 +3,7 @@ services:
   jaeger:
     image: jaegertracing/all-in-one:latest
     networks:
-      - default
+      - intranet
     ports:
       - "5775:5775/udp"
       - "6831:6831/udp"
@@ -12,3 +12,76 @@ services:
       - "16686:16686"
       - "14268:14268"
       - "9411:9411"
+
+  #=============================#
+
+  # check migration before start
+  daemon-migrate:
+    image: golang-example-app:development
+    depends_on:
+      - postgres
+    networks:
+      - intranet
+    command:
+      migrate up --dsn=postgres://postgres@postgres:5432/golang_example_development?sslmode=disable --limit=0
+
+  daemon:
+    image: golang-example-app:development
+    command: daemon -c ./configs/docker_development.yaml -d
+    depends_on:
+      - daemon-migrate
+      - postgres
+      - redis
+    networks:
+      - intranet
+    ports:
+      - "9096:9096"
+
+  #=============================#
+
+  product_service:
+    image: golang-example-app:development
+    command: product-service -c ./configs/docker_development.yaml -d
+    depends_on:
+      - postgres
+    networks:
+      - intranet
+    ports:
+      - "50051:50051"
+
+  #=============================#
+
+  health_check_service:
+    image: golang-example-app:development
+    command: health-check -c ./configs/docker_development.yaml -d
+    networks:
+      - intranet
+    ports:
+      - "50052:50052"
+
+  #=============================#
+
+  postgres:
+    image: postgres:9.6
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=golang_example_development
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - intranet
+
+  redis:
+    image: redis:latest
+    volumes:
+      - redis_data:/data
+    networks:
+      - intranet
+
+networks:
+  intranet:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

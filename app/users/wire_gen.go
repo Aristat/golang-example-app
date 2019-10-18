@@ -119,7 +119,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	clientStore, cleanup12, err := oauth.ClientStore()
+	clientStore, cleanup12, err := oauth.ClientStore(oauthConfig)
 	if err != nil {
 		cleanup11()
 		cleanup10()

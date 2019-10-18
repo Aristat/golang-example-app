@@ -14,8 +14,15 @@ const prefix = "app.oauth"
 
 // Config
 type Config struct {
-	RedisUrl string
-	RedisDB  int
+	RedisUrl        string
+	RedisDB         int
+	ClientStoreInfo map[string]ClientConfig
+}
+
+type ClientConfig struct {
+	ID     string
+	Secret string
+	Domain string
 }
 
 // OAuth

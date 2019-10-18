@@ -6,6 +6,8 @@ import (
 	"net"
 	"time"
 
+	"github.com/aristat/golang-example-app/app/config"
+
 	"github.com/aristat/golang-example-app/app/logger"
 	"github.com/aristat/golang-example-app/common"
 	"github.com/opentracing/opentracing-go"
@@ -44,7 +46,7 @@ func (s *server) ListProduct(ctx context.Context, in *products.ListProductIn) (*
 			grpc_opentracing.StreamClientInterceptor(grpc_opentracing.WithTracer(tracer)),
 		)))
 
-	conn, err := grpc.Dial("localhost:50052", opts...)
+	conn, err := grpc.Dial("health_check_service:50052", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -78,6 +80,12 @@ var (
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		Run: func(_ *cobra.Command, _ []string) {
+			conf, c, e := config.Build()
+			if e != nil {
+				panic(e)
+			}
+			defer c()
+
 			log, c, e := logger.Build()
 			if e != nil {
 				panic(e)
@@ -94,7 +102,7 @@ var (
 				}
 			}()
 
-			tracer := common.GenerateTracerForTestClient("golang-example-app-product-service")
+			tracer := common.GenerateTracerForTestClient("golang-example-app-product-service", conf)
 			opentracing.SetGlobalTracer(tracer)
 
 			lis, err := net.Listen("tcp", port)

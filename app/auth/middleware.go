@@ -16,6 +16,8 @@ import (
 
 const prefix = "app.auth"
 const defaultSubject = "anonymous"
+const defaultServiceName = "unknown"
+const defaultServiceId = 0
 
 var errPublicNotFound = errors.WithMessage(errors.New("public key not found for issuer"), prefix)
 var errAuthJWT = errors.WithMessage(errors.New("Authentication failed, JWT invalid"), prefix)
@@ -37,11 +39,13 @@ type Middleware struct {
 	cfg  Config
 }
 
+// keys
 type keys struct {
 	publicPemKey  []byte
 	privatePemKey []byte
 }
 
+// Handler for check Bearer token
 func (m Middleware) Handler(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		var (
@@ -93,6 +97,20 @@ func (m Middleware) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
+// Service returns service data as pair of name and id
+func (m Middleware) Service(claims *CustomClaims) (string, uint64) {
+	if claims == nil {
+		return defaultServiceName, defaultServiceId
+	}
+
+	issuer := claims.Issuer
+
+	if id, ok := m.cfg.Services[issuer]; ok {
+		return claims.Issuer, id
+	}
+	return defaultServiceName, defaultServiceId
+}
+
 func NewMiddleware(cfg Config) (*Middleware, func(), error) {
 	rPath := strings.Trim(cfg.RelativePath, "/")
 	m := &Middleware{cfg: cfg}
@@ -109,20 +127,6 @@ func NewMiddleware(cfg Config) (*Middleware, func(), error) {
 	}
 
 	return m, func() {}, nil
-}
-
-// Service returns service data as pair of name and id
-func (m Middleware) Service(claims *CustomClaims) (string, uint64) {
-	if claims == nil {
-		return "unknown", 0
-	}
-
-	issuer := claims.Issuer
-
-	if id, ok := m.cfg.Services[issuer]; ok {
-		return claims.Issuer, id
-	}
-	return "unknown", 0
 }
 
 func NewTestMiddleware() (*Middleware, func(), error) {
