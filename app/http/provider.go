@@ -45,6 +45,7 @@ func Mux(managers Managers, log logger.Logger, tracer opentracing.Tracer) (*chi.
 	}
 
 	authMiddleware, callback, err := auth.Build()
+	auth.SetLogger(authMiddleware, log)
 
 	if err != nil {
 		return nil, callback, err

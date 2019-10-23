@@ -12,6 +12,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/aristat/golang-example-app/cmd/jwt"
+
 	"github.com/aristat/golang-example-app/cmd/migrate"
 
 	health_check_service "github.com/aristat/golang-example-app/cmd/health-check-service"
@@ -124,7 +126,7 @@ func init() {
 }
 
 func Execute() {
-	rootCmd.AddCommand(daemon.Cmd, oauth_client.Cmd, product_service.Cmd, health_check_service.Cmd, migrate.Cmd)
+	rootCmd.AddCommand(daemon.Cmd, oauth_client.Cmd, product_service.Cmd, health_check_service.Cmd, migrate.Cmd, jwt.Cmd)
 	if e := rootCmd.Execute(); e != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%v\n", e.Error())
 		os.Exit(1)

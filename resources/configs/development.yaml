@@ -35,6 +35,8 @@ logger:
   debug: true
 graphql:
   introspection: true
+resolver:
+  productTimeout: 5
 tracing:
   jaeger:
     reporter:
@@ -45,6 +47,13 @@ services:
   oauthClient:
     url: http://localhost:9094
     port: 9094
-    endpointUrl: http://localhost:9096
+    authUrl: http://localhost:9096/authorize
+    tokenUrl: http://localhost:9096/token
     clientID: 123456
     clientSecret: 12345678
+  productService:
+    port: 50051
+    healthCheckUrl: localhost:50052
+  healthCheckService:
+    port: 50052
+    randomDisable: true

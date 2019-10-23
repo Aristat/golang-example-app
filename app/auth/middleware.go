@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/aristat/golang-example-app/app/logger"
+
 	"github.com/aristat/golang-example-app/app/entrypoint"
 
 	"github.com/dgrijalva/jwt-go"
@@ -19,8 +21,8 @@ const defaultSubject = "anonymous"
 const defaultServiceName = "unknown"
 const defaultServiceId = 0
 
-var errPublicNotFound = errors.WithMessage(errors.New("public key not found for issuer"), prefix)
-var errAuthJWT = errors.WithMessage(errors.New("Authentication failed, JWT invalid"), prefix)
+var errPublicNotFound = errors.New("public key not found for issuer")
+var errAuthJWT = errors.New("Authentication failed, JWT invalid")
 
 // CustomClaims
 type CustomClaims struct {
@@ -37,12 +39,20 @@ type Config struct {
 type Middleware struct {
 	keys keys
 	cfg  Config
+	Log  logger.Logger
 }
 
 // keys
 type keys struct {
 	publicPemKey  []byte
 	privatePemKey []byte
+}
+
+func SetLogger(m *Middleware, log logger.Logger) {
+	log = log.WithFields(logger.Fields{"service": prefix})
+	m.Log = log
+
+	return
 }
 
 // Handler for check Bearer token
@@ -64,13 +74,17 @@ func (m Middleware) Handler(next http.Handler) http.Handler {
 			if _, ok := t.Claims.(*CustomClaims); ok {
 				return jwt.ParseRSAPublicKeyFromPEM(m.keys.publicPemKey)
 			}
+
+			m.Log.Error("Public key not found: %s", logger.Args(errPublicNotFound.Error()))
 			return nil, errPublicNotFound
 		})
 
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
-			fmt.Fprintf(w, `{"result":"","error":%q}`, err)
+
+			m.Log.Error("Parse error: %s", logger.Args(err.Error()))
+			fmt.Fprintf(w, `{"message":%q}`, err)
 			return
 		}
 
@@ -81,7 +95,9 @@ func (m Middleware) Handler(next http.Handler) http.Handler {
 		} else {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
-			fmt.Fprintf(w, `{"result":"","error":%q}`, errAuthJWT)
+
+			m.Log.Error("Validation Error: %s", logger.Args(errAuthJWT.Error()))
+			fmt.Fprintf(w, `{"message":%q}`, errAuthJWT)
 			return
 		}
 

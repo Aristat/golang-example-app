@@ -24,7 +24,8 @@ import (
 type Config struct {
 	Url          string
 	Port         string
-	EndpointUrl  string
+	AuthUrl      string
+	TokenUrl     string
 	ClientID     string
 	ClientSecret string
 }
@@ -57,8 +58,8 @@ var (
 				Scopes:       []string{"all"},
 				RedirectURL:  clientConfig.Url + "/oauth2",
 				Endpoint: oauth2.Endpoint{
-					AuthURL:  clientConfig.EndpointUrl + "/authorize",
-					TokenURL: clientConfig.EndpointUrl + "/token",
+					AuthURL:  clientConfig.AuthUrl,
+					TokenURL: clientConfig.TokenUrl,
 				},
 			}
 

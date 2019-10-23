@@ -26,7 +26,7 @@ oauth:
     123456:
       id: 123456
       secret: 12345678
-      domain: http://localhost:9094
+      domain: localhost:9094
 auth:
   services:
     test-service: 1
@@ -35,9 +35,25 @@ logger:
   debug: true
 graphql:
   introspection: true
+resolver:
+  productTimeout: 5
 tracing:
   jaeger:
     reporter:
       localAgentHostPort: jaeger:6831
     disabled: false
     serviceName: golang-example-app-server
+services:
+  oauthClient:
+    url: http://localhost:9094
+    port: 9094
+    authUrl: http://localhost:9096/authorize
+    tokenUrl: http://daemon:9096/token
+    clientID: 123456
+    clientSecret: 12345678
+  productService:
+    port: 50051
+    healthCheckUrl: health_check_service:50052
+  healthCheckService:
+    port: 50052
+    randomDisable: true

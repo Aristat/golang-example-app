@@ -1,4 +1,4 @@
-	GO_DIR ?= $(shell pwd)
+GO_DIR ?= $(shell pwd)
 GO_PKG ?= $(shell go list -e -f "{{ .ImportPath }}")
 
 GOOS ?= $(shell go env GOOS || echo linux)

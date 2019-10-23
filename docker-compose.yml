@@ -29,6 +29,9 @@ services:
     image: golang-example-app:development
     command: daemon -c ./configs/docker_development.yaml -d
     depends_on:
+      - oauth_client
+      - product_service
+      - health_check_service
       - daemon-migrate
       - postgres
       - redis
@@ -61,6 +64,16 @@ services:
 
   #=============================#
 
+  oauth_client:
+    image: golang-example-app:development
+    command: oauth-client -c ./configs/docker_development.yaml -d
+    networks:
+      - intranet
+    ports:
+      - "9094:9094"
+
+  #=============================#
+
   postgres:
     image: postgres:9.6
     environment:
@@ -68,6 +81,8 @@ services:
       - POSTGRES_DB=golang_example_development
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5532:5432"
     networks:
       - intranet
 

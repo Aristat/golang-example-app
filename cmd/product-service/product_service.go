@@ -3,6 +3,7 @@ package product_service
 import (
 	"context"
 	"errors"
+	"log"
 	"net"
 	"time"
 
@@ -22,12 +23,15 @@ import (
 	"google.golang.org/grpc"
 )
 
-const (
-	port = ":50051"
-)
+// Config
+type Config struct {
+	Port           string
+	HealthCheckUrl string
+}
 
 type server struct {
 	logger logger.Logger
+	cfg    Config
 }
 
 func (s *server) ListProduct(ctx context.Context, in *products.ListProductIn) (*products.ListProductOut, error) {
@@ -46,7 +50,7 @@ func (s *server) ListProduct(ctx context.Context, in *products.ListProductIn) (*
 			grpc_opentracing.StreamClientInterceptor(grpc_opentracing.WithTracer(tracer)),
 		)))
 
-	conn, err := grpc.Dial("health_check_service:50052", opts...)
+	conn, err := grpc.Dial(s.cfg.HealthCheckUrl, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -64,6 +68,7 @@ func (s *server) ListProduct(ctx context.Context, in *products.ListProductIn) (*
 		return nil, errors.New("Heal checks not working")
 	}
 
+	// test result
 	out := &products.ListProductOut{Status: products.ListProductOut_OK, Products: []*products.Product{}}
 	out.Products = append(out.Products, &products.Product{Id: 1, Name: "first_product"})
 	out.Products = append(out.Products, &products.Product{Id: 2, Name: "second_product"})
@@ -86,6 +91,12 @@ var (
 			}
 			defer c()
 
+			clientConfig := Config{}
+			e = conf.UnmarshalKey("services.productService", &clientConfig)
+			if e != nil {
+				log.Fatal("Config initialize error")
+			}
+
 			log, c, e := logger.Build()
 			if e != nil {
 				panic(e)
@@ -105,7 +116,8 @@ var (
 			tracer := common.GenerateTracerForTestClient("golang-example-app-product-service", conf)
 			opentracing.SetGlobalTracer(tracer)
 
-			lis, err := net.Listen("tcp", port)
+			log.Info("Start product service %s", logger.Args(clientConfig.Port))
+			lis, err := net.Listen("tcp", ":"+clientConfig.Port)
 			if err != nil {
 				panic(err)
 			}
@@ -124,7 +136,7 @@ var (
 					),
 				),
 			)
-			products.RegisterProductsServer(s, &server{logger: log})
+			products.RegisterProductsServer(s, &server{logger: log, cfg: clientConfig})
 
 			if err := s.Serve(lis); err != nil {
 				panic(err)

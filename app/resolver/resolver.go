@@ -23,6 +23,7 @@ var errPermission = errors.WithMessage(errors.New("No have permission"), prefix)
 
 // Config
 type Config struct {
+	ProductTimeout int
 }
 
 // Managers

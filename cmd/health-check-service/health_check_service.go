@@ -2,6 +2,7 @@ package health_check_service
 
 import (
 	"context"
+	"log"
 	"math/rand"
 	"net"
 	"time"
@@ -23,17 +24,26 @@ import (
 	"google.golang.org/grpc"
 )
 
-const (
-	port = ":50052"
-)
+// Config
+type Config struct {
+	Port          string
+	RandomDisable bool
+}
 
-type server struct{}
+type server struct {
+	cfg Config
+}
 
 func (s *server) IsAlive(ctx context.Context, empty *empty.Empty) (*health_checks.IsAliveOut, error) {
+	if s.cfg.RandomDisable {
+		return &health_checks.IsAliveOut{Status: health_checks.IsAliveOut_OK}, nil
+	}
+
+	var status health_checks.IsAliveOut_Status
+
 	rand.Seed(time.Now().UTC().UnixNano())
 	number := rand.Intn(2-0) + 0
 
-	var status health_checks.IsAliveOut_Status
 	if number == 1 {
 		status = health_checks.IsAliveOut_OK
 	} else {
@@ -58,6 +68,12 @@ var (
 			}
 			defer c()
 
+			clientConfig := Config{}
+			e = conf.UnmarshalKey("services.healthCheckService", &clientConfig)
+			if e != nil {
+				log.Fatal("Config initialize error")
+			}
+
 			log, c, e := logger.Build()
 			if e != nil {
 				panic(e)
@@ -76,7 +92,7 @@ var (
 
 			tracer := common.GenerateTracerForTestClient("golang-example-app-health-check-service", conf)
 
-			lis, err := net.Listen("tcp", port)
+			lis, err := net.Listen("tcp", ":"+clientConfig.Port)
 			if err != nil {
 				panic(err)
 			}
@@ -94,7 +110,7 @@ var (
 					),
 				),
 			)
-			health_checks.RegisterHealthChecksServer(s, &server{})
+			health_checks.RegisterHealthChecksServer(s, &server{cfg: clientConfig})
 			if err := s.Serve(lis); err != nil {
 				panic(err)
 			}
