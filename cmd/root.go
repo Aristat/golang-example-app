@@ -44,7 +44,7 @@ const prefix = "cmd.root"
 
 // Root command
 var rootCmd = &cobra.Command{
-	Use:           "scripts [command]",
+	Use:           "bin [command]",
 	Long:          "",
 	SilenceUsage:  true,
 	SilenceErrors: true,
@@ -102,7 +102,7 @@ func init() {
 	wd, _ = filepath.Abs(wd)
 	ep, _ := entrypoint.Initialize(wd, v)
 
-	// scripts pflags to viper
+	// bin pflags to viper
 	_ = v.BindPFlags(rootCmd.PersistentFlags())
 
 	go func() {
