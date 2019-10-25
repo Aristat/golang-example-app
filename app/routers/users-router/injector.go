@@ -1,6 +1,6 @@
 // +build wireinject
 
-package users
+package users_router
 
 import (
 	"github.com/aristat/golang-example-app/app/db"

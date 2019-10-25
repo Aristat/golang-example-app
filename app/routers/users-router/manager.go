@@ -1,4 +1,4 @@
-package users
+package users_router
 
 import (
 	"context"
@@ -21,7 +21,7 @@ var (
 
 type H map[string]interface{}
 
-const prefix = "app.users"
+const prefix = "app.users-router"
 
 // OAuth Manager
 type Manager struct {

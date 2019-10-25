@@ -16,9 +16,9 @@ import (
 	"github.com/aristat/golang-example-app/app/logger"
 	"github.com/aristat/golang-example-app/app/oauth"
 	"github.com/aristat/golang-example-app/app/resolver"
+	"github.com/aristat/golang-example-app/app/routers/users-router"
 	"github.com/aristat/golang-example-app/app/session"
 	"github.com/aristat/golang-example-app/app/tracing"
-	"github.com/aristat/golang-example-app/app/users"
 )
 
 // Injectors from injector.go:
@@ -271,14 +271,14 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	serviceManagers := users.ServiceManagers{
+	serviceManagers := users_router.ServiceManagers{
 		Session:     manager,
 		DB:          dbManager,
 		Oauth:       oauthManager,
 		Repo:        repoRepo,
 		PoolManager: poolManager,
 	}
-	usersManager, cleanup20, err := users.Provider(context, zap, serviceManagers)
+	users_routerManager, cleanup20, err := users_router.Provider(context, zap, serviceManagers)
 	if err != nil {
 		cleanup19()
 		cleanup18()
@@ -437,7 +437,7 @@ func Build() (*Http, func(), error) {
 	}
 	httpManagers := Managers{
 		session: manager,
-		users:   usersManager,
+		users:   users_routerManager,
 		oauth:   oauthManager,
 		graphql: graphQL,
 	}

@@ -6,7 +6,7 @@ import (
 	"github.com/aristat/golang-example-app/app/auth"
 
 	"github.com/aristat/golang-example-app/app/graphql"
-	"github.com/aristat/golang-example-app/app/users"
+	users_router "github.com/aristat/golang-example-app/app/routers/users-router"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/opentracing/opentracing-go"
@@ -66,7 +66,7 @@ func Mux(managers Managers, log logger.Logger, tracer opentracing.Tracer) (*chi.
 // ServiceManagers
 type Managers struct {
 	session *session.Manager
-	users   *users.Manager
+	users   *users_router.Manager
 	oauth   *oauth.Manager
 	graphql *graphql.GraphQL
 }

@@ -8,8 +8,8 @@ import (
 	"github.com/aristat/golang-example-app/app/graphql"
 	"github.com/aristat/golang-example-app/app/oauth"
 	"github.com/aristat/golang-example-app/app/provider"
+	users_router "github.com/aristat/golang-example-app/app/routers/users-router"
 	"github.com/aristat/golang-example-app/app/session"
-	"github.com/aristat/golang-example-app/app/users"
 	"github.com/google/wire"
 )
 
@@ -18,7 +18,7 @@ func Build() (*Http, func(), error) {
 	panic(wire.Build(
 		ProviderProductionSet,
 		graphql.ProviderProductionSet,
-		users.ProviderProductionSet,
+		users_router.ProviderProductionSet,
 		oauth.ProviderProductionSet,
 		session.ProviderProductionSet,
 		repo.ProviderProductionSet,

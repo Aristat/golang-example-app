@@ -3,7 +3,7 @@
 //go:generate wire
 //+build !wireinject
 
-package users
+package users_router
 
 import (
 	"github.com/aristat/golang-example-app/app/config"
@@ -274,7 +274,7 @@ func Build() (*Manager, func(), error) {
 		Repo:        repoRepo,
 		PoolManager: poolManager,
 	}
-	usersManager, cleanup20, err := Provider(context, zap, serviceManagers)
+	users_routerManager, cleanup20, err := Provider(context, zap, serviceManagers)
 	if err != nil {
 		cleanup19()
 		cleanup18()
@@ -297,7 +297,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	return usersManager, func() {
+	return users_routerManager, func() {
 		cleanup20()
 		cleanup19()
 		cleanup18()
@@ -494,7 +494,7 @@ func BuildTest() (*Manager, func(), error) {
 		Repo:        repoRepo,
 		PoolManager: poolManager,
 	}
-	usersManager, cleanup16, err := Provider(context, mock, serviceManagers)
+	users_routerManager, cleanup16, err := Provider(context, mock, serviceManagers)
 	if err != nil {
 		cleanup15()
 		cleanup14()
@@ -513,7 +513,7 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	return usersManager, func() {
+	return users_routerManager, func() {
 		cleanup16()
 		cleanup15()
 		cleanup14()
