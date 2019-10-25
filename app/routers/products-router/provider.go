@@ -1,4 +1,4 @@
-package users
+package products_router
 
 import (
 	"context"

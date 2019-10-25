@@ -1,6 +1,6 @@
 // +build wireinject
 
-package oauth
+package oauth_router
 
 import (
 	"github.com/aristat/golang-example-app/app/provider"

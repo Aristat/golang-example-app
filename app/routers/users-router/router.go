@@ -1,4 +1,4 @@
-package users
+package users_router
 
 import (
 	"context"
@@ -6,11 +6,9 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"time"
 
 	"github.com/aristat/golang-example-app/app/grpc"
 
-	"github.com/aristat/golang-example-app/generated/resources/proto/products"
 	"github.com/jinzhu/gorm"
 
 	"github.com/aristat/golang-example-app/app/db/repo"
@@ -42,33 +40,6 @@ func (router *Router) Run(chiRouter chi.Router) {
 	chiRouter.Post("/auth", router.Auth)
 
 	chiRouter.Get("/user", router.User)
-
-	chiRouter.Get("/products", router.GetProducts)
-}
-
-func (service *Router) GetProducts(w http.ResponseWriter, r *http.Request) {
-	conn, d, err := grpc.GetConnGRPC(service.poolManager, common.SrvProducts)
-	defer d()
-
-	if err != nil {
-		service.logger.Printf("[ERROR] %s", err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	c := products.NewProductsClient(conn)
-
-	ctx, cancel := context.WithTimeout(r.Context(), time.Second)
-	defer cancel()
-
-	e := json.NewEncoder(w)
-
-	productOut, err := c.ListProduct(ctx, &products.ListProductIn{Id: 1})
-	if err != nil {
-		e.Encode("{}")
-		return
-	}
-	e.Encode(productOut)
 }
 
 func (service *Router) GetLogin(w http.ResponseWriter, r *http.Request) {

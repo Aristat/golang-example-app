@@ -34,7 +34,7 @@ func (r *productsQueryResolver) List(ctx context.Context, obj *graphql1.Products
 
 	c := products.NewProductsClient(conn)
 
-	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	ctx, cancel := context.WithTimeout(ctx, time.Second*time.Duration(r.cfg.ProductTimeout))
 	defer cancel()
 
 	productOut, err := c.ListProduct(ctx, &products.ListProductIn{Id: 1})

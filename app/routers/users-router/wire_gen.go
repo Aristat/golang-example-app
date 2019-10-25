@@ -3,7 +3,7 @@
 //go:generate wire
 //+build !wireinject
 
-package users
+package users_router
 
 import (
 	"github.com/aristat/golang-example-app/app/config"
@@ -12,7 +12,7 @@ import (
 	"github.com/aristat/golang-example-app/app/entrypoint"
 	"github.com/aristat/golang-example-app/app/grpc"
 	"github.com/aristat/golang-example-app/app/logger"
-	"github.com/aristat/golang-example-app/app/oauth"
+	"github.com/aristat/golang-example-app/app/routers/oauth-router"
 	"github.com/aristat/golang-example-app/app/session"
 	"github.com/aristat/golang-example-app/app/tracing"
 )
@@ -92,7 +92,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthConfig, cleanup10, err := oauth.Cfg(viper)
+	oauth_routerConfig, cleanup10, err := oauth_router.Cfg(viper)
 	if err != nil {
 		cleanup9()
 		cleanup8()
@@ -105,7 +105,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	tokenStore, cleanup11, err := oauth.TokenStore(oauthConfig)
+	tokenStore, cleanup11, err := oauth_router.TokenStore(oauth_routerConfig)
 	if err != nil {
 		cleanup10()
 		cleanup9()
@@ -119,7 +119,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	clientStore, cleanup12, err := oauth.ClientStore()
+	clientStore, cleanup12, err := oauth_router.ClientStore(oauth_routerConfig)
 	if err != nil {
 		cleanup11()
 		cleanup10()
@@ -134,7 +134,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthManager, cleanup13, err := oauth.Provider(context, zap, tokenStore, manager, clientStore)
+	oauth_routerManager, cleanup13, err := oauth_router.Provider(context, zap, tokenStore, manager, clientStore)
 	if err != nil {
 		cleanup12()
 		cleanup11()
@@ -270,11 +270,11 @@ func Build() (*Manager, func(), error) {
 	serviceManagers := ServiceManagers{
 		Session:     manager,
 		DB:          dbManager,
-		Oauth:       oauthManager,
+		Oauth:       oauth_routerManager,
 		Repo:        repoRepo,
 		PoolManager: poolManager,
 	}
-	usersManager, cleanup20, err := Provider(context, zap, serviceManagers)
+	users_routerManager, cleanup20, err := Provider(context, zap, serviceManagers)
 	if err != nil {
 		cleanup19()
 		cleanup18()
@@ -297,7 +297,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	return usersManager, func() {
+	return users_routerManager, func() {
 		cleanup20()
 		cleanup19()
 		cleanup18()
@@ -371,7 +371,7 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	tokenStore, cleanup8, err := oauth.TokenStoreTest()
+	tokenStore, cleanup8, err := oauth_router.TokenStoreTest()
 	if err != nil {
 		cleanup7()
 		cleanup6()
@@ -382,7 +382,7 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	clientStore, cleanup9, err := oauth.ClientStoreTest()
+	clientStore, cleanup9, err := oauth_router.ClientStoreTest()
 	if err != nil {
 		cleanup8()
 		cleanup7()
@@ -394,7 +394,7 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthManager, cleanup10, err := oauth.Provider(context, mock, tokenStore, manager, clientStore)
+	oauth_routerManager, cleanup10, err := oauth_router.Provider(context, mock, tokenStore, manager, clientStore)
 	if err != nil {
 		cleanup9()
 		cleanup8()
@@ -490,11 +490,11 @@ func BuildTest() (*Manager, func(), error) {
 	serviceManagers := ServiceManagers{
 		Session:     manager,
 		DB:          dbManager,
-		Oauth:       oauthManager,
+		Oauth:       oauth_routerManager,
 		Repo:        repoRepo,
 		PoolManager: poolManager,
 	}
-	usersManager, cleanup16, err := Provider(context, mock, serviceManagers)
+	users_routerManager, cleanup16, err := Provider(context, mock, serviceManagers)
 	if err != nil {
 		cleanup15()
 		cleanup14()
@@ -513,7 +513,7 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	return usersManager, func() {
+	return users_routerManager, func() {
 		cleanup16()
 		cleanup15()
 		cleanup14()

@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
+
+	"github.com/aristat/golang-example-app/app/config"
 
 	"github.com/aristat/golang-example-app/app/logger"
 
@@ -17,29 +20,49 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var (
-	config = oauth2.Config{
-		ClientID:     "123456",
-		ClientSecret: "12345678",
-		Scopes:       []string{"all"},
-		RedirectURL:  "http://localhost:9094/oauth2",
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  "http://localhost:9096/authorize",
-			TokenURL: "http://localhost:9096/token",
-		},
-	}
-)
+// Config
+type Config struct {
+	Url          string
+	Port         string
+	AuthUrl      string
+	TokenUrl     string
+	ClientID     string
+	ClientSecret string
+}
 
 var token *oauth2.Token
 
 var (
 	//bind string
 	Cmd = &cobra.Command{
-		Use:           "client",
-		Short:         "Test client",
+		Use:           "oauth-client",
+		Short:         "Test oauth client",
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		Run: func(_ *cobra.Command, _ []string) {
+			conf, c, e := config.Build()
+			if e != nil {
+				panic(e)
+			}
+			defer c()
+
+			clientConfig := Config{}
+			e = conf.UnmarshalKey("services.oauthClient", &clientConfig)
+			if e != nil {
+				log.Fatal("Config initialize error")
+			}
+
+			oauth2Config := oauth2.Config{
+				ClientID:     clientConfig.ClientID,
+				ClientSecret: clientConfig.ClientSecret,
+				Scopes:       []string{"all"},
+				RedirectURL:  clientConfig.Url + "/oauth2",
+				Endpoint: oauth2.Endpoint{
+					AuthURL:  clientConfig.AuthUrl,
+					TokenURL: clientConfig.TokenUrl,
+				},
+			}
+
 			log, c, e := logger.Build()
 			if e != nil {
 				panic(e)
@@ -56,12 +79,12 @@ var (
 				}
 			}()
 
-			tracer := common.GenerateTracerForTestClient("golang-example-app-client")
+			tracer := common.GenerateTracerForTestClient("golang-example-app-client", conf)
 			client := &http.Client{Transport: &nethttp.Transport{}}
 
 			r := chi.NewRouter()
 			r.Get("/login", func(w http.ResponseWriter, r *http.Request) {
-				u := config.AuthCodeURL("xyz")
+				u := oauth2Config.AuthCodeURL("xyz")
 				http.Redirect(w, r, u, http.StatusFound)
 			})
 
@@ -77,7 +100,7 @@ var (
 					http.Error(w, "Code not found", http.StatusBadRequest)
 					return
 				}
-				tokenC, err := config.Exchange(context.Background(), code)
+				tokenC, err := oauth2Config.Exchange(context.Background(), code)
 				if err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
@@ -121,10 +144,10 @@ var (
 				w.Write(d)
 			})
 
-			log.Info("[INFO] Client is running at 9094 port.")
+			log.Printf("[INFO] Client is running at %s port.", clientConfig.Port)
 
 			server := &http.Server{
-				Addr:    ":9094",
+				Addr:    ":" + clientConfig.Port,
 				Handler: r,
 			}
 

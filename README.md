@@ -1,12 +1,38 @@
 # Golang Example Application
 
-## NOTE! [Deprecated version](https://github.com/Aristat/golang-example-app/tree/gin-example)
 
-In the deprecated version using only `gin` package.
+# Table of Contents
 
-# Getting started
+- [Overview](#overview)
+- [Package list](#package-list)
+- [Installing](#installing)
+  * [Local environment](#local-environment)
+  * [Docker environment](#docker-enviroment)
+- [Run services](#run-services)
+  * [Start in local](#start-in-local-machine)
+  * [Start in docker](#start-in-docker)
+- [Getting started](#getting-started)  
+  * [Jaeger](#jaeger)
+  * [Oauth2 client](#oauth2-client)
+  * [Http with gRPC](#http-example-with-grpc)
+  * [Graphql with gRPC](#graphql-example-with-grpc)
+- [Deprecate version](#deprecated-version)  
+- [Testing](#testing)
 
-## Package list, which using in this example project
+# Overview
+
+This is an example golang application.
+Commands list:
+1. Daemon - main service
+2. Product service - service that returns Product, an example of gRPC client/server interaction
+3. Health check service - this service is needed to show how convenient to understand on which of the services an error occurred in jaeger
+4. Oauth client - this service is needed to show a simple example of http client and server, for example oauth2 server
+5. Migrate - commands for migration
+6. Jwt - commands for generate jwt token
+
+# Package list
+
+Packages which use in this example project
 
 1. [sql-migrate](https://github.com/rubenv/sql-migrate) - sql migrations
 2. [wire](https://github.com/google/wire) - dependency Injection
@@ -23,88 +49,158 @@ In the deprecated version using only `gin` package.
 13. [jaeger](https://github.com/uber/jaeger-client-go) - Jaeger Bindings for Go OpenTracing API
 14. [casbin](https://github.com/casbin/casbin) - Supports access control
 
-## Install the Golang and GO environment
+# Installing
 
+Install the Golang and GO environment
+
+```$xslt
 https://golang.org/doc/install
-
-## Clone repository
-
 ```
+
+Clone repository
+
+```$xslt
 git clone git@github.com:Aristat/golang-example-app.git (go get)
 ```
 
-## Install
+## Local environment
 
-```
-➜ make install
-➜ make createdb
-➜ sql-migrate up (create database)
-➜ make vendor
-➜ make build
+Install Golang packages without modules
+
+```$xslt
+make install
 ```
 
-## Jaeger Tracing
+Install database
 
-
-##### Run this command
-
-```
- ➜ docker-compose up jaeger
- ➜ http://localhost:16686
+```$xslt
+make createdb
 ```
 
-##### or disable Jaeger(and rebuild binary file) in
+Sql migrations
 
-```
-resources/configs/*.yaml
-```
-
-##  Start
-
-#### Oauth2
- 
-#### Run
-
-```
-➜ cd artifacts/
-➜ ./bin daemon -c ./configs/local.yaml -d
-➜ ./bin client
-➜ http://localhost:9094/login
+```$xslt
+sql-migrate up
 ```
 
-#### Grpc Testing
+Install Golang packages to vendor
 
-##### Run
-```
-➜ cd artifacts/
-➜ ./bin daemon -c ./configs/local.yaml -d
-➜ ./bin product_service
-➜ ./bin health-check
-➜ http://localhost:9096/products
+```$xslt
+make vendor
 ```
 
-You with a probability of 50/50 will receive either the correct answer or an error on one of the services.
-It's needed for check jaeger in http://localhost:16686
+Generate artifacts(binary files and configs)
 
-#### Graphql 
-
-Add `Authorization` in header by Bearer JWT token
-
-Example token:
-```
-eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJvd25lciIsImlzcyI6InRlc3Qtc2VydmljZSJ9.WY1deEZU5IWJ4Kx-udiKakCm0Q7PEVs6ZsUje6StJLy6gzZ8MHPI89rdsM9FkhiA1ZhjxsNGM93e2huwjRsTRhV_fIwQSFrH72M2g7c7lxh4U_q8C1OfSee2Ffy4wVh3dCQ5Nz3BKoKYVh2E1PSzMSm-3SDs6q-UTTjzRCWOORKdh9gisyhHbL8zbjHLBHSsiG1DPWin0beGSmA92cpwpaICEEK-lSNhDRlrCHYMJYAjKBphwpQY4PjMC_rKykQM_mAeKFdj4pXiReDw0QuCKXseWo_b46PO-YnukYM26fogrbwFb0bhz9FuQOuusZAz-ONmAaCVeZ_OK9nHyCuswg
+```$xslt
+make build
 ```
 
-##### Run
-```
-➜ cd artifacts/
-➜ ./bin daemon -c ./configs/local.yaml -d
-➜ http://localhost:9096/query
+## Docker environment
+
+
+Install Golang packages without modules
+
+```$xslt
+make install
 ```
 
-##### User query
+Generate artifacts(binary files and configs)
 
-You with a probability of 50/50 will receive the correct result. It's needed for check jaeger
+```$xslt
+GOOS=linux GOARCH=amd64 make build
+```
+
+Generate docker image
+
+```$xslt
+REMOVE_CONTAINERS=ON DOCKER_IMAGE=golang-example-app TAG=development make docker-image
+```
+
+# Run services
+
+## Start in local machine
+
+Up jaeger in docker-compose or disable Jaeger(and rebuild binary file) in `resources/configs/*.yaml`
+
+```$xslt
+docker-compose up jaeger
+```
+
+Start daemon (main service)
+
+```$xslt
+make start
+```
+
+or
+
+```$xslt
+./artifacts/bin daemon -c ./artifacts/configs/development.yaml -d
+```
+
+Start client 
+
+```$xslt
+./artifacts/bin oauth-client -c ./artifacts/configs/development.yaml -d
+```
+
+Start product service 
+
+```$xslt
+./artifacts/bin product-service -c ./artifacts/configs/development.yaml -d
+```
+
+Start health-check service
+
+```$xslt
+./artifacts/bin health-check -c ./artifacts/configs/development.yaml -d
+```
+
+## Start in docker
+
+```$xslt
+docker-compose up
+```
+
+# Getting Started
+
+## Jaeger
+
+```$xslt
+http://localhost:16686
+```
+
+## Oauth2 client
+
+```$xslt
+http://localhost:9094/login
+```
+
+## Http example with gRPC
+
+```$xslt
+http://localhost:9096/products
+```
+
+## Graphql example with gRPC
+
+Graphql [client](https://github.com/prisma-labs/graphql-playground) for testing. End-point `http://localhost:9096/query`.
+
+Generate JWT for Graphql authorization
+
+```$xslt
+./artifacts/bin jwt token --key='./artifacts/keys/local/private_key.pem' --fields='{"sub": "owner", "iss": "test-service"}'
+```
+
+Set JWT token in headers
+
+```$xslt
+{
+  "Authorization": "bearer token"
+}
+```
+
+Example query
 
 ```
 query oneUser {
@@ -117,7 +213,8 @@ query oneUser {
 }
 ```
 
-##### Create User mutation
+Example mutation
+
 ```
 mutation createUser {
   users {
@@ -129,7 +226,13 @@ mutation createUser {
 }
 ```
 
-## Testing
+# Deprecated version
+
+[Deprecated version](https://github.com/Aristat/golang-example-app/tree/gin-example)
+
+Usage only `gin` package and oauth2 client/server mechanic
+
+# Testing
 ```
 ➜  make test
 ```

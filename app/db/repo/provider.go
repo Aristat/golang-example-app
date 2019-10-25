@@ -15,6 +15,7 @@ func Provider(userDomain domain.UsersRepo) (*Repo, func(), error) {
 	repo := &Repo{
 		Users: userDomain,
 	}
+
 	return repo, func() {}, nil
 }
 

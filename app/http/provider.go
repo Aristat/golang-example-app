@@ -3,10 +3,12 @@ package http
 import (
 	"context"
 
+	products_router "github.com/aristat/golang-example-app/app/routers/products-router"
+
 	"github.com/aristat/golang-example-app/app/auth"
 
 	"github.com/aristat/golang-example-app/app/graphql"
-	"github.com/aristat/golang-example-app/app/users"
+	users_router "github.com/aristat/golang-example-app/app/routers/users-router"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/opentracing/opentracing-go"
@@ -15,7 +17,7 @@ import (
 
 	"github.com/aristat/golang-example-app/app/logger"
 
-	"github.com/aristat/golang-example-app/app/oauth"
+	oauth_router "github.com/aristat/golang-example-app/app/routers/oauth-router"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 )
@@ -45,6 +47,7 @@ func Mux(managers Managers, log logger.Logger, tracer opentracing.Tracer) (*chi.
 	}
 
 	authMiddleware, callback, err := auth.Build()
+	auth.SetLogger(authMiddleware, log)
 
 	if err != nil {
 		return nil, callback, err
@@ -57,6 +60,7 @@ func Mux(managers Managers, log logger.Logger, tracer opentracing.Tracer) (*chi.
 
 	managers.users.Router.Run(mux)
 	managers.oauth.Router.Run(mux)
+	managers.products.Router.Run(mux)
 	managers.graphql.Routers(mux.With(authMiddleware.Handler))
 
 	return mux, func() {}, nil
@@ -64,10 +68,11 @@ func Mux(managers Managers, log logger.Logger, tracer opentracing.Tracer) (*chi.
 
 // ServiceManagers
 type Managers struct {
-	session *session.Manager
-	users   *users.Manager
-	oauth   *oauth.Manager
-	graphql *graphql.GraphQL
+	session  *session.Manager
+	users    *users_router.Manager
+	oauth    *oauth_router.Manager
+	products *products_router.Manager
+	graphql  *graphql.GraphQL
 }
 
 var ProviderManagers = wire.NewSet(

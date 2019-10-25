@@ -11,6 +11,8 @@ CACHE_TAG ?= unknown_cache
 
 DATABASE_URL ?= golang_example_development
 
+REMOVE_CONTAINERS ?= OFF
+
 define build_resources
  	find "$(GO_DIR)/resources" -maxdepth 1 -mindepth 1 -exec cp -R -f {} $(GO_DIR)/artifacts/${1} \;
 endef
@@ -25,8 +27,8 @@ init: ## init packages
 	mkdir -p artifacts ;\
     rm -rf artifacts/*
 
-start: ## start daemon on local mode
-	./artifacts/bin daemon -c ./artifacts/configs/local.yaml -d
+start: ## start daemon on development mode
+	./artifacts/bin daemon -c ./artifacts/configs/development.yaml -d
 
 vendor: ## generate vendor
 	rm -rf $(GO_DIR)/vendor ;\
@@ -45,6 +47,7 @@ build: init ## build binary file
 	go build -mod vendor -ldflags "-X $(GO_PKG)/cmd/version.appVersion=$(TAG)-$$(date -u +%Y%m%d%H%M)" -o "$(GO_DIR)/artifacts/bin" main.go
 
 docker-image: ## build docker image
+	REMOVE_CONTAINERS=${REMOVE_CONTAINERS} DOCKER_IMAGE=${DOCKER_IMAGE} ./scripts/remove_docker_containers.sh
 	docker rmi ${DOCKER_IMAGE}:${TAG} || true ;\
 	docker build --cache-from ${DOCKER_IMAGE}:${CACHE_TAG} -f "${GO_DIR}/docker/app/Dockerfile" -t ${DOCKER_IMAGE}:${TAG} ${GO_DIR}
 

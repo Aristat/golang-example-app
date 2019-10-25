@@ -1,4 +1,4 @@
-package oauth
+package oauth_router
 
 import (
 	"context"
@@ -10,12 +10,19 @@ import (
 	"gopkg.in/oauth2.v3"
 )
 
-const prefix = "app.oauth"
+const prefix = "app.oauth-router"
 
 // Config
 type Config struct {
-	RedisUrl string
-	RedisDB  int
+	RedisUrl        string
+	RedisDB         int
+	ClientStoreInfo map[string]ClientConfig
+}
+
+type ClientConfig struct {
+	ID     string
+	Secret string
+	Domain string
 }
 
 // OAuth

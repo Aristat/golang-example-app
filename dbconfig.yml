@@ -1,5 +1,5 @@
 development:
     dialect: postgres
     datasource: dbname=golang_example_development sslmode=disable
-    dir: db/migrations
+    dir: resources/migrations
     table: migrations

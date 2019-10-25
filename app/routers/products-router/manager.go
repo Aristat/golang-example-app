@@ -1,27 +1,15 @@
-package users
+package products_router
 
 import (
 	"context"
-	"errors"
 	"html/template"
 
-	"github.com/aristat/golang-example-app/app/db"
-	"github.com/aristat/golang-example-app/app/db/repo"
 	"github.com/aristat/golang-example-app/app/entrypoint"
 	"github.com/aristat/golang-example-app/app/grpc"
-	"github.com/aristat/golang-example-app/app/oauth"
-	"github.com/go-session/session"
-
 	"github.com/aristat/golang-example-app/app/logger"
 )
 
-var (
-	userNotFound = errors.New("10002 user not found")
-)
-
-type H map[string]interface{}
-
-const prefix = "app.users"
+const prefix = "app.products-router"
 
 // OAuth Manager
 type Manager struct {
@@ -32,10 +20,6 @@ type Manager struct {
 
 // ServiceManagers
 type ServiceManagers struct {
-	Session     *session.Manager
-	DB          *db.Manager
-	Oauth       *oauth.Manager
-	Repo        *repo.Repo
 	PoolManager *grpc.PoolManager
 }
 
@@ -45,14 +29,10 @@ func New(ctx context.Context, log logger.Logger, managers ServiceManagers) *Mana
 	log = log.WithFields(logger.Fields{"service": prefix})
 
 	router := &Router{
-		ctx:            ctx,
-		sessionManager: managers.Session,
-		template:       tmp,
-		logger:         log,
-		db:             managers.DB.DB,
-		server:         managers.Oauth.Router.Server,
-		repo:           managers.Repo,
-		poolManager:    managers.PoolManager,
+		ctx:         ctx,
+		template:    tmp,
+		logger:      log,
+		poolManager: managers.PoolManager,
 	}
 
 	return &Manager{
