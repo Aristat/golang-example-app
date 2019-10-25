@@ -1,3 +1,5 @@
+![golang logo](golang_logo.png)
+
 # Golang Example Application
 
 

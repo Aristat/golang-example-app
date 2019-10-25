@@ -45,6 +45,7 @@ func (service *Router) GetProducts(w http.ResponseWriter, r *http.Request) {
 
 	productOut, err := c.ListProduct(ctx, &products.ListProductIn{Id: 1})
 	if err != nil {
+		w.WriteHeader(http.StatusBadGateway)
 		e.Encode("{}")
 		return
 	}
