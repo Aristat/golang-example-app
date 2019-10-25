@@ -115,7 +115,7 @@ GOOS=linux GOARCH=amd64 make build
 Generate docker image
 
 ```$xslt
-REMOVE_CONTAINERS=ON DOCKER_IMAGE=golang-example-app TAG=development make docker-image
+DOCKER_IMAGE=golang-example-app TAG=development make docker-image
 ```
 
 # Run services

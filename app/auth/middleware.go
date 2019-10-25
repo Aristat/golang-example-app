@@ -39,20 +39,13 @@ type Config struct {
 type Middleware struct {
 	keys keys
 	cfg  Config
-	Log  logger.Logger
+	log  logger.Logger
 }
 
 // keys
 type keys struct {
 	publicPemKey  []byte
 	privatePemKey []byte
-}
-
-func SetLogger(m *Middleware, log logger.Logger) {
-	log = log.WithFields(logger.Fields{"service": prefix})
-	m.Log = log
-
-	return
 }
 
 // Handler for check Bearer token
@@ -75,7 +68,7 @@ func (m Middleware) Handler(next http.Handler) http.Handler {
 				return jwt.ParseRSAPublicKeyFromPEM(m.keys.publicPemKey)
 			}
 
-			m.Log.Error("Public key not found: %s", logger.Args(errPublicNotFound.Error()))
+			m.log.Error("Public key not found: %s", logger.Args(errPublicNotFound.Error()))
 			return nil, errPublicNotFound
 		})
 
@@ -83,7 +76,7 @@ func (m Middleware) Handler(next http.Handler) http.Handler {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
 
-			m.Log.Error("Parse error: %s", logger.Args(err.Error()))
+			m.log.Error("Parse error: %s", logger.Args(err.Error()))
 			fmt.Fprintf(w, `{"message":%q}`, err)
 			return
 		}
@@ -96,7 +89,7 @@ func (m Middleware) Handler(next http.Handler) http.Handler {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
 
-			m.Log.Error("Validation Error: %s", logger.Args(errAuthJWT.Error()))
+			m.log.Error("Validation Error: %s", logger.Args(errAuthJWT.Error()))
 			fmt.Fprintf(w, `{"message":%q}`, errAuthJWT)
 			return
 		}
@@ -127,9 +120,10 @@ func (m Middleware) Service(claims *CustomClaims) (string, uint64) {
 	return defaultServiceName, defaultServiceId
 }
 
-func NewMiddleware(cfg Config) (*Middleware, func(), error) {
+func NewMiddleware(cfg Config, log logger.Logger) (*Middleware, func(), error) {
 	rPath := strings.Trim(cfg.RelativePath, "/")
-	m := &Middleware{cfg: cfg}
+	log = log.WithFields(logger.Fields{"service": prefix})
+	m := &Middleware{cfg: cfg, log: log}
 
 	publicKey, err := ioutil.ReadFile(entrypoint.WorkDir() + "/" + rPath + "/public_key.pem")
 	if err != nil {
@@ -145,7 +139,8 @@ func NewMiddleware(cfg Config) (*Middleware, func(), error) {
 	return m, func() {}, nil
 }
 
-func NewTestMiddleware() (*Middleware, func(), error) {
+func NewTestMiddleware(log logger.Logger) (*Middleware, func(), error) {
+	log = log.WithFields(logger.Fields{"service": prefix})
 	private := ``
 	public := ``
 
@@ -155,6 +150,7 @@ func NewTestMiddleware() (*Middleware, func(), error) {
 			publicPemKey:  []byte(public),
 			privatePemKey: []byte(private),
 		},
+		log: log,
 	}
 
 	return middleware, func() {}, nil

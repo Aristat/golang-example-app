@@ -46,13 +46,6 @@ func Mux(managers Managers, log logger.Logger, tracer opentracing.Tracer) (*chi.
 		return mux, func() {}, nil
 	}
 
-	authMiddleware, callback, err := auth.Build()
-	auth.SetLogger(authMiddleware, log)
-
-	if err != nil {
-		return nil, callback, err
-	}
-
 	mux = chi.NewRouter()
 	mux.Use(middleware.RequestID)
 	mux.Use(Logger(log))
@@ -61,18 +54,19 @@ func Mux(managers Managers, log logger.Logger, tracer opentracing.Tracer) (*chi.
 	managers.users.Router.Run(mux)
 	managers.oauth.Router.Run(mux)
 	managers.products.Router.Run(mux)
-	managers.graphql.Routers(mux.With(authMiddleware.Handler))
+	managers.graphql.Routers(mux.With(managers.authMiddleware.Handler))
 
 	return mux, func() {}, nil
 }
 
 // ServiceManagers
 type Managers struct {
-	session  *session.Manager
-	users    *users_router.Manager
-	oauth    *oauth_router.Manager
-	products *products_router.Manager
-	graphql  *graphql.GraphQL
+	session        *session.Manager
+	users          *users_router.Manager
+	oauth          *oauth_router.Manager
+	products       *products_router.Manager
+	authMiddleware *auth.Middleware
+	graphql        *graphql.GraphQL
 }
 
 var ProviderManagers = wire.NewSet(

@@ -7,6 +7,8 @@ package auth
 
 import (
 	"github.com/aristat/golang-example-app/app/config"
+	"github.com/aristat/golang-example-app/app/entrypoint"
+	"github.com/aristat/golang-example-app/app/logger"
 )
 
 // Injectors from injector.go:
@@ -21,13 +23,40 @@ func Build() (*Middleware, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	middleware, cleanup3, err := Provider(authConfig)
+	context, cleanup3, err := entrypoint.ContextProvider()
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
+	loggerConfig, cleanup4, err := logger.ProviderCfg(viper)
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	zap, cleanup5, err := logger.Provider(context, loggerConfig)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	middleware, cleanup6, err := Provider(authConfig, zap)
+	if err != nil {
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return middleware, func() {
+		cleanup6()
+		cleanup5()
+		cleanup4()
 		cleanup3()
 		cleanup2()
 		cleanup()
@@ -35,11 +64,32 @@ func Build() (*Middleware, func(), error) {
 }
 
 func BuildTest() (*Middleware, func(), error) {
-	middleware, cleanup, err := ProviderTest()
+	context, cleanup, err := entrypoint.ContextProviderTest()
 	if err != nil {
 		return nil, nil, err
 	}
+	loggerConfig, cleanup2, err := logger.ProviderCfgTest()
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	mock, cleanup3, err := logger.ProviderTest(context, loggerConfig)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	middleware, cleanup4, err := ProviderTest(mock)
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return middleware, func() {
+		cleanup4()
+		cleanup3()
+		cleanup2()
 		cleanup()
 	}, nil
 }

@@ -3,16 +3,16 @@
 package auth
 
 import (
-	"github.com/aristat/golang-example-app/app/config"
+	"github.com/aristat/golang-example-app/app/provider"
 	"github.com/google/wire"
 )
 
 // Build
 func Build() (*Middleware, func(), error) {
-	panic(wire.Build(ProviderProductionSet, config.ProviderSet))
+	panic(wire.Build(ProviderProductionSet, provider.AwareProductionSet))
 }
 
 // BuildTest
 func BuildTest() (*Middleware, func(), error) {
-	panic(wire.Build(ProviderTestSet))
+	panic(wire.Build(ProviderTestSet, provider.AwareTestSet))
 }

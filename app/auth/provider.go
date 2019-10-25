@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"github.com/aristat/golang-example-app/app/logger"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 )
@@ -13,13 +14,13 @@ func ProviderCfg(cfg *viper.Viper) (Config, func(), error) {
 }
 
 // Provider
-func Provider(cfg Config) (*Middleware, func(), error) {
-	return NewMiddleware(cfg)
+func Provider(cfg Config, logger logger.Logger) (*Middleware, func(), error) {
+	return NewMiddleware(cfg, logger)
 }
 
 // ProviderTest
-func ProviderTest() (*Middleware, func(), error) {
-	return NewTestMiddleware()
+func ProviderTest(logger logger.Logger) (*Middleware, func(), error) {
+	return NewTestMiddleware(logger)
 }
 
 var (
