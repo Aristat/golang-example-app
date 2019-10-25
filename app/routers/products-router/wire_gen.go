@@ -3,13 +3,14 @@
 //go:generate wire
 //+build !wireinject
 
-package oauth
+package products_router
 
 import (
 	"github.com/aristat/golang-example-app/app/config"
 	"github.com/aristat/golang-example-app/app/entrypoint"
+	"github.com/aristat/golang-example-app/app/grpc"
 	"github.com/aristat/golang-example-app/app/logger"
-	"github.com/aristat/golang-example-app/app/session"
+	"github.com/aristat/golang-example-app/app/tracing"
 )
 
 // Injectors from injector.go:
@@ -37,7 +38,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthConfig, cleanup5, err := Cfg(viper)
+	configuration, cleanup5, err := tracing.ProviderCfg(viper)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -45,7 +46,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	tokenStore, cleanup6, err := TokenStore(oauthConfig)
+	tracer, cleanup6, err := tracing.Provider(context, configuration, zap)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -54,7 +55,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	sessionConfig, cleanup7, err := session.Cfg(viper)
+	grpcConfig, cleanup7, err := grpc.Cfg(viper)
 	if err != nil {
 		cleanup6()
 		cleanup5()
@@ -64,7 +65,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	manager, cleanup8, err := session.Provider(context, sessionConfig)
+	poolManager, cleanup8, err := grpc.Provider(context, tracer, zap, grpcConfig)
 	if err != nil {
 		cleanup7()
 		cleanup6()
@@ -75,7 +76,10 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	clientStore, cleanup9, err := ClientStore(oauthConfig)
+	serviceManagers := ServiceManagers{
+		PoolManager: poolManager,
+	}
+	manager, cleanup9, err := Provider(context, zap, serviceManagers)
 	if err != nil {
 		cleanup8()
 		cleanup7()
@@ -87,21 +91,7 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthManager, cleanup10, err := Provider(context, zap, tokenStore, manager, clientStore)
-	if err != nil {
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	return oauthManager, func() {
-		cleanup10()
+	return manager, func() {
 		cleanup9()
 		cleanup8()
 		cleanup7()
@@ -130,14 +120,14 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	tokenStore, cleanup4, err := TokenStoreTest()
+	tracer, cleanup4, err := tracing.ProviderTest()
 	if err != nil {
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	manager, cleanup5, err := session.ProviderTest()
+	grpcConfig, cleanup5, err := grpc.CfgTest()
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -145,7 +135,7 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	clientStore, cleanup6, err := ClientStoreTest()
+	poolManager, cleanup6, err := grpc.Provider(context, tracer, mock, grpcConfig)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -154,7 +144,10 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	oauthManager, cleanup7, err := Provider(context, mock, tokenStore, manager, clientStore)
+	serviceManagers := ServiceManagers{
+		PoolManager: poolManager,
+	}
+	manager, cleanup7, err := Provider(context, mock, serviceManagers)
 	if err != nil {
 		cleanup6()
 		cleanup5()
@@ -164,7 +157,7 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	return oauthManager, func() {
+	return manager, func() {
 		cleanup7()
 		cleanup6()
 		cleanup5()

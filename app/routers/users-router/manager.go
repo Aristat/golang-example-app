@@ -9,7 +9,7 @@ import (
 	"github.com/aristat/golang-example-app/app/db/repo"
 	"github.com/aristat/golang-example-app/app/entrypoint"
 	"github.com/aristat/golang-example-app/app/grpc"
-	"github.com/aristat/golang-example-app/app/oauth"
+	oauth_router "github.com/aristat/golang-example-app/app/routers/oauth-router"
 	"github.com/go-session/session"
 
 	"github.com/aristat/golang-example-app/app/logger"
@@ -34,7 +34,7 @@ type Manager struct {
 type ServiceManagers struct {
 	Session     *session.Manager
 	DB          *db.Manager
-	Oauth       *oauth.Manager
+	Oauth       *oauth_router.Manager
 	Repo        *repo.Repo
 	PoolManager *grpc.PoolManager
 }

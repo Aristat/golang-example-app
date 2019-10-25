@@ -21,7 +21,7 @@
 
 # Overview
 
-This is an example golang application for microservice.
+This is an example golang application.
 Commands list:
 1. Daemon - main service
 2. Product service - service that returns Product, an example of gRPC client/server interaction

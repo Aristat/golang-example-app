@@ -5,17 +5,17 @@ package users_router
 import (
 	"github.com/aristat/golang-example-app/app/db"
 	"github.com/aristat/golang-example-app/app/db/repo"
-	"github.com/aristat/golang-example-app/app/oauth"
 	"github.com/aristat/golang-example-app/app/provider"
+	oauth_router "github.com/aristat/golang-example-app/app/routers/oauth-router"
 	"github.com/aristat/golang-example-app/app/session"
 	"github.com/google/wire"
 )
 
 // Build
 func Build() (*Manager, func(), error) {
-	panic(wire.Build(ProviderProductionSet, oauth.ProviderProductionSet, session.ProviderProductionSet, repo.ProviderProductionSet, db.ProviderProductionSet, provider.AwareProductionSet))
+	panic(wire.Build(ProviderProductionSet, oauth_router.ProviderProductionSet, session.ProviderProductionSet, repo.ProviderProductionSet, db.ProviderProductionSet, provider.AwareProductionSet))
 }
 
 func BuildTest() (*Manager, func(), error) {
-	panic(wire.Build(ProviderTestSet, oauth.ProviderTestSet, session.ProviderTestSet, repo.ProviderTestSet, db.ProviderTestSet, provider.AwareTestSet))
+	panic(wire.Build(ProviderTestSet, oauth_router.ProviderTestSet, session.ProviderTestSet, repo.ProviderTestSet, db.ProviderTestSet, provider.AwareTestSet))
 }

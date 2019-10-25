@@ -1,4 +1,4 @@
-package oauth_test
+package oauth_router_test
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 
 	"github.com/go-session/session"
 
-	"github.com/aristat/golang-example-app/app/oauth"
+	oauth_router "github.com/aristat/golang-example-app/app/routers/oauth-router"
 	"github.com/gavv/httpexpect"
 	"github.com/stretchr/testify/assert"
 )
@@ -27,12 +27,12 @@ var (
 )
 
 var requestTests = []struct {
-	init             func(s *oauth.Router)
+	init             func(s *oauth_router.Router)
 	authorizeRequest func(e *httpexpect.Expect)
 	tokenRequest     func(e *httpexpect.Expect, code string) *httpexpect.Object
 }{
 	{
-		func(router *oauth.Router) {},
+		func(router *oauth_router.Router) {},
 		func(e *httpexpect.Expect) {
 			e.GET("/authorize").
 				WithQuery("response_type", "code").
@@ -45,7 +45,7 @@ var requestTests = []struct {
 		func(e *httpexpect.Expect, code string) *httpexpect.Object { return nil },
 	},
 	{
-		func(router *oauth.Router) {},
+		func(router *oauth_router.Router) {},
 		func(e *httpexpect.Expect) {
 			e.GET("/authorize").
 				WithQuery("response_type", "code").
@@ -68,7 +68,7 @@ var requestTests = []struct {
 		},
 	},
 	{
-		func(router *oauth.Router) {},
+		func(router *oauth_router.Router) {},
 		func(e *httpexpect.Expect) {
 			e.GET("/authorize").
 				WithQuery("response_type", "code").
@@ -92,15 +92,15 @@ var requestTests = []struct {
 		},
 	},
 	{
-		func(router *oauth.Router) {},
+		func(router *oauth_router.Router) {},
 		func(e *httpexpect.Expect) {
 			e.GET("/authorize").Expect().Status(http.StatusBadRequest)
 		},
 		func(e *httpexpect.Expect, code string) *httpexpect.Object { return nil },
 	},
 	{
-		func(router *oauth.Router) {
-			memoryStore := &oauth.MockMemoryStore{}
+		func(router *oauth_router.Router) {
+			memoryStore := &oauth_router.MockMemoryStore{}
 
 			memoryStore.CheckFn = func(ctx context.Context, sid string) (bool, error) {
 				return false, nil
@@ -126,8 +126,8 @@ var requestTests = []struct {
 		func(e *httpexpect.Expect, code string) *httpexpect.Object { return nil },
 	},
 	{
-		func(router *oauth.Router) {
-			store := &oauth.MockKeyValueStore{}
+		func(router *oauth_router.Router) {
+			store := &oauth_router.MockKeyValueStore{}
 			store.GetFn = func(key string) (interface{}, bool) {
 				return nil, false
 			}
@@ -140,7 +140,7 @@ var requestTests = []struct {
 				return
 			}
 
-			memoryStore := &oauth.MockMemoryStore{}
+			memoryStore := &oauth_router.MockMemoryStore{}
 			memoryStore.CheckFn = func(ctx context.Context, sid string) (bool, error) {
 				return true, nil
 			}
@@ -181,7 +181,7 @@ var requestTests = []struct {
 }
 
 func TestNew(t *testing.T) {
-	manager, _, e := oauth.BuildTest()
+	manager, _, e := oauth_router.BuildTest()
 
 	assert.Nil(t, e, "BuildTest is correct")
 	assert.NotNil(t, manager, "manager not nil")
@@ -248,7 +248,7 @@ func TestNew(t *testing.T) {
 	}
 }
 
-func validationAccessToken(t *testing.T, accessToken string, manager *oauth.Manager) {
+func validationAccessToken(t *testing.T, accessToken string, manager *oauth_router.Manager) {
 	req := httptest.NewRequest("GET", "http://example.com", nil)
 
 	req.Header.Set("Authorization", "Bearer "+accessToken)
