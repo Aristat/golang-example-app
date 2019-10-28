@@ -29,6 +29,7 @@ func (router *Router) Run(chiRouter chi.Router) {
 func (service *Router) GetProducts(w http.ResponseWriter, r *http.Request) {
 	conn, d, err := grpc.GetConnGRPC(service.poolManager, common.SrvProducts)
 	defer d()
+	defer r.Body.Close()
 
 	if err != nil {
 		service.logger.Printf("[ERROR] %s", err.Error())
