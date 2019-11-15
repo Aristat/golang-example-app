@@ -11,6 +11,15 @@ var (
 	poolSrv = map[string]*Pool{}
 )
 
+// Set pool connections
+func SetPool(p *Pool, srv string) {
+	if _, ok := poolSrv[srv]; !ok {
+		srvMu.Lock()
+		defer srvMu.Unlock()
+		poolSrv[srv] = p
+	}
+}
+
 // Get client connection
 func GetConnGRPC(poolManager *PoolManager, srv string) (*grpc.ClientConn, Done, error) {
 	if _, ok := poolSrv[srv]; !ok {

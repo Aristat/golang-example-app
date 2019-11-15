@@ -1,10 +1,11 @@
 package auth
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/aristat/golang-example-app/common"
 
 	"github.com/aristat/golang-example-app/app/logger"
 
@@ -61,6 +62,9 @@ func (m Middleware) Handler(next http.Handler) http.Handler {
 
 		if len(bearerToken) > 1 {
 			token = bearerToken[1]
+		} else {
+			common.SendGraphqlErrorf(w, http.StatusUnauthorized, "Not found authorization token")
+			return
 		}
 
 		t, err := jwt.ParseWithClaims(token, &CustomClaims{}, func(t *jwt.Token) (interface{}, error) {
@@ -73,11 +77,8 @@ func (m Middleware) Handler(next http.Handler) http.Handler {
 		})
 
 		if err != nil {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-
 			m.log.Error("Parse error: %s", logger.Args(err.Error()))
-			fmt.Fprintf(w, `{"message":%q}`, err)
+			common.SendGraphqlErrorf(w, http.StatusUnauthorized, err.Error())
 			return
 		}
 
@@ -86,11 +87,8 @@ func (m Middleware) Handler(next http.Handler) http.Handler {
 				subject = claims.Subject
 			}
 		} else {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-
 			m.log.Error("Validation Error: %s", logger.Args(errAuthJWT.Error()))
-			fmt.Fprintf(w, `{"message":%q}`, errAuthJWT)
+			common.SendGraphqlErrorf(w, http.StatusUnauthorized, errAuthJWT.Error())
 			return
 		}
 

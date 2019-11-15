@@ -20,7 +20,7 @@ func Cfg(cfg *viper.Viper) (Config, func(), error) {
 
 // CfgTest
 func CfgTest() (Config, func(), error) {
-	return Config{}, func() {}, nil
+	return Config{ProductTimeout: 5}, func() {}, nil
 }
 
 var ProviderManagers = wire.NewSet(

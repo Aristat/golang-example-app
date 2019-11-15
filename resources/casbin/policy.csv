@@ -3,5 +3,3 @@ p, owner, users, write
 
 g, reader, anonymous
 g, owner, reader
-
-g, *, owner
