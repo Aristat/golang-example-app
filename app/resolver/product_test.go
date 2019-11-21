@@ -47,7 +47,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestNew(t *testing.T) {
+func TestList(t *testing.T) {
 	var opts []grpc.DialOption
 	ctx := context.Background()
 	opts = append(opts, grpc.WithInsecure())

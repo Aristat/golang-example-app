@@ -20,7 +20,7 @@ func TestFindByEmail(t *testing.T) {
 	assert.Nil(t, e, "Repo error should be nil")
 
 	ePassword, e := bcrypt.GenerateFromPassword([]byte("12345"), 8)
-	assert.Nil(t, e, "BuildTest is correct")
+	assert.Nil(t, e, "Password is correct")
 
 	defaultEmail := "test@gmail.com"
 	mockDefaultResult := func() {
@@ -59,7 +59,7 @@ func TestFindByEmail(t *testing.T) {
 			test.mock()
 
 			user, err := repo.FindByEmail(defaultEmail)
-			assert.Equal(t, test.email, user.Email, "id should be equals")
+			assert.Equal(t, test.email, user.Email, "email should be equals")
 			test.asserts(err)
 		})
 	}
