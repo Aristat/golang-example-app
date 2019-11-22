@@ -21,7 +21,7 @@ install: init ## install cli tools
 	export GO111MODULE=off ;\
     go get -v github.com/rubenv/sql-migrate/... ;\
     go get -u github.com/google/wire/cmd/wire ;\
-    go get -u github.com/99designs/gqlgen ;
+    go get -u github.com/vektah/dataloaden ;
 
 init: ## init packages
 	mkdir -p artifacts ;\
@@ -36,7 +36,7 @@ vendor: ## generate vendor
 	go mod vendor
 
 gqlgen-generate: ## generate graphql server
-	gqlgen -v
+	go run github.com/99designs/gqlgen
 
 prototool-generate: ## generate proto file
 	prototool generate resources/proto

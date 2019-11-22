@@ -5,6 +5,12 @@ type ProductsQuery {
 type Product {
     id: ID!
     name: String!
+    productItems: [ProductItem!]!
+}
+
+type ProductItem {
+    id: ID!
+    name: String!
 }
 
 type ProductsListOut {

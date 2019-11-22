@@ -6,15 +6,17 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+
+	"github.com/aristat/golang-example-app/app/db/domain"
 )
 
-type Product struct {
+type ProductItem struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
 type ProductsListOut struct {
-	Products []*Product `json:"products"`
+	Products []*domain.Product `json:"products"`
 }
 
 type ProductsQuery struct {

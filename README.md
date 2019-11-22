@@ -50,6 +50,7 @@ Packages which use in this example project
 12. [grpc](google.golang.org/grpc) - RPC framework
 13. [jaeger](https://github.com/uber/jaeger-client-go) - Jaeger Bindings for Go OpenTracing API
 14. [casbin](https://github.com/casbin/casbin) - Supports access control
+15. [dataloaden](https://github.com/vektah/dataloaden) - DataLoader for graphql
 
 # Installing
 
@@ -210,6 +211,24 @@ query oneUser {
     one(email: "test@gmail.com") {
       email
       id
+    }
+  }
+}
+```
+
+Example query with data loader
+
+```
+query allProducts {
+  products {
+    list {
+      products {
+        id
+        productItems {
+          id
+          name
+        }
+      }
     }
   }
 }

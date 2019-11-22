@@ -12,6 +12,8 @@ resolver:
   type: Resolver
 
 models:
+  Product:
+    model: github.com/aristat/golang-example-app/app/db/domain.Product
   UsersQuery:
     fields:
       one:

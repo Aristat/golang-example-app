@@ -13,6 +13,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/aristat/golang-example-app/app/db/domain"
 	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/ast"
 )
@@ -36,6 +37,7 @@ type Config struct {
 
 type ResolverRoot interface {
 	Mutation() MutationResolver
+	Product() ProductResolver
 	ProductsQuery() ProductsQueryResolver
 	Query() QueryResolver
 	UsersMutation() UsersMutationResolver
@@ -52,6 +54,12 @@ type ComplexityRoot struct {
 	}
 
 	Product struct {
+		ID           func(childComplexity int) int
+		Name         func(childComplexity int) int
+		ProductItems func(childComplexity int) int
+	}
+
+	ProductItem struct {
 		ID   func(childComplexity int) int
 		Name func(childComplexity int) int
 	}
@@ -91,6 +99,9 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	Users(ctx context.Context) (*UsersMutation, error)
+}
+type ProductResolver interface {
+	ProductItems(ctx context.Context, obj *domain.Product) ([]*ProductItem, error)
 }
 type ProductsQueryResolver interface {
 	List(ctx context.Context, obj *ProductsQuery) (*ProductsListOut, error)
@@ -141,6 +152,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Product.Name(childComplexity), true
+
+	case "Product.productItems":
+		if e.complexity.Product.ProductItems == nil {
+			break
+		}
+
+		return e.complexity.Product.ProductItems(childComplexity), true
+
+	case "ProductItem.id":
+		if e.complexity.ProductItem.ID == nil {
+			break
+		}
+
+		return e.complexity.ProductItem.ID(childComplexity), true
+
+	case "ProductItem.name":
+		if e.complexity.ProductItem.Name == nil {
+			break
+		}
+
+		return e.complexity.ProductItem.Name(childComplexity), true
 
 	case "ProductsListOut.products":
 		if e.complexity.ProductsListOut.Products == nil {
@@ -296,6 +328,12 @@ var parsedSchema = gqlparser.MustLoadSchema(
 }
 
 type Product {
+    id: ID!
+    name: String!
+    productItems: [ProductItem!]!
+}
+
+type ProductItem {
     id: ID!
     name: String!
 }
@@ -485,7 +523,7 @@ func (ec *executionContext) _Mutation_users(ctx context.Context, field graphql.C
 	return ec.marshalOUsersMutation2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐUsersMutation(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Product_id(ctx context.Context, field graphql.CollectedField, obj *Product) (ret graphql.Marshaler) {
+func (ec *executionContext) _Product_id(ctx context.Context, field graphql.CollectedField, obj *domain.Product) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -516,13 +554,13 @@ func (ec *executionContext) _Product_id(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Product_name(ctx context.Context, field graphql.CollectedField, obj *Product) (ret graphql.Marshaler) {
+func (ec *executionContext) _Product_name(ctx context.Context, field graphql.CollectedField, obj *domain.Product) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -533,6 +571,117 @@ func (ec *executionContext) _Product_name(ctx context.Context, field graphql.Col
 	}()
 	rctx := &graphql.ResolverContext{
 		Object:   "Product",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Product_productItems(ctx context.Context, field graphql.CollectedField, obj *domain.Product) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Product",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Product().ProductItems(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*ProductItem)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNProductItem2ᚕᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐProductItem(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ProductItem_id(ctx context.Context, field graphql.CollectedField, obj *ProductItem) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "ProductItem",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ProductItem_name(ctx context.Context, field graphql.CollectedField, obj *ProductItem) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "ProductItem",
 		Field:    field,
 		Args:     nil,
 		IsMethod: false,
@@ -590,10 +739,10 @@ func (ec *executionContext) _ProductsListOut_products(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*Product)
+	res := resTmp.([]*domain.Product)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNProduct2ᚕᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐProduct(ctx, field.Selections, res)
+	return ec.marshalNProduct2ᚕᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋappᚋdbᚋdomainᚐProduct(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ProductsQuery_list(ctx context.Context, field graphql.CollectedField, obj *ProductsQuery) (ret graphql.Marshaler) {
@@ -739,7 +888,7 @@ func (ec *executionContext) _Query___type(ctx context.Context, field graphql.Col
 	res := resTmp.(*introspection.Type)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalO__Type2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
+	return ec.marshalO__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -773,7 +922,7 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	res := resTmp.(*introspection.Schema)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalO__Schema2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
+	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _UsersCreateOut_status(ctx context.Context, field graphql.CollectedField, obj *UsersCreateOut) (ret graphql.Marshaler) {
@@ -921,9 +1070,6 @@ func (ec *executionContext) _UsersMutation_createUser(ctx context.Context, field
 			if err != nil {
 				return nil, err
 			}
-			if ec.directives.HasUsersPermission == nil {
-				return nil, errors.New("directive hasUsersPermission is not implemented")
-			}
 			return ec.directives.HasUsersPermission(ctx, obj, directive0, permission)
 		}
 
@@ -931,11 +1077,10 @@ func (ec *executionContext) _UsersMutation_createUser(ctx context.Context, field
 		if err != nil {
 			return nil, err
 		}
-		if tmp == nil {
-			return nil, nil
-		}
 		if data, ok := tmp.(*UsersCreateOut); ok {
 			return data, nil
+		} else if tmp == nil {
+			return nil, nil
 		}
 		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/aristat/golang-example-app/generated/graphql.UsersCreateOut`, tmp)
 	})
@@ -1063,9 +1208,6 @@ func (ec *executionContext) _UsersQuery_one(ctx context.Context, field graphql.C
 			if err != nil {
 				return nil, err
 			}
-			if ec.directives.HasUsersPermission == nil {
-				return nil, errors.New("directive hasUsersPermission is not implemented")
-			}
 			return ec.directives.HasUsersPermission(ctx, obj, directive0, permission)
 		}
 
@@ -1073,11 +1215,10 @@ func (ec *executionContext) _UsersQuery_one(ctx context.Context, field graphql.C
 		if err != nil {
 			return nil, err
 		}
-		if tmp == nil {
-			return nil, nil
-		}
 		if data, ok := tmp.(*UsersOneOut); ok {
 			return data, nil
+		} else if tmp == nil {
+			return nil, nil
 		}
 		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/aristat/golang-example-app/generated/graphql.UsersOneOut`, tmp)
 	})
@@ -1239,7 +1380,7 @@ func (ec *executionContext) ___Directive_args(ctx context.Context, field graphql
 	res := resTmp.([]introspection.InputValue)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalN__InputValue2ᚕgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx, field.Selections, res)
+	return ec.marshalN__InputValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___EnumValue_name(ctx context.Context, field graphql.CollectedField, obj *introspection.EnumValue) (ret graphql.Marshaler) {
@@ -1489,7 +1630,7 @@ func (ec *executionContext) ___Field_args(ctx context.Context, field graphql.Col
 	res := resTmp.([]introspection.InputValue)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalN__InputValue2ᚕgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx, field.Selections, res)
+	return ec.marshalN__InputValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Field_type(ctx context.Context, field graphql.CollectedField, obj *introspection.Field) (ret graphql.Marshaler) {
@@ -1526,7 +1667,7 @@ func (ec *executionContext) ___Field_type(ctx context.Context, field graphql.Col
 	res := resTmp.(*introspection.Type)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalN__Type2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
+	return ec.marshalN__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Field_isDeprecated(ctx context.Context, field graphql.CollectedField, obj *introspection.Field) (ret graphql.Marshaler) {
@@ -1705,7 +1846,7 @@ func (ec *executionContext) ___InputValue_type(ctx context.Context, field graphq
 	res := resTmp.(*introspection.Type)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalN__Type2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
+	return ec.marshalN__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___InputValue_defaultValue(ctx context.Context, field graphql.CollectedField, obj *introspection.InputValue) (ret graphql.Marshaler) {
@@ -1776,7 +1917,7 @@ func (ec *executionContext) ___Schema_types(ctx context.Context, field graphql.C
 	res := resTmp.([]introspection.Type)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalN__Type2ᚕgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
+	return ec.marshalN__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Schema_queryType(ctx context.Context, field graphql.CollectedField, obj *introspection.Schema) (ret graphql.Marshaler) {
@@ -1813,7 +1954,7 @@ func (ec *executionContext) ___Schema_queryType(ctx context.Context, field graph
 	res := resTmp.(*introspection.Type)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalN__Type2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
+	return ec.marshalN__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Schema_mutationType(ctx context.Context, field graphql.CollectedField, obj *introspection.Schema) (ret graphql.Marshaler) {
@@ -1847,7 +1988,7 @@ func (ec *executionContext) ___Schema_mutationType(ctx context.Context, field gr
 	res := resTmp.(*introspection.Type)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalO__Type2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
+	return ec.marshalO__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Schema_subscriptionType(ctx context.Context, field graphql.CollectedField, obj *introspection.Schema) (ret graphql.Marshaler) {
@@ -1881,7 +2022,7 @@ func (ec *executionContext) ___Schema_subscriptionType(ctx context.Context, fiel
 	res := resTmp.(*introspection.Type)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalO__Type2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
+	return ec.marshalO__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Schema_directives(ctx context.Context, field graphql.CollectedField, obj *introspection.Schema) (ret graphql.Marshaler) {
@@ -1918,7 +2059,7 @@ func (ec *executionContext) ___Schema_directives(ctx context.Context, field grap
 	res := resTmp.([]introspection.Directive)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalN__Directive2ᚕgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx, field.Selections, res)
+	return ec.marshalN__Directive2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Type_kind(ctx context.Context, field graphql.CollectedField, obj *introspection.Type) (ret graphql.Marshaler) {
@@ -2064,7 +2205,7 @@ func (ec *executionContext) ___Type_fields(ctx context.Context, field graphql.Co
 	res := resTmp.([]introspection.Field)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalO__Field2ᚕgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐField(ctx, field.Selections, res)
+	return ec.marshalO__Field2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐField(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Type_interfaces(ctx context.Context, field graphql.CollectedField, obj *introspection.Type) (ret graphql.Marshaler) {
@@ -2098,7 +2239,7 @@ func (ec *executionContext) ___Type_interfaces(ctx context.Context, field graphq
 	res := resTmp.([]introspection.Type)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalO__Type2ᚕgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
+	return ec.marshalO__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Type_possibleTypes(ctx context.Context, field graphql.CollectedField, obj *introspection.Type) (ret graphql.Marshaler) {
@@ -2132,7 +2273,7 @@ func (ec *executionContext) ___Type_possibleTypes(ctx context.Context, field gra
 	res := resTmp.([]introspection.Type)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalO__Type2ᚕgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
+	return ec.marshalO__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Type_enumValues(ctx context.Context, field graphql.CollectedField, obj *introspection.Type) (ret graphql.Marshaler) {
@@ -2173,7 +2314,7 @@ func (ec *executionContext) ___Type_enumValues(ctx context.Context, field graphq
 	res := resTmp.([]introspection.EnumValue)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalO__EnumValue2ᚕgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValue(ctx, field.Selections, res)
+	return ec.marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValue(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Type_inputFields(ctx context.Context, field graphql.CollectedField, obj *introspection.Type) (ret graphql.Marshaler) {
@@ -2207,7 +2348,7 @@ func (ec *executionContext) ___Type_inputFields(ctx context.Context, field graph
 	res := resTmp.([]introspection.InputValue)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalO__InputValue2ᚕgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx, field.Selections, res)
+	return ec.marshalO__InputValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.CollectedField, obj *introspection.Type) (ret graphql.Marshaler) {
@@ -2241,7 +2382,7 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 	res := resTmp.(*introspection.Type)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalO__Type2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
+	return ec.marshalO__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, field.Selections, res)
 }
 
 // endregion **************************** field.gotpl *****************************
@@ -2286,7 +2427,7 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 var productImplementors = []string{"Product"}
 
-func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, obj *Product) graphql.Marshaler {
+func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, obj *domain.Product) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.RequestContext, sel, productImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2298,10 +2439,56 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 		case "id":
 			out.Values[i] = ec._Product_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._Product_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "productItems":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Product_productItems(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var productItemImplementors = []string{"ProductItem"}
+
+func (ec *executionContext) _ProductItem(ctx context.Context, sel ast.SelectionSet, obj *ProductItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, productItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ProductItem")
+		case "id":
+			out.Values[i] = ec._ProductItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+			out.Values[i] = ec._ProductItem_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2831,6 +3018,20 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNID2int(ctx context.Context, v interface{}) (int, error) {
+	return graphql.UnmarshalIntID(v)
+}
+
+func (ec *executionContext) marshalNID2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalIntID(v)
+	if res == graphql.Null {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
 	return graphql.UnmarshalID(v)
 }
@@ -2845,11 +3046,11 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) marshalNProduct2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐProduct(ctx context.Context, sel ast.SelectionSet, v Product) graphql.Marshaler {
+func (ec *executionContext) marshalNProduct2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋappᚋdbᚋdomainᚐProduct(ctx context.Context, sel ast.SelectionSet, v domain.Product) graphql.Marshaler {
 	return ec._Product(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNProduct2ᚕᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐProduct(ctx context.Context, sel ast.SelectionSet, v []*Product) graphql.Marshaler {
+func (ec *executionContext) marshalNProduct2ᚕᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋappᚋdbᚋdomainᚐProduct(ctx context.Context, sel ast.SelectionSet, v []*domain.Product) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -2873,7 +3074,7 @@ func (ec *executionContext) marshalNProduct2ᚕᚖgithubᚗcomᚋaristatᚋgolan
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNProduct2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐProduct(ctx, sel, v[i])
+			ret[i] = ec.marshalNProduct2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋappᚋdbᚋdomainᚐProduct(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -2886,7 +3087,7 @@ func (ec *executionContext) marshalNProduct2ᚕᚖgithubᚗcomᚋaristatᚋgolan
 	return ret
 }
 
-func (ec *executionContext) marshalNProduct2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐProduct(ctx context.Context, sel ast.SelectionSet, v *Product) graphql.Marshaler {
+func (ec *executionContext) marshalNProduct2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋappᚋdbᚋdomainᚐProduct(ctx context.Context, sel ast.SelectionSet, v *domain.Product) graphql.Marshaler {
 	if v == nil {
 		if !ec.HasError(graphql.GetResolverContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -2894,6 +3095,57 @@ func (ec *executionContext) marshalNProduct2ᚖgithubᚗcomᚋaristatᚋgolang�
 		return graphql.Null
 	}
 	return ec._Product(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNProductItem2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐProductItem(ctx context.Context, sel ast.SelectionSet, v ProductItem) graphql.Marshaler {
+	return ec._ProductItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNProductItem2ᚕᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐProductItem(ctx context.Context, sel ast.SelectionSet, v []*ProductItem) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNProductItem2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐProductItem(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNProductItem2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐProductItem(ctx context.Context, sel ast.SelectionSet, v *ProductItem) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._ProductItem(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNProductsListOut2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐProductsListOut(ctx context.Context, sel ast.SelectionSet, v ProductsListOut) graphql.Marshaler {
@@ -2970,11 +3222,11 @@ func (ec *executionContext) marshalNUsersPermissionEnum2githubᚗcomᚋaristat�
 	return v
 }
 
-func (ec *executionContext) marshalN__Directive2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
+func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
 	return ec.___Directive(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalN__Directive2ᚕgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v []introspection.Directive) graphql.Marshaler {
+func (ec *executionContext) marshalN__Directive2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v []introspection.Directive) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -2998,7 +3250,7 @@ func (ec *executionContext) marshalN__Directive2ᚕgithubᚗcomᚋaristatᚋgola
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalN__Directive2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx, sel, v[i])
+			ret[i] = ec.marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3082,19 +3334,19 @@ func (ec *executionContext) marshalN__DirectiveLocation2ᚕstring(ctx context.Co
 	return ret
 }
 
-func (ec *executionContext) marshalN__EnumValue2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValue(ctx context.Context, sel ast.SelectionSet, v introspection.EnumValue) graphql.Marshaler {
+func (ec *executionContext) marshalN__EnumValue2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValue(ctx context.Context, sel ast.SelectionSet, v introspection.EnumValue) graphql.Marshaler {
 	return ec.___EnumValue(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalN__Field2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐField(ctx context.Context, sel ast.SelectionSet, v introspection.Field) graphql.Marshaler {
+func (ec *executionContext) marshalN__Field2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐField(ctx context.Context, sel ast.SelectionSet, v introspection.Field) graphql.Marshaler {
 	return ec.___Field(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalN__InputValue2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx context.Context, sel ast.SelectionSet, v introspection.InputValue) graphql.Marshaler {
+func (ec *executionContext) marshalN__InputValue2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx context.Context, sel ast.SelectionSet, v introspection.InputValue) graphql.Marshaler {
 	return ec.___InputValue(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalN__InputValue2ᚕgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx context.Context, sel ast.SelectionSet, v []introspection.InputValue) graphql.Marshaler {
+func (ec *executionContext) marshalN__InputValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx context.Context, sel ast.SelectionSet, v []introspection.InputValue) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3118,7 +3370,7 @@ func (ec *executionContext) marshalN__InputValue2ᚕgithubᚗcomᚋaristatᚋgol
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalN__InputValue2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx, sel, v[i])
+			ret[i] = ec.marshalN__InputValue2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3131,11 +3383,11 @@ func (ec *executionContext) marshalN__InputValue2ᚕgithubᚗcomᚋaristatᚋgol
 	return ret
 }
 
-func (ec *executionContext) marshalN__Type2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx context.Context, sel ast.SelectionSet, v introspection.Type) graphql.Marshaler {
+func (ec *executionContext) marshalN__Type2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx context.Context, sel ast.SelectionSet, v introspection.Type) graphql.Marshaler {
 	return ec.___Type(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalN__Type2ᚕgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx context.Context, sel ast.SelectionSet, v []introspection.Type) graphql.Marshaler {
+func (ec *executionContext) marshalN__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx context.Context, sel ast.SelectionSet, v []introspection.Type) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3159,7 +3411,7 @@ func (ec *executionContext) marshalN__Type2ᚕgithubᚗcomᚋaristatᚋgolangᚑ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalN__Type2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, sel, v[i])
+			ret[i] = ec.marshalN__Type2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3172,7 +3424,7 @@ func (ec *executionContext) marshalN__Type2ᚕgithubᚗcomᚋaristatᚋgolangᚑ
 	return ret
 }
 
-func (ec *executionContext) marshalN__Type2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx context.Context, sel ast.SelectionSet, v *introspection.Type) graphql.Marshaler {
+func (ec *executionContext) marshalN__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx context.Context, sel ast.SelectionSet, v *introspection.Type) graphql.Marshaler {
 	if v == nil {
 		if !ec.HasError(graphql.GetResolverContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3275,7 +3527,7 @@ func (ec *executionContext) marshalOUsersQuery2ᚖgithubᚗcomᚋaristatᚋgolan
 	return ec._UsersQuery(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValue(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {
+func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValue(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -3302,7 +3554,7 @@ func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋaristatᚋgola
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalN__EnumValue2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValue(ctx, sel, v[i])
+			ret[i] = ec.marshalN__EnumValue2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValue(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3315,7 +3567,7 @@ func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋaristatᚋgola
 	return ret
 }
 
-func (ec *executionContext) marshalO__Field2ᚕgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐField(ctx context.Context, sel ast.SelectionSet, v []introspection.Field) graphql.Marshaler {
+func (ec *executionContext) marshalO__Field2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐField(ctx context.Context, sel ast.SelectionSet, v []introspection.Field) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -3342,7 +3594,7 @@ func (ec *executionContext) marshalO__Field2ᚕgithubᚗcomᚋaristatᚋgolang�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalN__Field2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐField(ctx, sel, v[i])
+			ret[i] = ec.marshalN__Field2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐField(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3355,7 +3607,7 @@ func (ec *executionContext) marshalO__Field2ᚕgithubᚗcomᚋaristatᚋgolang�
 	return ret
 }
 
-func (ec *executionContext) marshalO__InputValue2ᚕgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx context.Context, sel ast.SelectionSet, v []introspection.InputValue) graphql.Marshaler {
+func (ec *executionContext) marshalO__InputValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx context.Context, sel ast.SelectionSet, v []introspection.InputValue) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -3382,7 +3634,7 @@ func (ec *executionContext) marshalO__InputValue2ᚕgithubᚗcomᚋaristatᚋgol
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalN__InputValue2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx, sel, v[i])
+			ret[i] = ec.marshalN__InputValue2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3395,22 +3647,22 @@ func (ec *executionContext) marshalO__InputValue2ᚕgithubᚗcomᚋaristatᚋgol
 	return ret
 }
 
-func (ec *executionContext) marshalO__Schema2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx context.Context, sel ast.SelectionSet, v introspection.Schema) graphql.Marshaler {
+func (ec *executionContext) marshalO__Schema2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx context.Context, sel ast.SelectionSet, v introspection.Schema) graphql.Marshaler {
 	return ec.___Schema(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalO__Schema2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx context.Context, sel ast.SelectionSet, v *introspection.Schema) graphql.Marshaler {
+func (ec *executionContext) marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx context.Context, sel ast.SelectionSet, v *introspection.Schema) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec.___Schema(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalO__Type2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx context.Context, sel ast.SelectionSet, v introspection.Type) graphql.Marshaler {
+func (ec *executionContext) marshalO__Type2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx context.Context, sel ast.SelectionSet, v introspection.Type) graphql.Marshaler {
 	return ec.___Type(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalO__Type2ᚕgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx context.Context, sel ast.SelectionSet, v []introspection.Type) graphql.Marshaler {
+func (ec *executionContext) marshalO__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx context.Context, sel ast.SelectionSet, v []introspection.Type) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -3437,7 +3689,7 @@ func (ec *executionContext) marshalO__Type2ᚕgithubᚗcomᚋaristatᚋgolangᚑ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalN__Type2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, sel, v[i])
+			ret[i] = ec.marshalN__Type2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3450,7 +3702,7 @@ func (ec *executionContext) marshalO__Type2ᚕgithubᚗcomᚋaristatᚋgolangᚑ
 	return ret
 }
 
-func (ec *executionContext) marshalO__Type2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋvendorᚋgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx context.Context, sel ast.SelectionSet, v *introspection.Type) graphql.Marshaler {
+func (ec *executionContext) marshalO__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx context.Context, sel ast.SelectionSet, v *introspection.Type) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

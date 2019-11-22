@@ -3,6 +3,8 @@ package http
 import (
 	"context"
 
+	"github.com/aristat/golang-example-app/app/dataloader"
+
 	products_router "github.com/aristat/golang-example-app/app/routers/products-router"
 
 	"github.com/aristat/golang-example-app/app/auth"
@@ -50,6 +52,7 @@ func Mux(managers Managers, log logger.Logger, tracer opentracing.Tracer) (*chi.
 	mux.Use(middleware.RequestID)
 	mux.Use(Logger(log))
 	mux.Use(Tracer(tracer))
+	mux.Use(dataloader.LoaderMiddleware)
 
 	managers.users.Router.Run(mux)
 	managers.oauth.Router.Run(mux)

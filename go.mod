@@ -17,6 +17,7 @@ require (
 	github.com/go-redis/redis v6.14.2+incompatible // indirect
 	github.com/go-session/redis v3.0.1+incompatible
 	github.com/go-session/session v3.1.2+incompatible
+	github.com/gobuffalo/packr v1.30.1 // indirect
 	github.com/golang/protobuf v1.3.2
 	github.com/google/go-cmp v0.3.1 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
@@ -68,6 +69,7 @@ require (
 	github.com/yudai/gojsondiff v1.0.0 // indirect
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	github.com/yudai/pp v2.0.1+incompatible // indirect
+	github.com/ziutek/mymysql v1.5.4 // indirect
 	go.uber.org/automaxprocs v1.2.0
 	go.uber.org/zap v1.10.0
 	golang.org/x/crypto v0.0.0-20190911031432-227b76d455e7
@@ -82,3 +84,5 @@ require (
 	gopkg.in/gorp.v1 v1.7.2 // indirect
 	gopkg.in/oauth2.v3 v3.9.2
 )
+
+go 1.13
