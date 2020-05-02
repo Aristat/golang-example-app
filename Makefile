@@ -48,7 +48,7 @@ build: init ## build binary file
 
 docker-image: ## build docker image
 	REMOVE_CONTAINERS=${REMOVE_CONTAINERS} DOCKER_IMAGE=${DOCKER_IMAGE} ./scripts/remove_docker_containers.sh
-	docker rmi ${DOCKER_IMAGE}:${TAG} || true ;\
+	docker rmi ${DOCKER_IMAGE}:${TAG} -f || true ;\
 	docker build --cache-from ${DOCKER_IMAGE}:${CACHE_TAG} -f "${GO_DIR}/docker/app/Dockerfile" -t ${DOCKER_IMAGE}:${TAG} ${GO_DIR}
 
 test: ## test application with race

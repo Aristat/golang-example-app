@@ -7,11 +7,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/aristat/golang-example-app/common"
+
 	"github.com/go-chi/chi"
 
 	"github.com/aristat/golang-example-app/app/grpc"
 	"github.com/aristat/golang-example-app/app/logger"
-	"github.com/aristat/golang-example-app/common"
 	"github.com/aristat/golang-example-app/generated/resources/proto/products"
 )
 

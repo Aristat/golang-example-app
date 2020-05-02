@@ -6,13 +6,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/aristat/golang-example-app/generated/graphql"
+	"github.com/aristat/golang-example-app/app/db/domain"
 )
 
 // ProductItemLoaderConfig captures the config to create a new ProductItemLoader
 type ProductItemLoaderConfig struct {
 	// Fetch is a method that provides the data for the loader
-	Fetch func(keys []int) ([][]*graphql.ProductItem, []error)
+	Fetch func(keys []int) ([][]*domain.ProductItem, []error)
 
 	// Wait is how long wait before sending a batch
 	Wait time.Duration
@@ -33,7 +33,7 @@ func NewProductItemLoader(config ProductItemLoaderConfig) *ProductItemLoader {
 // ProductItemLoader batches and caches requests
 type ProductItemLoader struct {
 	// this method provides the data for the loader
-	fetch func(keys []int) ([][]*graphql.ProductItem, []error)
+	fetch func(keys []int) ([][]*domain.ProductItem, []error)
 
 	// how long to done before sending a batch
 	wait time.Duration
@@ -44,7 +44,7 @@ type ProductItemLoader struct {
 	// INTERNAL
 
 	// lazily created cache
-	cache map[int][]*graphql.ProductItem
+	cache map[int][]*domain.ProductItem
 
 	// the current batch. keys will continue to be collected until timeout is hit,
 	// then everything will be sent to the fetch method and out to the listeners
@@ -56,25 +56,25 @@ type ProductItemLoader struct {
 
 type productItemLoaderBatch struct {
 	keys    []int
-	data    [][]*graphql.ProductItem
+	data    [][]*domain.ProductItem
 	error   []error
 	closing bool
 	done    chan struct{}
 }
 
 // Load a ProductItem by key, batching and caching will be applied automatically
-func (l *ProductItemLoader) Load(key int) ([]*graphql.ProductItem, error) {
+func (l *ProductItemLoader) Load(key int) ([]*domain.ProductItem, error) {
 	return l.LoadThunk(key)()
 }
 
 // LoadThunk returns a function that when called will block waiting for a ProductItem.
 // This method should be used if you want one goroutine to make requests to many
 // different data loaders without blocking until the thunk is called.
-func (l *ProductItemLoader) LoadThunk(key int) func() ([]*graphql.ProductItem, error) {
+func (l *ProductItemLoader) LoadThunk(key int) func() ([]*domain.ProductItem, error) {
 	l.mu.Lock()
 	if it, ok := l.cache[key]; ok {
 		l.mu.Unlock()
-		return func() ([]*graphql.ProductItem, error) {
+		return func() ([]*domain.ProductItem, error) {
 			return it, nil
 		}
 	}
@@ -85,10 +85,10 @@ func (l *ProductItemLoader) LoadThunk(key int) func() ([]*graphql.ProductItem, e
 	pos := batch.keyIndex(l, key)
 	l.mu.Unlock()
 
-	return func() ([]*graphql.ProductItem, error) {
+	return func() ([]*domain.ProductItem, error) {
 		<-batch.done
 
-		var data []*graphql.ProductItem
+		var data []*domain.ProductItem
 		if pos < len(batch.data) {
 			data = batch.data[pos]
 		}
@@ -113,14 +113,14 @@ func (l *ProductItemLoader) LoadThunk(key int) func() ([]*graphql.ProductItem, e
 
 // LoadAll fetches many keys at once. It will be broken into appropriate sized
 // sub batches depending on how the loader is configured
-func (l *ProductItemLoader) LoadAll(keys []int) ([][]*graphql.ProductItem, []error) {
-	results := make([]func() ([]*graphql.ProductItem, error), len(keys))
+func (l *ProductItemLoader) LoadAll(keys []int) ([][]*domain.ProductItem, []error) {
+	results := make([]func() ([]*domain.ProductItem, error), len(keys))
 
 	for i, key := range keys {
 		results[i] = l.LoadThunk(key)
 	}
 
-	productItems := make([][]*graphql.ProductItem, len(keys))
+	productItems := make([][]*domain.ProductItem, len(keys))
 	errors := make([]error, len(keys))
 	for i, thunk := range results {
 		productItems[i], errors[i] = thunk()
@@ -131,13 +131,13 @@ func (l *ProductItemLoader) LoadAll(keys []int) ([][]*graphql.ProductItem, []err
 // LoadAllThunk returns a function that when called will block waiting for a ProductItems.
 // This method should be used if you want one goroutine to make requests to many
 // different data loaders without blocking until the thunk is called.
-func (l *ProductItemLoader) LoadAllThunk(keys []int) func() ([][]*graphql.ProductItem, []error) {
-	results := make([]func() ([]*graphql.ProductItem, error), len(keys))
+func (l *ProductItemLoader) LoadAllThunk(keys []int) func() ([][]*domain.ProductItem, []error) {
+	results := make([]func() ([]*domain.ProductItem, error), len(keys))
 	for i, key := range keys {
 		results[i] = l.LoadThunk(key)
 	}
-	return func() ([][]*graphql.ProductItem, []error) {
-		productItems := make([][]*graphql.ProductItem, len(keys))
+	return func() ([][]*domain.ProductItem, []error) {
+		productItems := make([][]*domain.ProductItem, len(keys))
 		errors := make([]error, len(keys))
 		for i, thunk := range results {
 			productItems[i], errors[i] = thunk()
@@ -149,13 +149,13 @@ func (l *ProductItemLoader) LoadAllThunk(keys []int) func() ([][]*graphql.Produc
 // Prime the cache with the provided key and value. If the key already exists, no change is made
 // and false is returned.
 // (To forcefully prime the cache, clear the key first with loader.clear(key).prime(key, value).)
-func (l *ProductItemLoader) Prime(key int, value []*graphql.ProductItem) bool {
+func (l *ProductItemLoader) Prime(key int, value []*domain.ProductItem) bool {
 	l.mu.Lock()
 	var found bool
 	if _, found = l.cache[key]; !found {
 		// make a copy when writing to the cache, its easy to pass a pointer in from a loop var
 		// and end up with the whole cache pointing to the same value.
-		cpy := make([]*graphql.ProductItem, len(value))
+		cpy := make([]*domain.ProductItem, len(value))
 		copy(cpy, value)
 		l.unsafeSet(key, cpy)
 	}
@@ -170,9 +170,9 @@ func (l *ProductItemLoader) Clear(key int) {
 	l.mu.Unlock()
 }
 
-func (l *ProductItemLoader) unsafeSet(key int, value []*graphql.ProductItem) {
+func (l *ProductItemLoader) unsafeSet(key int, value []*domain.ProductItem) {
 	if l.cache == nil {
-		l.cache = map[int][]*graphql.ProductItem{}
+		l.cache = map[int][]*domain.ProductItem{}
 	}
 	l.cache[key] = value
 }

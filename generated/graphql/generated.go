@@ -101,7 +101,7 @@ type MutationResolver interface {
 	Users(ctx context.Context) (*UsersMutation, error)
 }
 type ProductResolver interface {
-	ProductItems(ctx context.Context, obj *domain.Product) ([]*ProductItem, error)
+	ProductItems(ctx context.Context, obj *domain.Product) ([]*domain.ProductItem, error)
 }
 type ProductsQueryResolver interface {
 	List(ctx context.Context, obj *ProductsQuery) (*ProductsListOut, error)
@@ -628,13 +628,13 @@ func (ec *executionContext) _Product_productItems(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*ProductItem)
+	res := resTmp.([]*domain.ProductItem)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNProductItem2ᚕᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐProductItem(ctx, field.Selections, res)
+	return ec.marshalNProductItem2ᚕᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋappᚋdbᚋdomainᚐProductItem(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _ProductItem_id(ctx context.Context, field graphql.CollectedField, obj *ProductItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _ProductItem_id(ctx context.Context, field graphql.CollectedField, obj *domain.ProductItem) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -665,13 +665,13 @@ func (ec *executionContext) _ProductItem_id(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _ProductItem_name(ctx context.Context, field graphql.CollectedField, obj *ProductItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _ProductItem_name(ctx context.Context, field graphql.CollectedField, obj *domain.ProductItem) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -2473,7 +2473,7 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 
 var productItemImplementors = []string{"ProductItem"}
 
-func (ec *executionContext) _ProductItem(ctx context.Context, sel ast.SelectionSet, obj *ProductItem) graphql.Marshaler {
+func (ec *executionContext) _ProductItem(ctx context.Context, sel ast.SelectionSet, obj *domain.ProductItem) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.RequestContext, sel, productItemImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3097,11 +3097,11 @@ func (ec *executionContext) marshalNProduct2ᚖgithubᚗcomᚋaristatᚋgolang�
 	return ec._Product(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNProductItem2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐProductItem(ctx context.Context, sel ast.SelectionSet, v ProductItem) graphql.Marshaler {
+func (ec *executionContext) marshalNProductItem2githubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋappᚋdbᚋdomainᚐProductItem(ctx context.Context, sel ast.SelectionSet, v domain.ProductItem) graphql.Marshaler {
 	return ec._ProductItem(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNProductItem2ᚕᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐProductItem(ctx context.Context, sel ast.SelectionSet, v []*ProductItem) graphql.Marshaler {
+func (ec *executionContext) marshalNProductItem2ᚕᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋappᚋdbᚋdomainᚐProductItem(ctx context.Context, sel ast.SelectionSet, v []*domain.ProductItem) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3125,7 +3125,7 @@ func (ec *executionContext) marshalNProductItem2ᚕᚖgithubᚗcomᚋaristatᚋg
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNProductItem2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐProductItem(ctx, sel, v[i])
+			ret[i] = ec.marshalNProductItem2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋappᚋdbᚋdomainᚐProductItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3138,7 +3138,7 @@ func (ec *executionContext) marshalNProductItem2ᚕᚖgithubᚗcomᚋaristatᚋg
 	return ret
 }
 
-func (ec *executionContext) marshalNProductItem2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋgeneratedᚋgraphqlᚐProductItem(ctx context.Context, sel ast.SelectionSet, v *ProductItem) graphql.Marshaler {
+func (ec *executionContext) marshalNProductItem2ᚖgithubᚗcomᚋaristatᚋgolangᚑexampleᚑappᚋappᚋdbᚋdomainᚐProductItem(ctx context.Context, sel ast.SelectionSet, v *domain.ProductItem) graphql.Marshaler {
 	if v == nil {
 		if !ec.HasError(graphql.GetResolverContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")

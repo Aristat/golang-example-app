@@ -65,7 +65,7 @@ func (r *Resolver) Product() graphql.ProductResolver {
 	return &productResolver{r}
 }
 
-func (r *productResolver) ProductItems(ctx context.Context, obj *domain.Product) ([]*graphql.ProductItem, error) {
+func (r *productResolver) ProductItems(ctx context.Context, obj *domain.Product) ([]*domain.ProductItem, error) {
 	r.log.Info("ProductItems Start Request")
 	return dataloader.CtxLoaders(ctx).ProductItemsByProduct.Load(obj.ID)
 }

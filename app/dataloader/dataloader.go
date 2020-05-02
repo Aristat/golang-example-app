@@ -1,4 +1,4 @@
-//go:generate go run github.com/vektah/dataloaden ProductItemLoader int []*github.com/aristat/golang-example-app/generated/graphql1.ProductItem
+//go:generate go run github.com/vektah/dataloaden ProductItemLoader int []*github.com/aristat/golang-example-app/generated/domain.ProductItem
 
 package dataloader
 
@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	graphql1 "github.com/aristat/golang-example-app/generated/graphql"
+	"github.com/aristat/golang-example-app/app/db/domain"
 )
 
 type ctxKeyType struct{ name string }
@@ -32,7 +32,7 @@ func LoaderMiddleware(next http.Handler) http.Handler {
 		ldrs.ProductItemsByProduct = &ProductItemLoader{
 			wait:     wait,
 			maxBatch: 100,
-			fetch: func(keys []int) ([][]*graphql1.ProductItem, []error) {
+			fetch: func(keys []int) ([][]*domain.ProductItem, []error) {
 				fmt.Println("ProductItems Start Fetch")
 				var keySql []string
 				for _, key := range keys {
@@ -42,12 +42,12 @@ func LoaderMiddleware(next http.Handler) http.Handler {
 				fmt.Printf("SELECT * FROM product_items WHERE product_id IN (%s)\n", strings.Join(keySql, ","))
 				time.Sleep(5 * time.Millisecond)
 
-				productItems := make([][]*graphql1.ProductItem, len(keys))
+				productItems := make([][]*domain.ProductItem, len(keys))
 				errors := make([]error, len(keys))
 				for i := range keys {
-					productItems[i] = []*graphql1.ProductItem{
-						{ID: "1", Name: "item " + strconv.Itoa(rand.Int()%20+20)},
-						{ID: "2", Name: "item " + strconv.Itoa(rand.Int()%20+20)},
+					productItems[i] = []*domain.ProductItem{
+						{ID: 1, Name: "item " + strconv.Itoa(rand.Int()%20+20)},
+						{ID: 2, Name: "item " + strconv.Itoa(rand.Int()%20+20)},
 					}
 				}
 

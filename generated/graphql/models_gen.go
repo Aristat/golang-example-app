@@ -10,11 +10,6 @@ import (
 	"github.com/aristat/golang-example-app/app/db/domain"
 )
 
-type ProductItem struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-
 type ProductsListOut struct {
 	Products []*domain.Product `json:"products"`
 }

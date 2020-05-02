@@ -14,6 +14,8 @@ resolver:
 models:
   Product:
     model: github.com/aristat/golang-example-app/app/db/domain.Product
+  ProductItem:
+    model: github.com/aristat/golang-example-app/app/db/domain.ProductItem
   UsersQuery:
     fields:
       one:
