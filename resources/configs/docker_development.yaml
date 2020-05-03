@@ -43,6 +43,9 @@ tracing:
       localAgentHostPort: jaeger:6831
     disabled: false
     serviceName: golang-example-app-server
+products:
+  natsUrl: nats-streaming:4222
+  subject: products
 services:
   oauthClient:
     url: http://localhost:9094
@@ -54,6 +57,8 @@ services:
   productService:
     port: 50051
     healthCheckUrl: health_check_service:50052
+    natsUrl: nats-streaming:4222
+    subject: products
   healthCheckService:
     port: 50052
     randomDisable: true

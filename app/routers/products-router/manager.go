@@ -23,13 +23,14 @@ type ServiceManagers struct {
 	PoolManager *grpc.PoolManager
 }
 
-func New(ctx context.Context, log logger.Logger, managers ServiceManagers) *Manager {
+func New(ctx context.Context, log logger.Logger, managers ServiceManagers, cfg *Config) *Manager {
 	wd := entrypoint.WorkDir()
 	tmp := template.Must(template.New("").ParseGlob(wd + "/templates/**/*"))
 	log = log.WithFields(logger.Fields{"service": prefix})
 
 	router := &Router{
 		ctx:         ctx,
+		cfg:         cfg,
 		template:    tmp,
 		logger:      log,
 		poolManager: managers.PoolManager,

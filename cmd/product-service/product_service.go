@@ -7,6 +7,9 @@ import (
 	"net"
 	"time"
 
+	"github.com/nats-io/nats.go"
+	"github.com/nats-io/stan.go"
+
 	"github.com/aristat/golang-example-app/app/config"
 
 	"github.com/aristat/golang-example-app/app/logger"
@@ -27,6 +30,8 @@ import (
 type Config struct {
 	Port           string
 	HealthCheckUrl string
+	NatsURL        string
+	Subject        string
 }
 
 type server struct {
@@ -119,6 +124,26 @@ var (
 			log.Info("Start product service %s", logger.Args(clientConfig.Port))
 			lis, err := net.Listen("tcp", ":"+clientConfig.Port)
 			if err != nil {
+				panic(err)
+			}
+
+			nc, err := nats.Connect(clientConfig.NatsURL)
+			if err != nil {
+				log.Error(err.Error())
+				panic(err)
+			}
+			defer nc.Close()
+
+			sc, _ := stan.Connect("test-cluster", "example-subscriber", stan.NatsConn(nc))
+
+			_, err = sc.QueueSubscribe(clientConfig.Subject, "worker", func(m *stan.Msg) {
+				log.Printf("Received a message: %s\n", string(m.Data))
+				m.Ack()
+			}, stan.DurableName("i-will-remember"), stan.MaxInflight(1), stan.SetManualAckMode())
+
+			if err != nil {
+				sc.Close()
+				log.Error(err.Error())
 				panic(err)
 			}
 

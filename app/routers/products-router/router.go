@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/aristat/golang-example-app/common"
+	"github.com/nats-io/nats.go"
+	"github.com/nats-io/stan.go"
 
 	"github.com/go-chi/chi"
 
@@ -18,6 +20,7 @@ import (
 
 type Router struct {
 	ctx         context.Context
+	cfg         *Config
 	template    *template.Template
 	logger      logger.Logger
 	poolManager *grpc.PoolManager
@@ -51,5 +54,24 @@ func (service *Router) GetProducts(w http.ResponseWriter, r *http.Request) {
 		e.Encode("{}")
 		return
 	}
+
+	// Connect to NATS
+	nc, err := nats.Connect(service.cfg.NatsURL)
+	if err != nil {
+		service.logger.Error(err.Error())
+	}
+	defer nc.Close()
+
+	sc, err := stan.Connect("test-cluster", "stan-pub", stan.NatsConn(nc))
+	message := "Hello"
+	service.logger.Printf("[NATS] send %s", message)
+	err = sc.Publish(service.cfg.Subject, []byte(message))
+	if err != nil {
+		service.logger.Printf("[ERROR] %s", err.Error())
+	}
+
+	// Close connection
+	sc.Close()
+
 	e.Encode(productOut)
 }

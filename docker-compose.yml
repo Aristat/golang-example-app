@@ -35,6 +35,7 @@ services:
       - daemon-migrate
       - postgres
       - redis
+      - nats-streaming
     networks:
       - intranet
     ports:
@@ -90,6 +91,14 @@ services:
     image: redis:latest
     volumes:
       - redis_data:/data
+    networks:
+      - intranet
+
+  nats-streaming:
+    image: nats-streaming
+    ports:
+      - "8222:8222"
+      - "4222:4222"
     networks:
       - intranet
 

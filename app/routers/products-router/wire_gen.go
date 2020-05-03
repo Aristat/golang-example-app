@@ -79,7 +79,7 @@ func Build() (*Manager, func(), error) {
 	serviceManagers := ServiceManagers{
 		PoolManager: poolManager,
 	}
-	manager, cleanup9, err := Provider(context, zap, serviceManagers)
+	products_routerConfig, cleanup9, err := Cfg(viper)
 	if err != nil {
 		cleanup8()
 		cleanup7()
@@ -91,7 +91,21 @@ func Build() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	manager, cleanup10, err := Provider(context, zap, serviceManagers, products_routerConfig)
+	if err != nil {
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return manager, func() {
+		cleanup10()
 		cleanup9()
 		cleanup8()
 		cleanup7()
@@ -147,7 +161,7 @@ func BuildTest() (*Manager, func(), error) {
 	serviceManagers := ServiceManagers{
 		PoolManager: poolManager,
 	}
-	manager, cleanup7, err := Provider(context, mock, serviceManagers)
+	products_routerConfig, cleanup7, err := CfgTest()
 	if err != nil {
 		cleanup6()
 		cleanup5()
@@ -157,7 +171,19 @@ func BuildTest() (*Manager, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	manager, cleanup8, err := Provider(context, mock, serviceManagers, products_routerConfig)
+	if err != nil {
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	return manager, func() {
+		cleanup8()
 		cleanup7()
 		cleanup6()
 		cleanup5()
