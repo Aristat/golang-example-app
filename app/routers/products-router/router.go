@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/aristat/golang-example-app/common"
-	"github.com/nats-io/nats.go"
 	"github.com/nats-io/stan.go"
 
+	"github.com/aristat/golang-example-app/common"
 	"github.com/go-chi/chi"
+	"github.com/nats-io/nats.go"
 
 	"github.com/aristat/golang-example-app/app/grpc"
 	"github.com/aristat/golang-example-app/app/logger"
@@ -27,10 +27,11 @@ type Router struct {
 }
 
 func (router *Router) Run(chiRouter chi.Router) {
-	chiRouter.Get("/products", router.GetProducts)
+	chiRouter.Get("/products_grpc", router.GetProductsGrpc)
+	chiRouter.Get("/products_nats", router.GetProductsNats)
 }
 
-func (service *Router) GetProducts(w http.ResponseWriter, r *http.Request) {
+func (service *Router) GetProductsGrpc(w http.ResponseWriter, r *http.Request) {
 	conn, d, err := grpc.GetConnGRPC(service.poolManager, common.SrvProducts)
 	defer d()
 	defer r.Body.Close()
@@ -55,6 +56,10 @@ func (service *Router) GetProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	e.Encode(productOut)
+}
+
+func (service *Router) GetProductsNats(w http.ResponseWriter, r *http.Request) {
 	// Connect to NATS
 	nc, err := nats.Connect(service.cfg.NatsURL)
 	if err != nil {
@@ -73,5 +78,6 @@ func (service *Router) GetProducts(w http.ResponseWriter, r *http.Request) {
 	// Close connection
 	sc.Close()
 
-	e.Encode(productOut)
+	e := json.NewEncoder(w)
+	e.Encode("")
 }

@@ -135,11 +135,8 @@ var (
 			defer nc.Close()
 
 			sc, _ := stan.Connect("test-cluster", "example-subscriber", stan.NatsConn(nc))
-
-			_, err = sc.QueueSubscribe(clientConfig.Subject, "worker", func(m *stan.Msg) {
-				log.Printf("Received a message: %s\n", string(m.Data))
-				m.Ack()
-			}, stan.DurableName("i-will-remember"), stan.MaxInflight(1), stan.SetManualAckMode())
+			natsService := natsService{logger: log}
+			_, err = sc.QueueSubscribe(clientConfig.Subject, "worker", natsService.workerHanlder, stan.DurableName("i-will-remember"), stan.MaxInflight(1), stan.SetManualAckMode())
 
 			if err != nil {
 				sc.Close()

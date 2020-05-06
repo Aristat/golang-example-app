@@ -150,11 +150,11 @@ func NewZap(ctx context.Context, cfg Config) *Zap {
 
 	if !cfg.Debug {
 		cfg := zap.NewProductionConfig()
-		logger, _ = cfg.Build(zap.AddCallerSkip(2), zap.AddStacktrace(zap.PanicLevel))
+		logger, _ = cfg.Build(zap.AddCallerSkip(3), zap.AddStacktrace(zap.InfoLevel))
 	} else {
 		cfg := zap.NewDevelopmentConfig()
 		cfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
-		logger, _ = cfg.Build(zap.AddCallerSkip(2))
+		logger, _ = cfg.Build(zap.AddCallerSkip(3))
 	}
 
 	go func(logger *zap.Logger) {

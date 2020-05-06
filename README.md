@@ -51,6 +51,8 @@ Packages which use in this example project
 13. [jaeger](https://github.com/uber/jaeger-client-go) - Jaeger Bindings for Go OpenTracing API
 14. [casbin](https://github.com/casbin/casbin) - Supports access control
 15. [dataloaden](https://github.com/vektah/dataloaden) - DataLoader for graphql
+16. [nats](https://github.com/nats-io/nats.go) - Golang client for NATS, the cloud native messaging system
+17. [nats-streaming](https://github.com/nats-io/stan.go) - NATS Streaming System
 
 # Installing
 
@@ -185,7 +187,13 @@ http://localhost:9094/login
 ## Http example with gRPC
 
 ```$xslt
-http://localhost:9096/products
+http://localhost:9096/products_grpc
+```
+
+## Http example with Nats Streaming
+
+```$xslt
+http://localhost:9096/products_nats
 ```
 
 ## Graphql example with gRPC
