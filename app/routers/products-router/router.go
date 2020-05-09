@@ -29,6 +29,7 @@ type Router struct {
 func (router *Router) Run(chiRouter chi.Router) {
 	chiRouter.Get("/products_grpc", router.GetProductsGrpc)
 	chiRouter.Get("/products_nats", router.GetProductsNats)
+	chiRouter.Get("/products_slowly", router.GetProductsSlowly)
 }
 
 func (service *Router) GetProductsGrpc(w http.ResponseWriter, r *http.Request) {
@@ -78,6 +79,14 @@ func (service *Router) GetProductsNats(w http.ResponseWriter, r *http.Request) {
 	// Close connection
 	sc.Close()
 
+	e := json.NewEncoder(w)
+	e.Encode("")
+}
+
+func (service *Router) GetProductsSlowly(w http.ResponseWriter, r *http.Request) {
+	service.logger.Info("Start sleep")
+	time.Sleep(time.Second * 10)
+	service.logger.Info("Stop sleep")
 	e := json.NewEncoder(w)
 	e.Encode("")
 }

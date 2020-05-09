@@ -68,14 +68,13 @@ type EntryPoint struct {
 }
 
 // Shutdown raise shutdown event.
-func (e *EntryPoint) Shutdown(ctx context.Context, code int) {
+func Shutdown(ctx context.Context, code int) {
 	mu.Lock()
 	defer mu.Unlock()
 	cancelFn()
 	if _, ok := ctx.Deadline(); ok {
 		<-ctx.Done()
 	}
-	os.Exit(code)
 }
 
 // Reload raise reload event.

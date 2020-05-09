@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -10,7 +9,6 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
-	"time"
 
 	"github.com/aristat/golang-example-app/cmd/jwt"
 
@@ -33,11 +31,10 @@ import (
 )
 
 var (
-	configPath    string
-	debug         bool
-	v             *viper.Viper
-	gracefulDelay time.Duration
-	log           logger.Logger
+	configPath string
+	debug      bool
+	v          *viper.Viper
+	log        logger.Logger
 )
 
 const prefix = "cmd.root"
@@ -92,7 +89,6 @@ func init() {
 	// pflags
 	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", "", "config file")
 	rootCmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "debug mode")
-	rootCmd.PersistentFlags().DurationVar(&gracefulDelay, "graceful.delay", 50*time.Millisecond, "graceful delay")
 
 	// initializing
 	wd := os.Getenv("APP_WD")
@@ -113,15 +109,6 @@ func init() {
 			ep.Reload()
 			fmt.Printf("OS signaled `%v`, reload", sig.String())
 		}
-	}()
-
-	go func() {
-		shutdownSignal := make(chan os.Signal)
-		signal.Notify(shutdownSignal, syscall.SIGTERM, syscall.SIGINT)
-		sig := <-shutdownSignal
-		fmt.Printf("OS signaled `%v`, graceful shutdown in %s\n", sig.String(), gracefulDelay)
-		ctx, _ := context.WithTimeout(context.Background(), gracefulDelay)
-		ep.Shutdown(ctx, 0)
 	}()
 }
 

@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"net/http"
+	"sync"
 
 	"github.com/go-chi/chi"
 
@@ -31,34 +32,33 @@ type Http struct {
 }
 
 // ListenAndServe
-func (m *Http) ListenAndServe(bind ...string) (err error) {
+func (m *Http) ListenAndServe(wg *sync.WaitGroup, bind ...string) (server *http.Server) {
 	bindAddress := m.cfg.Bind
 
 	if len(bind) > 0 && len(bind[0]) > 0 {
 		bindAddress = bind[0]
 	}
 
-	server := &http.Server{
+	server = &http.Server{
 		Addr:    bindAddress,
 		Handler: m.mux,
 	}
 
 	go func() {
-		<-m.ctx.Done()
-		m.log.Info("context cancelled, shutdown is raised")
-		if e := server.Shutdown(context.Background()); e != nil {
-			m.log.Emergency("graceful shutdown error, %v", logger.Args(e))
+		defer wg.Done()
+
+		if err := server.ListenAndServe(); err != nil {
+			if err != http.ErrServerClosed {
+				m.log.Emergency("Server is shutdown with error, %v", logger.Args(err))
+			} else {
+				err = nil
+			}
 		}
+
+		m.log.Info("HTTP Server stopped successfully")
 	}()
 
-	if err = server.ListenAndServe(); err != nil {
-		if err != http.ErrServerClosed {
-			m.log.Emergency("server is shutdown with error, %v", logger.Args(err))
-		} else {
-			err = nil
-		}
-	}
-	return
+	return server
 }
 
 // New

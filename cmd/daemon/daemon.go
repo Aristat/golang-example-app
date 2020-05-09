@@ -1,6 +1,14 @@
 package daemon
 
 import (
+	"context"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
+	"time"
+
+	"github.com/aristat/golang-example-app/app/entrypoint"
 	"github.com/aristat/golang-example-app/app/http"
 	"github.com/aristat/golang-example-app/app/logger"
 
@@ -8,8 +16,9 @@ import (
 )
 
 var (
-	bind string
-	Cmd  = &cobra.Command{
+	bind          string
+	gracefulDelay time.Duration
+	Cmd           = &cobra.Command{
 		Use:           "daemon",
 		Short:         "Gateway API daemon",
 		SilenceUsage:  true,
@@ -42,15 +51,32 @@ var (
 				return
 			}
 			defer c()
-			if err := s.ListenAndServe(bind); err != nil {
-				log.Error(err.Error())
-				return
+
+			wg := &sync.WaitGroup{}
+			wg.Add(1)
+
+			server := s.ListenAndServe(wg, bind)
+
+			shutdownSignal := make(chan os.Signal)
+			signal.Notify(shutdownSignal, syscall.SIGTERM, syscall.SIGINT)
+			sig := <-shutdownSignal
+			log.Printf("OS signaled `%v`\n", sig.String())
+
+			log.Info("Server shutdown is raised")
+			if e := server.Shutdown(context.Background()); e != nil {
+				log.Emergency("Graceful shutdown error, %v", logger.Args(e))
 			}
-			log.Info("daemon stopped successfully")
+
+			wg.Wait()
+
+			log.Printf("Graceful shutdown in %s\n", gracefulDelay)
+			ctx, _ := context.WithTimeout(context.Background(), gracefulDelay)
+			entrypoint.Shutdown(ctx, 0)
 		},
 	}
 )
 
 func init() {
 	Cmd.PersistentFlags().StringVarP(&bind, "bind", "b", ":9096", "bind address")
+	Cmd.PersistentFlags().DurationVar(&gracefulDelay, "graceful.delay", 50*time.Millisecond, "graceful delay")
 }

@@ -45,6 +45,7 @@ func ProviderGORM(ctx context.Context, log logger.Logger, cfg Config) (*gorm.DB,
 		if db != nil {
 			_ = db.Close()
 		}
+		log.Info("Closed db connections")
 	}
 
 	return db, cleanup, err

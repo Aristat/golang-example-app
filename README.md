@@ -196,6 +196,12 @@ http://localhost:9096/products_grpc
 http://localhost:9096/products_nats
 ```
 
+## Http example with graceful shutdown(long request, you can check the server shutdown)
+
+```$xslt
+http://localhost:9096/products_slowly
+```
+
 ## Graphql example with gRPC
 
 Graphql [client](https://github.com/prisma-labs/graphql-playground) for testing. End-point `http://localhost:9096/query`.
