@@ -3,8 +3,9 @@ package logger
 import (
 	"context"
 
-	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"go.uber.org/zap"
 )
 
 // Zap is uber/zap logger implemented of Logger interface
@@ -150,11 +151,11 @@ func NewZap(ctx context.Context, cfg Config) *Zap {
 
 	if !cfg.Debug {
 		cfg := zap.NewProductionConfig()
-		logger, _ = cfg.Build(zap.AddCallerSkip(3), zap.AddStacktrace(zap.InfoLevel))
+		logger, _ = cfg.Build(zap.AddCallerSkip(3), zap.AddStacktrace(zap.WarnLevel))
 	} else {
 		cfg := zap.NewDevelopmentConfig()
 		cfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
-		logger, _ = cfg.Build(zap.AddCallerSkip(3))
+		logger, _ = cfg.Build(zap.AddCallerSkip(3), zap.AddStacktrace(zap.WarnLevel))
 	}
 
 	go func(logger *zap.Logger) {
