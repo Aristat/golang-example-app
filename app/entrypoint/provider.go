@@ -2,6 +2,8 @@ package entrypoint
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 
 	"github.com/google/wire"
 )
@@ -14,8 +16,12 @@ func ContextProvider() (context.Context, func(), error) {
 
 // ContextProviderTest
 func ContextProviderTest() (context.Context, func(), error) {
+	// initializing
+	wd, _ := filepath.Abs(os.Getenv("APP_WD"))
+	_, err := Initialize(wd, nil)
+
 	c := context.Background()
-	return c, func() {}, nil
+	return c, func() {}, err
 }
 
 var (

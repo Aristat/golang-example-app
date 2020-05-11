@@ -5,19 +5,17 @@ import (
 	"os"
 	"sync"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
 
 var (
-	vi                    *viper.Viper
-	mu                    sync.Mutex
-	reloadCh              = make(chan struct{})
-	shutdownCtx           context.Context
-	cancelFn              context.CancelFunc
-	errAlreadyInitialized = errors.New("entrypoint already initialized")
-	ep                    *EntryPoint
-	wd                    string
+	vi          *viper.Viper
+	mu          sync.Mutex
+	reloadCh    = make(chan struct{})
+	shutdownCtx context.Context
+	cancelFn    context.CancelFunc
+	ep          *EntryPoint
+	wd          string
 )
 
 const prefix = "app.entrypoint"
@@ -42,7 +40,7 @@ func Initialize(workDir string, v *viper.Viper) (*EntryPoint, error) {
 	mu.Lock()
 	defer mu.Unlock()
 	if ep != nil {
-		return nil, errors.WithMessage(errAlreadyInitialized, prefix)
+		return ep, nil
 	}
 	if len(workDir) > 0 {
 		wd = workDir

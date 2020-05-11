@@ -10,7 +10,6 @@ import (
 	"github.com/go-session/session"
 
 	"github.com/aristat/golang-example-app/app/logger"
-	oauth_router "github.com/aristat/golang-example-app/app/routers/oauth-router"
 )
 
 const prefix = "app.http"
@@ -25,7 +24,6 @@ type Config struct {
 type Http struct {
 	ctx     context.Context
 	cfg     Config
-	oauth   *oauth_router.Manager
 	session *session.Manager
 	log     logger.Logger
 	mux     *chi.Mux
@@ -66,7 +64,6 @@ func New(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config, manag
 	return &Http{
 		ctx:     ctx,
 		cfg:     cfg,
-		oauth:   managers.oauth,
 		session: managers.session,
 		mux:     mux,
 		log:     log.WithFields(logger.Fields{"service": prefix}),

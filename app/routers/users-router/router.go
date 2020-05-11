@@ -65,11 +65,13 @@ func (service *Router) PostLogin(w http.ResponseWriter, r *http.Request) {
 
 	currentUser, err := service.repo.Users.FindByEmail(email)
 	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
 		service.template.ExecuteTemplate(w, "users/login", H{"errors": []string{userNotFound.Error()}})
 		return
 	}
 
 	if common.CheckPasswordHash(password, currentUser.EncryptedPassword) == false {
+		w.WriteHeader(http.StatusNotFound)
 		service.template.ExecuteTemplate(w, "users/login", H{"errors": []string{userNotFound.Error()}})
 		return
 	}
@@ -84,7 +86,7 @@ func (service *Router) PostLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Location", "/login")
-	w.WriteHeader(http.StatusFound)
+	w.WriteHeader(http.StatusNotFound)
 }
 
 func (service *Router) Auth(w http.ResponseWriter, r *http.Request) {
