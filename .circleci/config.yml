@@ -1,0 +1,68 @@
+version: 2.1
+jobs:
+  test:
+    docker:
+      - image: circleci/golang:1.14
+    working_directory: ~/golang-example-app
+    steps:
+      - checkout
+      - run:
+          name: "Setup APP_WD"
+          command: echo 'export APP_WD="$(cd ${CIRCLE_WORKING_DIRECTORY}; pwd)/resources"' >> $BASH_ENV
+      - run:
+          name: Fetch dependencies
+          command: go mod download
+      - run:
+          name: Test
+          command: go test ./...
+  build:
+    docker:
+      - image: circleci/golang:1.14
+    working_directory: ~/golang-example-app
+    steps:
+      - checkout
+      - run:
+          name: Fetch dependencies
+          command: go mod download
+      - run:
+          name: Building
+          command: |
+            VERSION=${CIRCLE_TAG}
+            GOOS=linux GOARCH=amd64 go build -ldflags "-X main.Version=${VERSION}" -o bin/app-${VERSION}-linux-amd64 main.go
+            GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.Version=${VERSION}" -o bin/app-${VERSION}-darwin-amd64 main.go
+      - persist_to_workspace:
+          root: .
+          paths:
+            - bin
+  publish-github-release:
+    docker:
+      - image: cibuilds/github:0.13
+    steps:
+      - attach_workspace:
+          at: ~/golang-example-app
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            VERSION=${CIRCLE_TAG}
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ~/golang-example-app/bin
+workflows:
+  version: 2
+  main:
+    jobs:
+      - test
+  release:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v\d+\.\d+\.\d+.*/
+      - publish-github-release:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v\d+\.\d+\.\d+.*/
