@@ -3,18 +3,18 @@ jobs:
   test:
     docker:
       - image: circleci/golang:1.14
-        environment:
-          APP_WD: "~/golang-example-app/resources"
     working_directory: ~/golang-example-app
     steps:
       - checkout
+      - run:
+          name: "Setup APP_WD"
+          command: echo 'export APP_WD="$(cd ${CIRCLE_WORKING_DIRECTORY}; pwd)/resources"' >> $BASH_ENV
       - run:
           name: Fetch dependencies
           command: go mod download
       - run:
           name: Test
-          command: |
-            go test ./...
+          command: go test ./...
   build:
     docker:
       - image: circleci/golang:1.14

@@ -18,8 +18,7 @@ define build_resources
 endef
 
 install: init ## install cli tools
-	export GO111MODULE=off ;\
-    go get -v github.com/rubenv/sql-migrate/... ;\
+	go get -v github.com/rubenv/sql-migrate/... ;\
     go get -u github.com/google/wire/cmd/wire ;\
     go get -u github.com/vektah/dataloaden ;
 
@@ -41,7 +40,7 @@ prototool-generate: ## generate proto file
 
 build: init ## build binary file
 	$(call build_resources) ;\
-	GO111MODULE=on GOOS=${GOOS} CGO_ENABLED=${CGO_ENABLED} GOARCH=${GOARCH} \
+	GOOS=${GOOS} CGO_ENABLED=${CGO_ENABLED} GOARCH=${GOARCH} \
 	go build -ldflags "-X $(GO_PKG)/cmd/version.appVersion=$(TAG)-$$(date -u +%Y%m%d%H%M)" -o "$(GO_DIR)/artifacts/bin" main.go
 
 docker-image: ## build docker image
