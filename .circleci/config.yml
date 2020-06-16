@@ -3,6 +3,8 @@ jobs:
   test:
     docker:
       - image: circleci/golang:1.14
+        environment:
+          APP_WD: "~/golang-example-app/resources"
     working_directory: ~/golang-example-app
     steps:
       - checkout
@@ -12,7 +14,6 @@ jobs:
       - run:
           name: Test
           command: |
-            APP_WD=~/golang-example-app/resources
             go test ./...
   build:
     docker:
