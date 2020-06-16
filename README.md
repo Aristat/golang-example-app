@@ -88,10 +88,10 @@ Sql migrations
 sql-migrate up
 ```
 
-Install Golang packages to vendor
+Install Golang dependencies
 
 ```$xslt
-make vendor
+make dependencies
 ```
 
 Generate artifacts(binary files and configs)

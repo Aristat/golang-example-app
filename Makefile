@@ -30,10 +30,8 @@ init: ## init packages
 start: ## start daemon on development mode
 	./artifacts/bin daemon -c ./artifacts/configs/development.yaml -d
 
-vendor: ## generate vendor
-	rm -rf $(GO_DIR)/vendor ;\
-	GO111MODULE=on \
-	go mod vendor
+dependencies: ## generate dependencies
+	go mod download
 
 gqlgen-generate: ## generate graphql server
 	go run github.com/99designs/gqlgen
@@ -44,7 +42,7 @@ prototool-generate: ## generate proto file
 build: init ## build binary file
 	$(call build_resources) ;\
 	GO111MODULE=on GOOS=${GOOS} CGO_ENABLED=${CGO_ENABLED} GOARCH=${GOARCH} \
-	go build -mod vendor -ldflags "-X $(GO_PKG)/cmd/version.appVersion=$(TAG)-$$(date -u +%Y%m%d%H%M)" -o "$(GO_DIR)/artifacts/bin" main.go
+	go build -ldflags "-X $(GO_PKG)/cmd/version.appVersion=$(TAG)-$$(date -u +%Y%m%d%H%M)" -o "$(GO_DIR)/artifacts/bin" main.go
 
 docker-image: ## build docker image
 	REMOVE_CONTAINERS=${REMOVE_CONTAINERS} DOCKER_IMAGE=${DOCKER_IMAGE} ./scripts/remove_docker_containers.sh
@@ -52,8 +50,7 @@ docker-image: ## build docker image
 	docker build --cache-from ${DOCKER_IMAGE}:${CACHE_TAG} -f "${GO_DIR}/docker/app/Dockerfile" -t ${DOCKER_IMAGE}:${TAG} ${GO_DIR}
 
 test: ## test application with race
-	GO111MODULE=on \
-	go test -mod vendor  -race -v ./...
+	go test -v ./...
 
 coverage: ## test coverage
 	go test -coverprofile=coverage.out ./...
@@ -65,7 +62,7 @@ createdb: ## create database
 dropdb: ## drop database
 	dropdb $(DATABASE_URL)
 
-.PHONY: install init vendor gqlgen-generate prototool-generate
+.PHONY: install init dependencies gqlgen-generate prototool-generate
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
