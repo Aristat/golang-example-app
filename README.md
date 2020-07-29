@@ -164,7 +164,7 @@ Start health-check service
 ## Start in docker
 
 ```$xslt
-docker-compose rm --all # Remove previous containers
+docker-compose rm # Remove previous containers
 GOOS=linux GOARCH=amd64 make build # Generate binary file
 REMOVE_CONTAINERS=on DOCKER_IMAGE=golang-example-app TAG=development make docker-image # Generate new docker image
 docker-compose up
