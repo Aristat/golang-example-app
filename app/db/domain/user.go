@@ -8,6 +8,6 @@ type User struct {
 
 // UsersRepo interface
 type UsersRepo interface {
-	CreateUser(email string, password string) (*User, error)
+	CreateUser(email string, encryptPassword string) (*User, error)
 	FindByEmail(email string) (*User, error)
 }

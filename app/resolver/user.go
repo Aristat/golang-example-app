@@ -3,6 +3,8 @@ package resolver
 import (
 	"context"
 
+	"github.com/aristat/golang-example-app/common"
+
 	graphql1 "github.com/aristat/golang-example-app/generated/graphql"
 	"github.com/spf13/cast"
 )
@@ -45,7 +47,12 @@ func (r *mutationResolver) Users(ctx context.Context) (*graphql1.UsersMutation, 
 }
 
 func (r *usersMutationResolver) CreateUser(ctx context.Context, obj *graphql1.UsersMutation, email string, password string) (*graphql1.UsersCreateOut, error) {
-	user, err := r.repo.Users.CreateUser(email, password)
+	encryptPassword, err := common.HashPassword(password, 8)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.repo.Users.CreateUser(email, encryptPassword)
 
 	if err != nil {
 		return nil, err

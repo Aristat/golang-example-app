@@ -18,8 +18,7 @@ require (
 	github.com/go-session/redis v3.0.1+incompatible
 	github.com/go-session/session v3.1.2+incompatible
 	github.com/gobuffalo/packr v1.30.1 // indirect
-	github.com/golang/protobuf v1.3.2
-	github.com/google/go-cmp v0.3.1 // indirect
+	github.com/golang/protobuf v1.4.0
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/google/wire v0.3.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
@@ -28,14 +27,15 @@ require (
 	github.com/jinzhu/gorm v1.9.10
 	github.com/json-iterator/go v1.1.6 // indirect
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
-	github.com/lib/pq v1.1.1
+	github.com/lib/pq v1.7.0
 	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/moul/http2curl v1.0.0 // indirect
-	github.com/nats-io/nats.go v1.9.2
-	github.com/nats-io/stan.go v0.6.0
+	github.com/nats-io/nats-streaming-server v0.18.0 // indirect
+	github.com/nats-io/nats.go v1.10.0
+	github.com/nats-io/stan.go v0.7.0
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/opentracing-contrib/go-stdlib v0.0.0-20190519235532-cf7a6c988dc9
@@ -77,7 +77,6 @@ require (
 	golang.org/x/crypto v0.0.0-20200323165209-0ec3e9974c59
 	golang.org/x/net v0.0.0-20190909003024-a7b16738d86b
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
-	golang.org/x/sys v0.0.0-20190910064555-bbd175535a8b // indirect
 	google.golang.org/appengine v1.6.2 // indirect
 	google.golang.org/genproto v0.0.0-20190905072037-92dd089d5514 // indirect
 	google.golang.org/grpc v1.23.0
