@@ -1,4 +1,4 @@
-package users_router
+package users_router_test
 
 import (
 	"net/http"
@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	users_router "github.com/aristat/golang-example-app/app/routers/users-router"
+
 	"golang.org/x/crypto/bcrypt"
 
 	mocket "github.com/selvatico/go-mocket"
@@ -14,7 +16,7 @@ import (
 )
 
 func TestGetLogin(t *testing.T) {
-	provider, _, _ := BuildTest()
+	provider, _, _ := users_router.BuildTest()
 	rec := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "/login", nil)
 	provider.Router.GetLogin(rec, req)
@@ -55,7 +57,7 @@ func TestPostLogin(t *testing.T) {
 			mocket.Catcher.Reset()
 			test.mock()
 
-			provider, _, e := BuildTest()
+			provider, _, e := users_router.BuildTest()
 			assert.Nil(t, e, "err should be nil")
 
 			rec := httptest.NewRecorder()

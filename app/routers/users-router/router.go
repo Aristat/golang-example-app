@@ -17,7 +17,7 @@ import (
 
 	"github.com/go-session/session"
 
-	"github.com/aristat/golang-example-app/common"
+	"github.com/aristat/golang-example-app/app/common"
 	"github.com/go-chi/chi"
 )
 

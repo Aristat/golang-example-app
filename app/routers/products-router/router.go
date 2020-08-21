@@ -9,7 +9,7 @@ import (
 
 	"github.com/nats-io/stan.go"
 
-	"github.com/aristat/golang-example-app/common"
+	"github.com/aristat/golang-example-app/app/common"
 	"github.com/go-chi/chi"
 	"github.com/nats-io/nats.go"
 
@@ -32,13 +32,13 @@ func (router *Router) Run(chiRouter chi.Router) {
 	chiRouter.Get("/products_slowly", router.GetProductsSlowly)
 }
 
-func (service *Router) GetProductsGrpc(w http.ResponseWriter, r *http.Request) {
-	conn, d, err := grpc.GetConnGRPC(service.poolManager, common.SrvProducts)
+func (router *Router) GetProductsGrpc(w http.ResponseWriter, r *http.Request) {
+	conn, d, err := grpc.GetConnGRPC(router.poolManager, common.SrvProducts)
 	defer d()
 	defer r.Body.Close()
 
 	if err != nil {
-		service.logger.Printf("[ERROR] %s", err.Error())
+		router.logger.Printf("[ERROR] %s", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -60,20 +60,20 @@ func (service *Router) GetProductsGrpc(w http.ResponseWriter, r *http.Request) {
 	e.Encode(productOut)
 }
 
-func (service *Router) GetProductsNats(w http.ResponseWriter, r *http.Request) {
+func (router *Router) GetProductsNats(w http.ResponseWriter, r *http.Request) {
 	// Connect to NATS
-	nc, err := nats.Connect(service.cfg.NatsURL)
+	nc, err := nats.Connect(router.cfg.NatsURL)
 	if err != nil {
-		service.logger.Error(err.Error())
+		router.logger.Error(err.Error())
 	}
 	defer nc.Close()
 
 	sc, err := stan.Connect("test-cluster", "stan-pub", stan.NatsConn(nc))
 	message := "Hello"
-	service.logger.Printf("[NATS] send %s", message)
-	err = sc.Publish(service.cfg.Subject, []byte(message))
+	router.logger.Printf("[NATS] send %s", message)
+	err = sc.Publish(router.cfg.Subject, []byte(message))
 	if err != nil {
-		service.logger.Printf("[ERROR] %s", err.Error())
+		router.logger.Printf("[ERROR] %s", err.Error())
 	}
 
 	// Close connection
@@ -83,10 +83,10 @@ func (service *Router) GetProductsNats(w http.ResponseWriter, r *http.Request) {
 	e.Encode("")
 }
 
-func (service *Router) GetProductsSlowly(w http.ResponseWriter, r *http.Request) {
-	service.logger.Info("Start sleep")
+func (router *Router) GetProductsSlowly(w http.ResponseWriter, r *http.Request) {
+	router.logger.Info("Start sleep")
 	time.Sleep(time.Second * 10)
-	service.logger.Info("Stop sleep")
+	router.logger.Info("Stop sleep")
 	e := json.NewEncoder(w)
 	e.Encode("")
 }

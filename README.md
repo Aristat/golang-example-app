@@ -272,6 +272,6 @@ Usage only `gin` package and oauth2 client/server mechanic
 
 # Testing
 ```
-export APP_WD=go_path to project_path/rsources or project_path/artifacts - needed for load templates
+export APP_WD=go_path to project_path/resources or project_path/artifacts - needed for load templates
 ➜  make test
 ```

@@ -3,7 +3,7 @@ package resolver
 import (
 	"context"
 
-	"github.com/aristat/golang-example-app/common"
+	"github.com/aristat/golang-example-app/app/common"
 
 	graphql1 "github.com/aristat/golang-example-app/generated/graphql"
 	"github.com/spf13/cast"

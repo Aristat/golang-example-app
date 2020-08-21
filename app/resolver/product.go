@@ -8,8 +8,8 @@ import (
 
 	"github.com/aristat/golang-example-app/app/db/domain"
 
+	"github.com/aristat/golang-example-app/app/common"
 	"github.com/aristat/golang-example-app/app/grpc"
-	"github.com/aristat/golang-example-app/common"
 	"github.com/aristat/golang-example-app/generated/graphql"
 	"github.com/aristat/golang-example-app/generated/resources/proto/products"
 	"github.com/spf13/cast"

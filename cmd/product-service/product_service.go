@@ -12,8 +12,8 @@ import (
 
 	"github.com/aristat/golang-example-app/app/config"
 
+	"github.com/aristat/golang-example-app/app/common"
 	"github.com/aristat/golang-example-app/app/logger"
-	"github.com/aristat/golang-example-app/common"
 	"github.com/opentracing/opentracing-go"
 
 	"github.com/aristat/golang-example-app/generated/resources/proto/health_checks"

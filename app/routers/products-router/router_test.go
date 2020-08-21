@@ -1,25 +1,27 @@
-package resolver_test
+package products_router_test
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"net"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"strconv"
+	"strings"
 	"testing"
 
+	products_router "github.com/aristat/golang-example-app/app/routers/products-router"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/aristat/golang-example-app/app/common"
+	grpc1 "github.com/aristat/golang-example-app/app/grpc"
+
+	"github.com/aristat/golang-example-app/app/resolver"
 
 	"github.com/aristat/golang-example-app/generated/resources/proto/products"
 
 	"google.golang.org/grpc"
-
-	"github.com/stretchr/testify/assert"
-
-	grpc1 "github.com/aristat/golang-example-app/app/grpc"
-	"github.com/aristat/golang-example-app/app/resolver"
-	graphql1 "github.com/aristat/golang-example-app/generated/graphql"
 )
 
 var (
@@ -49,7 +51,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestList(t *testing.T) {
+func TestGetProductsGrpc(t *testing.T) {
 	var opts []grpc.DialOption
 	ctx := context.Background()
 	opts = append(opts, grpc.WithInsecure())
@@ -57,21 +59,27 @@ func TestList(t *testing.T) {
 	pool, _ := grpc1.NewPool(ctx, common.SrvProducts, productServerHost+grpcPort, grpc1.ConnOptions(opts...))
 	grpc1.SetPool(pool, common.SrvProducts)
 
-	cfg, _, err := resolver.BuildTest()
-	if err != nil {
-		assert.Failf(t, "resolver instance failed, err: %v", err.Error())
-		return
+	tests := []struct {
+		name         string
+		expectedCode int
+	}{
+		{
+			name:         "successful",
+			expectedCode: http.StatusOK,
+		},
 	}
 
-	obj := graphql1.ProductsQuery{}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			provider, _, e := products_router.BuildTest()
+			assert.Nil(t, e, "err should be nil")
 
-	out, err := cfg.Resolvers.ProductsQuery().List(ctx, &obj)
-	if err != nil {
-		assert.Failf(t, "request failed, err: %v", err.Error())
-		return
+			rec := httptest.NewRecorder()
+			req, _ := http.NewRequest(http.MethodGet, "/products_grpc", strings.NewReader(""))
+			provider.Router.GetProductsGrpc(rec, req)
+
+			assert.Equal(t, test.expectedCode, rec.Code)
+			assert.NotNil(t, rec.Body)
+		})
 	}
-
-	jsonProducts, _ := json.Marshal(out.Products)
-	t.Log(string(jsonProducts))
-	assert.Equal(t, len(out.Products), 5)
 }

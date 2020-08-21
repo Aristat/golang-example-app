@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/aristat/golang-example-app/common"
+	"github.com/aristat/golang-example-app/app/common"
 
 	"github.com/aristat/golang-example-app/app/logger"
 

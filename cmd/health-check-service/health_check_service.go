@@ -13,7 +13,7 @@ import (
 
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 
-	"github.com/aristat/golang-example-app/common"
+	"github.com/aristat/golang-example-app/app/common"
 
 	"github.com/aristat/golang-example-app/generated/resources/proto/health_checks"
 	"github.com/golang/protobuf/ptypes/empty"

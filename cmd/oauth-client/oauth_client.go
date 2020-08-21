@@ -11,7 +11,7 @@ import (
 
 	"github.com/aristat/golang-example-app/app/logger"
 
-	"github.com/aristat/golang-example-app/common"
+	"github.com/aristat/golang-example-app/app/common"
 
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 
