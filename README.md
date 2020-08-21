@@ -2,7 +2,6 @@
 
 # Golang Example Application
 
-
 # Table of Contents
 
 - [Overview](#overview)
@@ -30,13 +29,13 @@ Commands list:
 3. Health check service - this service is needed to show how convenient to understand on which of the services an error occurred in jaeger
 4. Oauth client - this service is needed to show a simple example of http client and server, for example oauth2 server
 5. Migrate - commands for migration
-6. Jwt - commands for generate jwt token
+6. JWT - commands for generate JWT token
 
 # Package list
 
 Packages which use in this example project
 
-1. [sql-migrate](https://github.com/rubenv/sql-migrate) - sql migrations
+1. [sql-migrate](https://github.com/rubenv/sql-migrate) - SQL migrations
 2. [wire](https://github.com/google/wire) - dependency Injection
 3. [viper](https://github.com/spf13/viper) - environment configuration
 4. [cobra](https://github.com/spf13/cobra) - create commands
@@ -263,12 +262,6 @@ mutation createUser {
   }
 }
 ```
-
-# Deprecated version
-
-[Deprecated version](https://github.com/Aristat/golang-example-app/tree/gin-example)
-
-Usage only `gin` package and oauth2 client/server mechanic
 
 # Testing
 ```

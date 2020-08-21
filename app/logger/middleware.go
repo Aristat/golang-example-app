@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"google.golang.org/grpc"
 )
 
@@ -24,7 +23,7 @@ func UnaryClientInterceptor(log Logger, enable bool) grpc.UnaryClientInterceptor
 			e = strings.ReplaceAll(err.Error(), "\n", "")
 		}
 
-		log.Debug("\nQUERY UnaryClient:\n\nData: %v\n\nERROR:\n%v\n\n", Args(spew.Sdump(req), e), WithFields(Fields{
+		log.Debug("\nQUERY UnaryClient:\n\nData: %v\n\nERROR:\n%v\n\n", Args(req, e), WithFields(Fields{
 			"time": time.Since(startTime).String(),
 		}))
 
@@ -69,7 +68,7 @@ func UnaryServerInterceptor(log Logger, enable bool) grpc.UnaryServerInterceptor
 			e = strings.ReplaceAll(err.Error(), "\n", "")
 		}
 
-		log.Debug("\nQUERY UnaryServer:\n\nFullMethod: %v\nData: %v\nRESPONSE:\n\nData: %v\nERROR:\n%v\n", Args(info.FullMethod, spew.Sdump(req), spew.Sdump(res), e), WithFields(Fields{
+		log.Debug("\nQUERY UnaryServer:\n\nFullMethod: %v\nData: %v\nRESPONSE:\n\nData: %v\nERROR:\n%v\n", Args(info.FullMethod, req, res, e), WithFields(Fields{
 			"time": time.Since(startTime).String(),
 		}))
 

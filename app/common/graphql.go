@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/vektah/gqlparser/v2/gqlerror"
+
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/vektah/gqlparser/gqlerror"
 )
 
-func SendGraphqlError(w http.ResponseWriter, code int, errors ...*gqlerror.Error) {
+func SendGraphqlError(w http.ResponseWriter, code int, errors gqlerror.List) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	b, err := json.Marshal(&graphql.Response{Errors: errors})
@@ -20,5 +21,5 @@ func SendGraphqlError(w http.ResponseWriter, code int, errors ...*gqlerror.Error
 }
 
 func SendGraphqlErrorf(w http.ResponseWriter, code int, format string, args ...interface{}) {
-	SendGraphqlError(w, code, &gqlerror.Error{Message: fmt.Sprintf(format, args...)})
+	SendGraphqlError(w, code, gqlerror.List{{Message: fmt.Sprintf(format, args...)}})
 }

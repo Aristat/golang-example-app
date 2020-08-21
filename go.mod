@@ -2,11 +2,11 @@ module github.com/aristat/golang-example-app
 
 require (
 	cloud.google.com/go v0.45.1 // indirect
-	github.com/99designs/gqlgen v0.9.3
+	github.com/99designs/gqlgen v0.12.2
+	github.com/agnivade/levenshtein v1.1.0 // indirect
 	github.com/ajg/form v0.0.0-20160822230020-523a5da1a92f // indirect
 	github.com/casbin/casbin v1.9.1
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
-	github.com/davecgh/go-spew v1.1.1
 	github.com/denisenkom/go-mssqldb v0.0.0-20190710001350-29e7b2419f38 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/structs v1.1.0 // indirect
@@ -22,14 +22,14 @@ require (
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/google/wire v0.3.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
-	github.com/hashicorp/golang-lru v0.5.3 // indirect
+	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/jinzhu/gorm v1.9.10
 	github.com/json-iterator/go v1.1.6 // indirect
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/lib/pq v1.7.0
 	github.com/magiconair/properties v1.8.1 // indirect
-	github.com/mitchellh/mapstructure v1.1.2
+	github.com/mitchellh/mapstructure v1.3.3
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/moul/http2curl v1.0.0 // indirect
@@ -41,7 +41,7 @@ require (
 	github.com/opentracing-contrib/go-stdlib v0.0.0-20190519235532-cf7a6c988dc9
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/pelletier/go-toml v1.4.0 // indirect
-	github.com/pkg/errors v0.8.1
+	github.com/pkg/errors v0.9.1
 	github.com/processout/grpc-go-pool v1.2.1
 	github.com/rubenv/sql-migrate v0.0.0-20190902133344-8926f37f0bc1
 	github.com/selvatico/go-mocket v1.0.7
@@ -63,7 +63,7 @@ require (
 	github.com/uber/jaeger-client-go v2.17.0+incompatible
 	github.com/uber/jaeger-lib v2.1.1+incompatible // indirect
 	github.com/valyala/fasthttp v1.2.0 // indirect
-	github.com/vektah/gqlparser v1.1.2
+	github.com/vektah/gqlparser/v2 v2.0.1
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.1.0 // indirect
@@ -74,16 +74,17 @@ require (
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	go.uber.org/automaxprocs v1.2.0
 	go.uber.org/zap v1.10.0
-	golang.org/x/crypto v0.0.0-20200323165209-0ec3e9974c59
-	golang.org/x/net v0.0.0-20190909003024-a7b16738d86b
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/net v0.0.0-20200625001655-4c5254603344
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.2 // indirect
 	google.golang.org/genproto v0.0.0-20190905072037-92dd089d5514 // indirect
 	google.golang.org/grpc v1.23.0
-	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/go-oauth2/redis.v3 v3.0.2
 	gopkg.in/gorp.v1 v1.7.2 // indirect
 	gopkg.in/oauth2.v3 v3.9.2
+	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
 
 go 1.13
