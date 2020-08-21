@@ -3,7 +3,7 @@ package graphql
 import (
 	"context"
 
-	"github.com/aristat/golang-example-app/app/resolver"
+	"github.com/aristat/golang-example-app/app/graphql_resolver"
 
 	"github.com/aristat/golang-example-app/app/logger"
 	"github.com/aristat/golang-example-app/generated/graphql"
@@ -36,6 +36,6 @@ func Provider(ctx context.Context, resolver graphql.Config, log logger.Logger, c
 }
 
 var (
-	ProviderProductionSet = wire.NewSet(Provider, Cfg, resolver.ProviderProductionSet)
-	ProviderTestSet       = wire.NewSet(Provider, CfgTest, resolver.ProviderTestSet)
+	ProviderProductionSet = wire.NewSet(Provider, Cfg, graphql_resolver.ProviderProductionSet)
+	ProviderTestSet       = wire.NewSet(Provider, CfgTest, graphql_resolver.ProviderTestSet)
 )

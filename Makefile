@@ -32,7 +32,7 @@ start: ## start daemon on development mode
 dependencies: ## generate dependencies
 	go mod download
 
-gqlgen-generate: ## generate graphql server
+gqlgen-generate: ## generate graphql resolver
 	go run github.com/99designs/gqlgen
 
 prototool-generate: ## generate proto file

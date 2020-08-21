@@ -6,7 +6,7 @@ import "google/protobuf/empty.proto";
 
 service HealthChecks {
     rpc IsAlive (google.protobuf.Empty) returns (IsAliveOut) {
-        }
+    }
 }
 
 message IsAliveOut {

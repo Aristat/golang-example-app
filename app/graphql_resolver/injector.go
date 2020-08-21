@@ -1,6 +1,6 @@
 // +build wireinject
 
-package resolver
+package graphql_resolver
 
 import (
 	"github.com/aristat/golang-example-app/app/db"

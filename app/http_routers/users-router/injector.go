@@ -5,8 +5,8 @@ package users_router
 import (
 	"github.com/aristat/golang-example-app/app/db"
 	"github.com/aristat/golang-example-app/app/db/repo"
+	oauth_router "github.com/aristat/golang-example-app/app/http_routers/oauth-router"
 	"github.com/aristat/golang-example-app/app/provider"
-	oauth_router "github.com/aristat/golang-example-app/app/routers/oauth-router"
 	"github.com/aristat/golang-example-app/app/session"
 	"github.com/google/wire"
 )

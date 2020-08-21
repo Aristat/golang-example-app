@@ -1,4 +1,4 @@
-package resolver
+package graphql_resolver
 
 import (
 	"context"

@@ -43,7 +43,7 @@ func (x ListProductOut_Status) String() string {
 	return proto.EnumName(ListProductOut_Status_name, int32(x))
 }
 func (ListProductOut_Status) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_products_61900bba6a66f708, []int{2, 0}
+	return fileDescriptor_products_e24e0aec2f2680b0, []int{2, 0}
 }
 
 type Product struct {
@@ -58,7 +58,7 @@ func (m *Product) Reset()         { *m = Product{} }
 func (m *Product) String() string { return proto.CompactTextString(m) }
 func (*Product) ProtoMessage()    {}
 func (*Product) Descriptor() ([]byte, []int) {
-	return fileDescriptor_products_61900bba6a66f708, []int{0}
+	return fileDescriptor_products_e24e0aec2f2680b0, []int{0}
 }
 func (m *Product) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Product.Unmarshal(m, b)
@@ -103,7 +103,7 @@ func (m *ListProductIn) Reset()         { *m = ListProductIn{} }
 func (m *ListProductIn) String() string { return proto.CompactTextString(m) }
 func (*ListProductIn) ProtoMessage()    {}
 func (*ListProductIn) Descriptor() ([]byte, []int) {
-	return fileDescriptor_products_61900bba6a66f708, []int{1}
+	return fileDescriptor_products_e24e0aec2f2680b0, []int{1}
 }
 func (m *ListProductIn) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListProductIn.Unmarshal(m, b)
@@ -142,7 +142,7 @@ func (m *ListProductOut) Reset()         { *m = ListProductOut{} }
 func (m *ListProductOut) String() string { return proto.CompactTextString(m) }
 func (*ListProductOut) ProtoMessage()    {}
 func (*ListProductOut) Descriptor() ([]byte, []int) {
-	return fileDescriptor_products_61900bba6a66f708, []int{2}
+	return fileDescriptor_products_e24e0aec2f2680b0, []int{2}
 }
 func (m *ListProductOut) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListProductOut.Unmarshal(m, b)
@@ -256,10 +256,10 @@ var _Products_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("resources/proto/products/products.proto", fileDescriptor_products_61900bba6a66f708)
+	proto.RegisterFile("resources/proto/products/products.proto", fileDescriptor_products_e24e0aec2f2680b0)
 }
 
-var fileDescriptor_products_61900bba6a66f708 = []byte{
+var fileDescriptor_products_e24e0aec2f2680b0 = []byte{
 	// 228 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x52, 0x2f, 0x4a, 0x2d, 0xce,
 	0x2f, 0x2d, 0x4a, 0x4e, 0x2d, 0xd6, 0x2f, 0x28, 0xca, 0x2f, 0xc9, 0x07, 0x91, 0x29, 0xa5, 0xc9,

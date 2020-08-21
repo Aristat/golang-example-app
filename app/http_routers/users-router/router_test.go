@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	users_router "github.com/aristat/golang-example-app/app/routers/users-router"
+	users_router "github.com/aristat/golang-example-app/app/http_routers/users-router"
 
 	"golang.org/x/crypto/bcrypt"
 

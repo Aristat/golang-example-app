@@ -11,9 +11,9 @@ import (
 	"github.com/aristat/golang-example-app/app/db"
 	"github.com/aristat/golang-example-app/app/db/repo"
 	"github.com/aristat/golang-example-app/app/entrypoint"
+	"github.com/aristat/golang-example-app/app/graphql_resolver"
 	"github.com/aristat/golang-example-app/app/grpc"
 	"github.com/aristat/golang-example-app/app/logger"
-	"github.com/aristat/golang-example-app/app/resolver"
 	"github.com/aristat/golang-example-app/app/tracing"
 )
 
@@ -42,7 +42,7 @@ func Build() (*GraphQL, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	resolverConfig, cleanup5, err := resolver.Cfg(viper)
+	graphql_resolverConfig, cleanup5, err := graphql_resolver.Cfg(viper)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -167,11 +167,11 @@ func Build() (*GraphQL, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	managers := resolver.Managers{
+	managers := graphql_resolver.Managers{
 		Repo:        repoRepo,
 		PollManager: poolManager,
 	}
-	graphqlConfig, cleanup15, err := resolver.Provider(context, zap, resolverConfig, enforcer, managers)
+	graphqlConfig, cleanup15, err := graphql_resolver.Provider(context, zap, graphql_resolverConfig, enforcer, managers)
 	if err != nil {
 		cleanup14()
 		cleanup13()
@@ -265,7 +265,7 @@ func BuildTest() (*GraphQL, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	resolverConfig, cleanup4, err := resolver.CfgTest()
+	graphql_resolverConfig, cleanup4, err := graphql_resolver.CfgTest()
 	if err != nil {
 		cleanup3()
 		cleanup2()
@@ -349,11 +349,11 @@ func BuildTest() (*GraphQL, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	managers := resolver.Managers{
+	managers := graphql_resolver.Managers{
 		Repo:        repoRepo,
 		PollManager: poolManager,
 	}
-	graphqlConfig, cleanup12, err := resolver.Provider(context, mock, resolverConfig, enforcer, managers)
+	graphqlConfig, cleanup12, err := graphql_resolver.Provider(context, mock, graphql_resolverConfig, enforcer, managers)
 	if err != nil {
 		cleanup11()
 		cleanup10()

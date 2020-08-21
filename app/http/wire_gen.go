@@ -13,12 +13,12 @@ import (
 	"github.com/aristat/golang-example-app/app/db/repo"
 	"github.com/aristat/golang-example-app/app/entrypoint"
 	"github.com/aristat/golang-example-app/app/graphql"
+	"github.com/aristat/golang-example-app/app/graphql_resolver"
 	"github.com/aristat/golang-example-app/app/grpc"
+	"github.com/aristat/golang-example-app/app/http_routers/oauth-router"
+	"github.com/aristat/golang-example-app/app/http_routers/products-router"
+	"github.com/aristat/golang-example-app/app/http_routers/users-router"
 	"github.com/aristat/golang-example-app/app/logger"
-	"github.com/aristat/golang-example-app/app/resolver"
-	"github.com/aristat/golang-example-app/app/routers/oauth-router"
-	"github.com/aristat/golang-example-app/app/routers/products-router"
-	"github.com/aristat/golang-example-app/app/routers/users-router"
 	"github.com/aristat/golang-example-app/app/session"
 	"github.com/aristat/golang-example-app/app/tracing"
 )
@@ -408,7 +408,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	resolverConfig, cleanup25, err := resolver.Cfg(viper)
+	graphql_resolverConfig, cleanup25, err := graphql_resolver.Cfg(viper)
 	if err != nil {
 		cleanup24()
 		cleanup23()
@@ -465,11 +465,11 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	managers := resolver.Managers{
+	managers := graphql_resolver.Managers{
 		Repo:        repoRepo,
 		PollManager: poolManager,
 	}
-	graphqlConfig, cleanup27, err := resolver.Provider(context, zap, resolverConfig, enforcer, managers)
+	graphqlConfig, cleanup27, err := graphql_resolver.Provider(context, zap, graphql_resolverConfig, enforcer, managers)
 	if err != nil {
 		cleanup26()
 		cleanup25()

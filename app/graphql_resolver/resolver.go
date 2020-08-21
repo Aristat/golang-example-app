@@ -1,4 +1,4 @@
-package resolver
+package graphql_resolver
 
 import (
 	"context"
@@ -18,7 +18,7 @@ import (
 	graphql1 "github.com/aristat/golang-example-app/generated/graphql"
 )
 
-var prefix = "app.resolver"
+var prefix = "app.graphql_resolver"
 var errPermission = errors.WithMessage(errors.New("No have permission"), prefix)
 
 // Config
@@ -44,12 +44,12 @@ type Resolver struct {
 	pollManager *grpc.PoolManager
 }
 
-// Mutation returns root graphql mutation resolver
+// Mutation returns root graphql mutation graphql_resolver
 func (r *Resolver) Mutation() graphql1.MutationResolver {
 	return &mutationResolver{r}
 }
 
-// Query returns root graphql query resolver
+// Query returns root graphql query graphql_resolver
 func (r *Resolver) Query() graphql1.QueryResolver {
 	return &queryResolver{r}
 }

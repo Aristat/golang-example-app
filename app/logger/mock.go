@@ -131,7 +131,7 @@ func (m *Mock) Catch() <-chan Entity {
 }
 
 // NewMock returns mock instance implemented of Logger interface
-func NewMock(ctx context.Context, cfg Config, discard bool) *Mock {
+func newMock(ctx context.Context, cfg Config, discard bool) *Mock {
 	return &Mock{
 		ctx:     ctx,
 		cfg:     cfg,

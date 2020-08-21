@@ -10,7 +10,7 @@ message Product {
 
 service Products {
     rpc ListProduct (ListProductIn) returns (ListProductOut) {
-        }
+    }
 }
 
 message ListProductIn {

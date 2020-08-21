@@ -1,4 +1,4 @@
-package resolver_test
+package graphql_resolver_test
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/aristat/golang-example-app/app/resolver"
+	"github.com/aristat/golang-example-app/app/graphql_resolver"
 	graphql1 "github.com/aristat/golang-example-app/generated/graphql"
 	mocket "github.com/selvatico/go-mocket"
 )
@@ -24,9 +24,9 @@ type UserParams struct {
 func TestOne(t *testing.T) {
 	ctx := context.Background()
 
-	cfg, _, err := resolver.BuildTest()
+	cfg, _, err := graphql_resolver.BuildTest()
 	if err != nil {
-		assert.Failf(t, "resolver instance failed, err: %v", err.Error())
+		assert.Failf(t, "graphql_resolver instance failed, err: %v", err.Error())
 		return
 	}
 

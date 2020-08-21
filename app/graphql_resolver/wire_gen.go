@@ -3,7 +3,7 @@
 //go:generate wire
 //+build !wireinject
 
-package resolver
+package graphql_resolver
 
 import (
 	"github.com/aristat/golang-example-app/app/casbin"
@@ -42,7 +42,7 @@ func Build() (graphql.Config, func(), error) {
 		cleanup()
 		return graphql.Config{}, nil, err
 	}
-	resolverConfig, cleanup5, err := Cfg(viper)
+	graphql_resolverConfig, cleanup5, err := Cfg(viper)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -171,7 +171,7 @@ func Build() (graphql.Config, func(), error) {
 		Repo:        repoRepo,
 		PollManager: poolManager,
 	}
-	graphqlConfig, cleanup15, err := Provider(context, zap, resolverConfig, enforcer, managers)
+	graphqlConfig, cleanup15, err := Provider(context, zap, graphql_resolverConfig, enforcer, managers)
 	if err != nil {
 		cleanup14()
 		cleanup13()
@@ -224,7 +224,7 @@ func BuildTest() (graphql.Config, func(), error) {
 		cleanup()
 		return graphql.Config{}, nil, err
 	}
-	resolverConfig, cleanup4, err := CfgTest()
+	graphql_resolverConfig, cleanup4, err := CfgTest()
 	if err != nil {
 		cleanup3()
 		cleanup2()
@@ -312,7 +312,7 @@ func BuildTest() (graphql.Config, func(), error) {
 		Repo:        repoRepo,
 		PollManager: poolManager,
 	}
-	graphqlConfig, cleanup12, err := Provider(context, mock, resolverConfig, enforcer, managers)
+	graphqlConfig, cleanup12, err := Provider(context, mock, graphql_resolverConfig, enforcer, managers)
 	if err != nil {
 		cleanup11()
 		cleanup10()

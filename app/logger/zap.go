@@ -146,7 +146,7 @@ func copyZap(dst, src *Zap, fields map[string]interface{}) {
 }
 
 // NewZap returns zap logger
-func NewZap(ctx context.Context, cfg Config) *Zap {
+func newZap(ctx context.Context, cfg Config) *Zap {
 	var logger *zap.Logger
 
 	if !cfg.Debug {

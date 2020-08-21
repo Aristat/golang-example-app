@@ -44,7 +44,7 @@ func (x IsAliveOut_Status) String() string {
 	return proto.EnumName(IsAliveOut_Status_name, int32(x))
 }
 func (IsAliveOut_Status) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_health_checks_8d631d128c32ca48, []int{0, 0}
+	return fileDescriptor_health_checks_cdd3e5f8bb9328b8, []int{0, 0}
 }
 
 type IsAliveOut struct {
@@ -58,7 +58,7 @@ func (m *IsAliveOut) Reset()         { *m = IsAliveOut{} }
 func (m *IsAliveOut) String() string { return proto.CompactTextString(m) }
 func (*IsAliveOut) ProtoMessage()    {}
 func (*IsAliveOut) Descriptor() ([]byte, []int) {
-	return fileDescriptor_health_checks_8d631d128c32ca48, []int{0}
+	return fileDescriptor_health_checks_cdd3e5f8bb9328b8, []int{0}
 }
 func (m *IsAliveOut) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_IsAliveOut.Unmarshal(m, b)
@@ -163,10 +163,10 @@ var _HealthChecks_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("resources/proto/health_checks/health_checks.proto", fileDescriptor_health_checks_8d631d128c32ca48)
+	proto.RegisterFile("resources/proto/health_checks/health_checks.proto", fileDescriptor_health_checks_cdd3e5f8bb9328b8)
 }
 
-var fileDescriptor_health_checks_8d631d128c32ca48 = []byte{
+var fileDescriptor_health_checks_cdd3e5f8bb9328b8 = []byte{
 	// 196 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x32, 0x2c, 0x4a, 0x2d, 0xce,
 	0x2f, 0x2d, 0x4a, 0x4e, 0x2d, 0xd6, 0x2f, 0x28, 0xca, 0x2f, 0xc9, 0xd7, 0xcf, 0x48, 0x4d, 0xcc,

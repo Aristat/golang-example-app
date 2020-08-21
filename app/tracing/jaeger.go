@@ -16,7 +16,7 @@ type (
 )
 
 // New returns instance implemented of opentracing.Tracer interface
-func New(ctx context.Context, log logger.Logger, cfg config.Configuration, option ...config.Option) (Tracer, error) {
+func newJaegerTracer(ctx context.Context, log logger.Logger, cfg config.Configuration, option ...config.Option) (Tracer, error) {
 	log = log.WithFields(logger.Fields{"service": prefix})
 	tracer, closer, e := cfg.NewTracer(option...)
 	if e != nil {

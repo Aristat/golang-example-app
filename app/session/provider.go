@@ -20,7 +20,7 @@ func Cfg(cfg *viper.Viper) (Config, func(), error) {
 
 // Provider
 func Provider(ctx context.Context, cfg Config) (*session.Manager, func(), error) {
-	return New(ctx, cfg)
+	return new(ctx, cfg)
 }
 
 func ProviderTest() (*session.Manager, func(), error) {

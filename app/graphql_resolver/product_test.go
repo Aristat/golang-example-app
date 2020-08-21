@@ -1,4 +1,4 @@
-package resolver_test
+package graphql_resolver_test
 
 import (
 	"context"
@@ -17,8 +17,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/aristat/golang-example-app/app/graphql_resolver"
 	grpc1 "github.com/aristat/golang-example-app/app/grpc"
-	"github.com/aristat/golang-example-app/app/resolver"
 	graphql1 "github.com/aristat/golang-example-app/generated/graphql"
 )
 
@@ -36,7 +36,7 @@ func TestMain(m *testing.M) {
 
 	grpcPort = ":" + strconv.Itoa(lis.Addr().(*net.TCPAddr).Port)
 	s := grpc.NewServer()
-	products.RegisterProductsServer(s, &resolver.ProductServerMock{})
+	products.RegisterProductsServer(s, &graphql_resolver.ProductServerMock{})
 
 	go func() {
 		if err := s.Serve(lis); err != nil {
@@ -57,9 +57,9 @@ func TestList(t *testing.T) {
 	pool, _ := grpc1.NewPool(ctx, common.SrvProducts, productServerHost+grpcPort, grpc1.ConnOptions(opts...))
 	grpc1.SetPool(pool, common.SrvProducts)
 
-	cfg, _, err := resolver.BuildTest()
+	cfg, _, err := graphql_resolver.BuildTest()
 	if err != nil {
-		assert.Failf(t, "resolver instance failed, err: %v", err.Error())
+		assert.Failf(t, "graphql_resolver instance failed, err: %v", err.Error())
 		return
 	}
 

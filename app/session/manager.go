@@ -14,7 +14,7 @@ type Config struct {
 }
 
 // New
-func New(ctx context.Context, cfg Config) (*session.Manager, func(), error) {
+func new(ctx context.Context, cfg Config) (*session.Manager, func(), error) {
 	sessionStore := redis.NewRedisStore(&redis.Options{
 		Addr: cfg.RedisUrl,
 		DB:   cfg.RedisDB,

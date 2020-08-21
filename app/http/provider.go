@@ -5,12 +5,12 @@ import (
 
 	"github.com/aristat/golang-example-app/app/dataloader"
 
-	products_router "github.com/aristat/golang-example-app/app/routers/products-router"
+	products_router "github.com/aristat/golang-example-app/app/http_routers/products-router"
 
 	"github.com/aristat/golang-example-app/app/auth"
 
 	"github.com/aristat/golang-example-app/app/graphql"
-	users_router "github.com/aristat/golang-example-app/app/routers/users-router"
+	users_router "github.com/aristat/golang-example-app/app/http_routers/users-router"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/opentracing/opentracing-go"
@@ -19,7 +19,7 @@ import (
 
 	"github.com/aristat/golang-example-app/app/logger"
 
-	oauth_router "github.com/aristat/golang-example-app/app/routers/oauth-router"
+	oauth_router "github.com/aristat/golang-example-app/app/http_routers/oauth-router"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 )

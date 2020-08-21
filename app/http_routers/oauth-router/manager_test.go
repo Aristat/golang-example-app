@@ -13,7 +13,7 @@ import (
 
 	"github.com/go-session/session"
 
-	oauth_router "github.com/aristat/golang-example-app/app/routers/oauth-router"
+	oauth_router "github.com/aristat/golang-example-app/app/http_routers/oauth-router"
 	"github.com/gavv/httpexpect"
 	"github.com/stretchr/testify/assert"
 )

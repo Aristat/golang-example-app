@@ -1,4 +1,4 @@
-package resolver
+package graphql_resolver
 
 import (
 	"context"
@@ -14,7 +14,7 @@ import (
 // Cfg
 func Cfg(cfg *viper.Viper) (Config, func(), error) {
 	c := Config{}
-	e := cfg.UnmarshalKey("resolver", &c)
+	e := cfg.UnmarshalKey("graphql_resolver", &c)
 	return c, func() {}, e
 }
 

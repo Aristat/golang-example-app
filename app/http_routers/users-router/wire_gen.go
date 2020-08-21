@@ -11,8 +11,8 @@ import (
 	"github.com/aristat/golang-example-app/app/db/repo"
 	"github.com/aristat/golang-example-app/app/entrypoint"
 	"github.com/aristat/golang-example-app/app/grpc"
+	"github.com/aristat/golang-example-app/app/http_routers/oauth-router"
 	"github.com/aristat/golang-example-app/app/logger"
-	"github.com/aristat/golang-example-app/app/routers/oauth-router"
 	"github.com/aristat/golang-example-app/app/session"
 	"github.com/aristat/golang-example-app/app/tracing"
 )

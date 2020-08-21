@@ -11,13 +11,13 @@ import (
 	"strings"
 	"testing"
 
-	products_router "github.com/aristat/golang-example-app/app/routers/products-router"
+	products_router "github.com/aristat/golang-example-app/app/http_routers/products-router"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/aristat/golang-example-app/app/common"
 	grpc1 "github.com/aristat/golang-example-app/app/grpc"
 
-	"github.com/aristat/golang-example-app/app/resolver"
+	"github.com/aristat/golang-example-app/app/graphql_resolver"
 
 	"github.com/aristat/golang-example-app/generated/resources/proto/products"
 
@@ -38,7 +38,7 @@ func TestMain(m *testing.M) {
 
 	grpcPort = ":" + strconv.Itoa(lis.Addr().(*net.TCPAddr).Port)
 	s := grpc.NewServer()
-	products.RegisterProductsServer(s, &resolver.ProductServerMock{})
+	products.RegisterProductsServer(s, &graphql_resolver.ProductServerMock{})
 
 	go func() {
 		if err := s.Serve(lis); err != nil {

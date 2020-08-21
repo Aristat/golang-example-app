@@ -8,7 +8,7 @@ model:
   filename: generated/graphql/models_gen.go
 
 resolver:
-  filename: app/resolver/resolver_gen.go
+  filename: app/graphql_resolver/resolver_gen.go
   type: Resolver
 
 models:

@@ -30,7 +30,7 @@ func ProviderCfg(cfg *viper.Viper) (jaegerConfig.Configuration, func(), error) {
 
 // Provider
 func Provider(ctx context.Context, cfg jaegerConfig.Configuration, log logger.Logger) (Tracer, func(), error) {
-	t, e := New(ctx, log, cfg, jaegerConfig.Logger(jaeger.StdLogger))
+	t, e := newJaegerTracer(ctx, log, cfg, jaegerConfig.Logger(jaeger.StdLogger))
 	opentracing.SetGlobalTracer(t)
 	return t, func() {}, e
 }
