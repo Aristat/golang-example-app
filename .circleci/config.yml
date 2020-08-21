@@ -28,13 +28,12 @@ jobs:
           name: Building
           command: |
             VERSION=${CIRCLE_TAG}
-            find "resources/" -maxdepth 1 -mindepth 1 -exec cp -R -f {} artifacts/${1} \;
-            GOOS=linux GOARCH=amd64 go build -ldflags "-X main.Version=${VERSION}" -o artifacts/app-${VERSION}-linux-amd64 main.go
-            GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.Version=${VERSION}" -o artifacts/app-${VERSION}-darwin-amd64 main.go
+            GOOS=linux GOARCH=amd64 go build -ldflags "-X main.Version=${VERSION}" -o bin/app-${VERSION}-linux-amd64 main.go
+            GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.Version=${VERSION}" -o bin/app-${VERSION}-darwin-amd64 main.go
       - persist_to_workspace:
           root: .
           paths:
-            - artifacts
+            - bin
   publish-github-release:
     docker:
       - image: cibuilds/github:0.13
@@ -45,7 +44,7 @@ jobs:
           name: "Publish Release on GitHub"
           command: |
             VERSION=${CIRCLE_TAG}
-            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ~/golang-example-app/artifacts
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ~/golang-example-app/bin
 workflows:
   version: 2
   main:
