@@ -11,7 +11,7 @@ import (
 
 const prefix = "app.products-router"
 
-// OAuth Manager
+// Product Manager
 type Manager struct {
 	ctx    context.Context
 	logger logger.Logger

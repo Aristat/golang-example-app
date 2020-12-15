@@ -15,11 +15,8 @@ import (
 	"github.com/aristat/golang-example-app/app/graphql"
 	"github.com/aristat/golang-example-app/app/graphql_resolver"
 	"github.com/aristat/golang-example-app/app/grpc"
-	"github.com/aristat/golang-example-app/app/http_routers/oauth-router"
 	"github.com/aristat/golang-example-app/app/http_routers/products-router"
-	"github.com/aristat/golang-example-app/app/http_routers/users-router"
 	"github.com/aristat/golang-example-app/app/logger"
-	"github.com/aristat/golang-example-app/app/session"
 	"github.com/aristat/golang-example-app/app/tracing"
 )
 
@@ -35,20 +32,20 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	sessionConfig, cleanup3, err := session.Cfg(viper)
+	loggerConfig, cleanup3, err := logger.ProviderCfg(viper)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	manager, cleanup4, err := session.Provider(context, sessionConfig)
+	zap, cleanup4, err := logger.Provider(context, loggerConfig)
 	if err != nil {
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	loggerConfig, cleanup5, err := logger.ProviderCfg(viper)
+	configuration, cleanup5, err := tracing.ProviderCfg(viper)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -56,7 +53,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	zap, cleanup6, err := logger.Provider(context, loggerConfig)
+	tracer, cleanup6, err := tracing.Provider(context, configuration, zap)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -65,7 +62,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	dbConfig, cleanup7, err := db.Cfg(viper)
+	grpcConfig, cleanup7, err := grpc.Cfg(viper)
 	if err != nil {
 		cleanup6()
 		cleanup5()
@@ -75,7 +72,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	gormDB, cleanup8, err := db.ProviderGORM(context, zap, dbConfig)
+	poolManager, cleanup8, err := grpc.Provider(context, tracer, zap, grpcConfig)
 	if err != nil {
 		cleanup7()
 		cleanup6()
@@ -86,205 +83,135 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	dbManager, cleanup9, err := db.Provider(context, zap, dbConfig, gormDB)
-	if err != nil {
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	oauth_routerConfig, cleanup10, err := oauth_router.Cfg(viper)
-	if err != nil {
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	tokenStore, cleanup11, err := oauth_router.TokenStore(oauth_routerConfig)
-	if err != nil {
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	clientStore, cleanup12, err := oauth_router.ClientStore(oauth_routerConfig)
-	if err != nil {
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	oauth_routerManager, cleanup13, err := oauth_router.Provider(context, zap, tokenStore, manager, clientStore)
-	if err != nil {
-		cleanup12()
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	usersRepo, cleanup14, err := repo.NewUsersRepo(gormDB)
-	if err != nil {
-		cleanup13()
-		cleanup12()
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	repoRepo, cleanup15, err := repo.Provider(usersRepo)
-	if err != nil {
-		cleanup14()
-		cleanup13()
-		cleanup12()
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	configuration, cleanup16, err := tracing.ProviderCfg(viper)
-	if err != nil {
-		cleanup15()
-		cleanup14()
-		cleanup13()
-		cleanup12()
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	tracer, cleanup17, err := tracing.Provider(context, configuration, zap)
-	if err != nil {
-		cleanup16()
-		cleanup15()
-		cleanup14()
-		cleanup13()
-		cleanup12()
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	grpcConfig, cleanup18, err := grpc.Cfg(viper)
-	if err != nil {
-		cleanup17()
-		cleanup16()
-		cleanup15()
-		cleanup14()
-		cleanup13()
-		cleanup12()
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	poolManager, cleanup19, err := grpc.Provider(context, tracer, zap, grpcConfig)
-	if err != nil {
-		cleanup18()
-		cleanup17()
-		cleanup16()
-		cleanup15()
-		cleanup14()
-		cleanup13()
-		cleanup12()
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	serviceManagers := users_router.ServiceManagers{
-		Session:     manager,
-		DB:          dbManager,
-		Oauth:       oauth_routerManager,
-		Repo:        repoRepo,
+	serviceManagers := products_router.ServiceManagers{
 		PoolManager: poolManager,
 	}
-	users_routerManager, cleanup20, err := users_router.Provider(context, zap, serviceManagers)
+	products_routerConfig, cleanup9, err := products_router.Cfg(viper)
 	if err != nil {
-		cleanup19()
-		cleanup18()
-		cleanup17()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	manager, cleanup10, err := products_router.Provider(context, zap, serviceManagers, products_routerConfig)
+	if err != nil {
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	authConfig, cleanup11, err := auth.ProviderCfg(viper)
+	if err != nil {
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	middleware, cleanup12, err := auth.Provider(authConfig, zap)
+	if err != nil {
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	graphql_resolverConfig, cleanup13, err := graphql_resolver.Cfg(viper)
+	if err != nil {
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	enforcer, cleanup14, err := casbin.Provider()
+	if err != nil {
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	dbConfig, cleanup15, err := db.Cfg(viper)
+	if err != nil {
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	gormDB, cleanup16, err := db.ProviderGORM(context, zap, dbConfig)
+	if err != nil {
+		cleanup15()
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	usersRepo, cleanup17, err := repo.NewUsersRepo(gormDB)
+	if err != nil {
 		cleanup16()
 		cleanup15()
 		cleanup14()
@@ -303,149 +230,8 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	products_routerServiceManagers := products_router.ServiceManagers{
-		PoolManager: poolManager,
-	}
-	products_routerConfig, cleanup21, err := products_router.Cfg(viper)
+	repoRepo, cleanup18, err := repo.Provider(usersRepo)
 	if err != nil {
-		cleanup20()
-		cleanup19()
-		cleanup18()
-		cleanup17()
-		cleanup16()
-		cleanup15()
-		cleanup14()
-		cleanup13()
-		cleanup12()
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	products_routerManager, cleanup22, err := products_router.Provider(context, zap, products_routerServiceManagers, products_routerConfig)
-	if err != nil {
-		cleanup21()
-		cleanup20()
-		cleanup19()
-		cleanup18()
-		cleanup17()
-		cleanup16()
-		cleanup15()
-		cleanup14()
-		cleanup13()
-		cleanup12()
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	authConfig, cleanup23, err := auth.ProviderCfg(viper)
-	if err != nil {
-		cleanup22()
-		cleanup21()
-		cleanup20()
-		cleanup19()
-		cleanup18()
-		cleanup17()
-		cleanup16()
-		cleanup15()
-		cleanup14()
-		cleanup13()
-		cleanup12()
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	middleware, cleanup24, err := auth.Provider(authConfig, zap)
-	if err != nil {
-		cleanup23()
-		cleanup22()
-		cleanup21()
-		cleanup20()
-		cleanup19()
-		cleanup18()
-		cleanup17()
-		cleanup16()
-		cleanup15()
-		cleanup14()
-		cleanup13()
-		cleanup12()
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	graphql_resolverConfig, cleanup25, err := graphql_resolver.Cfg(viper)
-	if err != nil {
-		cleanup24()
-		cleanup23()
-		cleanup22()
-		cleanup21()
-		cleanup20()
-		cleanup19()
-		cleanup18()
-		cleanup17()
-		cleanup16()
-		cleanup15()
-		cleanup14()
-		cleanup13()
-		cleanup12()
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	enforcer, cleanup26, err := casbin.Provider()
-	if err != nil {
-		cleanup25()
-		cleanup24()
-		cleanup23()
-		cleanup22()
-		cleanup21()
-		cleanup20()
-		cleanup19()
-		cleanup18()
 		cleanup17()
 		cleanup16()
 		cleanup15()
@@ -469,15 +255,30 @@ func Build() (*Http, func(), error) {
 		Repo:        repoRepo,
 		PollManager: poolManager,
 	}
-	graphqlConfig, cleanup27, err := graphql_resolver.Provider(context, zap, graphql_resolverConfig, enforcer, managers)
+	graphqlConfig, cleanup19, err := graphql_resolver.Provider(context, zap, graphql_resolverConfig, enforcer, managers)
 	if err != nil {
-		cleanup26()
-		cleanup25()
-		cleanup24()
-		cleanup23()
-		cleanup22()
-		cleanup21()
-		cleanup20()
+		cleanup18()
+		cleanup17()
+		cleanup16()
+		cleanup15()
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	config2, cleanup20, err := graphql.Cfg(viper)
+	if err != nil {
 		cleanup19()
 		cleanup18()
 		cleanup17()
@@ -499,47 +300,8 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	config2, cleanup28, err := graphql.Cfg(viper)
+	graphQL, cleanup21, err := graphql.Provider(context, graphqlConfig, zap, config2)
 	if err != nil {
-		cleanup27()
-		cleanup26()
-		cleanup25()
-		cleanup24()
-		cleanup23()
-		cleanup22()
-		cleanup21()
-		cleanup20()
-		cleanup19()
-		cleanup18()
-		cleanup17()
-		cleanup16()
-		cleanup15()
-		cleanup14()
-		cleanup13()
-		cleanup12()
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	graphQL, cleanup29, err := graphql.Provider(context, graphqlConfig, zap, config2)
-	if err != nil {
-		cleanup28()
-		cleanup27()
-		cleanup26()
-		cleanup25()
-		cleanup24()
-		cleanup23()
-		cleanup22()
-		cleanup21()
 		cleanup20()
 		cleanup19()
 		cleanup18()
@@ -563,22 +325,37 @@ func Build() (*Http, func(), error) {
 		return nil, nil, err
 	}
 	httpManagers := Managers{
-		session:        manager,
-		users:          users_routerManager,
-		oauth:          oauth_routerManager,
-		products:       products_routerManager,
+		products:       manager,
 		authMiddleware: middleware,
 		graphql:        graphQL,
 	}
-	chiMux, cleanup30, err := Mux(httpManagers, zap, tracer)
+	chiMux, cleanup22, err := Mux(httpManagers, zap, tracer)
 	if err != nil {
-		cleanup29()
-		cleanup28()
-		cleanup27()
-		cleanup26()
-		cleanup25()
-		cleanup24()
-		cleanup23()
+		cleanup21()
+		cleanup20()
+		cleanup19()
+		cleanup18()
+		cleanup17()
+		cleanup16()
+		cleanup15()
+		cleanup14()
+		cleanup13()
+		cleanup12()
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	httpConfig, cleanup23, err := Cfg(viper)
+	if err != nil {
 		cleanup22()
 		cleanup21()
 		cleanup20()
@@ -603,50 +380,8 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	httpConfig, cleanup31, err := Cfg(viper)
+	http, cleanup24, err := Provider(context, chiMux, zap, httpConfig)
 	if err != nil {
-		cleanup30()
-		cleanup29()
-		cleanup28()
-		cleanup27()
-		cleanup26()
-		cleanup25()
-		cleanup24()
-		cleanup23()
-		cleanup22()
-		cleanup21()
-		cleanup20()
-		cleanup19()
-		cleanup18()
-		cleanup17()
-		cleanup16()
-		cleanup15()
-		cleanup14()
-		cleanup13()
-		cleanup12()
-		cleanup11()
-		cleanup10()
-		cleanup9()
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	http, cleanup32, err := Provider(context, chiMux, zap, httpConfig, httpManagers)
-	if err != nil {
-		cleanup31()
-		cleanup30()
-		cleanup29()
-		cleanup28()
-		cleanup27()
-		cleanup26()
-		cleanup25()
-		cleanup24()
 		cleanup23()
 		cleanup22()
 		cleanup21()
@@ -673,14 +408,6 @@ func Build() (*Http, func(), error) {
 		return nil, nil, err
 	}
 	return http, func() {
-		cleanup32()
-		cleanup31()
-		cleanup30()
-		cleanup29()
-		cleanup28()
-		cleanup27()
-		cleanup26()
-		cleanup25()
 		cleanup24()
 		cleanup23()
 		cleanup22()

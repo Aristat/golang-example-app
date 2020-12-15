@@ -19,14 +19,6 @@ grpc:
     time: 5m
     timeout: 10s
     permitWithoutStream: false
-oauth:
-  redisUrl: redis:6379
-  redisDB: 10
-  clientStoreInfo:
-    123456:
-      id: 123456
-      secret: 12345678
-      domain: localhost:9094
 auth:
   services:
     test-service: 1
@@ -47,13 +39,6 @@ products:
   natsUrl: nats-streaming:4222
   subject: products
 services:
-  oauthClient:
-    url: http://localhost:9094
-    port: 9094
-    authUrl: http://localhost:9096/authorize
-    tokenUrl: http://daemon:9096/token
-    clientID: 123456
-    clientSecret: 12345678
   productService:
     port: 50051
     healthCheckUrl: health_check_service:50052

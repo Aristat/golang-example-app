@@ -50,7 +50,7 @@ type keys struct {
 }
 
 // Handler for check Bearer token
-func (m Middleware) Handler(next http.Handler) http.Handler {
+func (m Middleware) JWTHandler(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		var (
 			token       string

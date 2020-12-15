@@ -10,16 +10,12 @@ import (
 	"github.com/aristat/golang-example-app/app/auth"
 
 	"github.com/aristat/golang-example-app/app/graphql"
-	users_router "github.com/aristat/golang-example-app/app/http_routers/users-router"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/opentracing/opentracing-go"
 
-	"github.com/go-session/session"
-
 	"github.com/aristat/golang-example-app/app/logger"
 
-	oauth_router "github.com/aristat/golang-example-app/app/http_routers/oauth-router"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 )
@@ -54,19 +50,14 @@ func Mux(managers Managers, log logger.Logger, tracer opentracing.Tracer) (*chi.
 	mux.Use(Tracer(tracer))
 	mux.Use(dataloader.LoaderMiddleware)
 
-	managers.users.Router.Run(mux)
-	managers.oauth.Router.Run(mux)
 	managers.products.Router.Run(mux)
-	managers.graphql.Routers(mux.With(managers.authMiddleware.Handler))
+	managers.graphql.Routers(mux.With(managers.authMiddleware.JWTHandler))
 
 	return mux, func() {}, nil
 }
 
 // ServiceManagers
 type Managers struct {
-	session        *session.Manager
-	users          *users_router.Manager
-	oauth          *oauth_router.Manager
 	products       *products_router.Manager
 	authMiddleware *auth.Middleware
 	graphql        *graphql.GraphQL
@@ -77,8 +68,8 @@ var ProviderManagers = wire.NewSet(
 )
 
 // Provider
-func Provider(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config, managers Managers) (*Http, func(), error) {
-	g := New(ctx, mux, log, cfg, managers)
+func Provider(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config) (*Http, func(), error) {
+	g := New(ctx, mux, log, cfg)
 	return g, func() {}, nil
 }
 

@@ -60,12 +60,11 @@ func (m *Http) ListenAndServe(wg *sync.WaitGroup, bind ...string) (server *http.
 }
 
 // New
-func New(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config, managers Managers) *Http {
+func New(ctx context.Context, mux *chi.Mux, log logger.Logger, cfg Config) *Http {
 	return &Http{
-		ctx:     ctx,
-		cfg:     cfg,
-		session: managers.session,
-		mux:     mux,
-		log:     log.WithFields(logger.Fields{"service": prefix}),
+		ctx: ctx,
+		cfg: cfg,
+		mux: mux,
+		log: log.WithFields(logger.Fields{"service": prefix}),
 	}
 }

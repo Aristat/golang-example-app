@@ -29,7 +29,6 @@ services:
     image: golang-example-app:development
     command: daemon -c ./configs/docker_development.yaml -d
     depends_on:
-      - oauth_client
       - product_service
       - health_check_service
       - daemon-migrate
@@ -62,16 +61,6 @@ services:
       - intranet
     ports:
       - "50052:50052"
-
-  #=============================#
-
-  oauth_client:
-    image: golang-example-app:development
-    command: oauth-client -c ./configs/docker_development.yaml -d
-    networks:
-      - intranet
-    ports:
-      - "9094:9094"
 
   #=============================#
 

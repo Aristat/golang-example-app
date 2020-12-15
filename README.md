@@ -14,7 +14,6 @@
   * [Start in docker](#start-in-docker)
 - [Getting started](#getting-started)  
   * [Jaeger](#jaeger)
-  * [Oauth2 client](#oauth2-client)
   * [Http with gRPC](#http-example-with-grpc)
   * [Graphql with gRPC](#graphql-example-with-grpc)
 - [Deprecate version](#deprecated-version)  
@@ -27,9 +26,8 @@ Commands list:
 1. Daemon - main service
 2. Product service - service that returns Product, an example of gRPC client/server interaction
 3. Health check service - this service is needed to show how convenient to understand on which of the services an error occurred in jaeger
-4. Oauth client - this service is needed to show a simple example of http client and server, for example oauth2 server
-5. Migrate - commands for migration
-6. JWT - commands for generate JWT token
+4. Migrate - commands for migration
+5. JWT - commands for generate JWT token
 
 # Package list
 
@@ -43,7 +41,7 @@ Packages which use in this example project
 6. [gorm](https://github.com/jinzhu/gorm) - database ORM
 7. [zap](https://github.com/uber-go/zap) - logger
 8. [mux](https://github.com/gorilla/mux) - http router
-9. [oauth2](https://github.com/go-oauth2/oauth2) - simple oauth2 server
+9. [nats-streaming](https://github.com/nats-io/stan.go) - NATS Streaming System
 10. [gqlgen](https://github.com/99designs/gqlgen) - graphql server library
 11. [protobuf](https://github.com/golang/protobuf) - Google's data interchange format
 12. [grpc](google.golang.org/grpc) - RPC framework
@@ -51,7 +49,6 @@ Packages which use in this example project
 14. [casbin](https://github.com/casbin/casbin) - Supports access control
 15. [dataloaden](https://github.com/vektah/dataloaden) - DataLoader for graphql
 16. [nats](https://github.com/nats-io/nats.go) - Golang client for NATS, the cloud native messaging system
-17. [nats-streaming](https://github.com/nats-io/stan.go) - NATS Streaming System
 
 # Installing
 
@@ -142,12 +139,6 @@ or
 ./artifacts/bin daemon -c ./artifacts/configs/development.yaml -d
 ```
 
-Start client 
-
-```$xslt
-./artifacts/bin oauth-client -c ./artifacts/configs/development.yaml -d
-```
-
 Start product service 
 
 ```$xslt
@@ -175,12 +166,6 @@ docker-compose up
 
 ```$xslt
 http://localhost:16686
-```
-
-## Oauth2 client
-
-```$xslt
-http://localhost:9094/login
 ```
 
 ## Http example with gRPC
@@ -265,6 +250,7 @@ mutation createUser {
 
 # Testing
 ```
-export APP_WD=go_path to project_path/resources or project_path/artifacts - needed for load templates
+Set APP_WD for load templates as example if you use html pages in a project
+export APP_WD=go_path to project_path/resources or project_path/artifacts
 ➜  make test
 ```
