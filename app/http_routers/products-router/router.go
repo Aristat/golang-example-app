@@ -65,22 +65,32 @@ func (router *Router) GetProductsNats(w http.ResponseWriter, r *http.Request) {
 	nc, err := nats.Connect(router.cfg.NatsURL)
 	if err != nil {
 		router.logger.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	defer nc.Close()
 
 	sc, err := stan.Connect("test-cluster", "stan-pub", stan.NatsConn(nc))
+	if err != nil {
+		router.logger.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// Close connection
+	defer sc.Close()
+
 	message := "Hello"
 	router.logger.Printf("[NATS] send %s", message)
 	err = sc.Publish(router.cfg.Subject, []byte(message))
+
 	if err != nil {
 		router.logger.Printf("[ERROR] %s", err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	// Close connection
-	sc.Close()
-
 	e := json.NewEncoder(w)
-	e.Encode("")
+	e.Encode("done")
 }
 
 func (router *Router) GetProductsSlowly(w http.ResponseWriter, r *http.Request) {

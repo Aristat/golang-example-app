@@ -96,6 +96,12 @@ Generate artifacts(binary files and configs)
 make build
 ```
 
+Set APP_WD if you start to use html templates or path to ssh keys or run `make test`
+
+```$xslt
+export APP_WD=go_path to project_path/resources or project_path/artifacts
+```
+
 ## Docker environment
 
 
@@ -153,11 +159,18 @@ Start health-check service
 
 ## Start in docker
 
+#### Run this commands
 ```$xslt
 docker-compose rm # Remove previous containers
 GOOS=linux GOARCH=amd64 make build # Generate binary file
 REMOVE_CONTAINERS=on DOCKER_IMAGE=golang-example-app TAG=development make docker-image # Generate new docker image
 docker-compose up
+```
+
+#### or run script
+
+```$xslt
+./scripts/docker-compose-start.sh
 ```
 
 # Getting Started
@@ -250,7 +263,5 @@ mutation createUser {
 
 # Testing
 ```
-Set APP_WD for load templates as example if you use html pages in a project
-export APP_WD=go_path to project_path/resources or project_path/artifacts
 ➜  make test
 ```
