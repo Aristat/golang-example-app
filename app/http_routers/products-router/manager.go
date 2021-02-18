@@ -2,9 +2,7 @@ package products_router
 
 import (
 	"context"
-	"html/template"
 
-	"github.com/aristat/golang-example-app/app/entrypoint"
 	"github.com/aristat/golang-example-app/app/grpc"
 	"github.com/aristat/golang-example-app/app/logger"
 )
@@ -24,14 +22,11 @@ type ServiceManagers struct {
 }
 
 func New(ctx context.Context, log logger.Logger, managers ServiceManagers, cfg *Config) *Manager {
-	wd := entrypoint.WorkDir()
-	tmp := template.Must(template.New("").ParseGlob(wd + "/templates/**/*"))
 	log = log.WithFields(logger.Fields{"service": prefix})
 
 	router := &Router{
 		ctx:         ctx,
 		cfg:         cfg,
-		template:    tmp,
 		logger:      log,
 		poolManager: managers.PoolManager,
 	}

@@ -34,12 +34,12 @@ func LoaderMiddleware(next http.Handler) http.Handler {
 			maxBatch: 100,
 			fetch: func(keys []int) ([][]*domain.ProductItem, []error) {
 				fmt.Println("ProductItems Start Fetch")
-				var keySql []string
+				var keySQL []string
 				for _, key := range keys {
-					keySql = append(keySql, strconv.Itoa(key))
+					keySQL = append(keySQL, strconv.Itoa(key))
 				}
 
-				fmt.Printf("SELECT * FROM product_items WHERE product_id IN (%s)\n", strings.Join(keySql, ","))
+				fmt.Printf("SELECT * FROM product_items WHERE product_id IN (%s)\n", strings.Join(keySQL, ","))
 				time.Sleep(5 * time.Millisecond)
 
 				productItems := make([][]*domain.ProductItem, len(keys))

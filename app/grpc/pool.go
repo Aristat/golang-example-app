@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/processout/grpc-go-pool"
+	grpcpool "github.com/processout/grpc-go-pool"
 	"google.golang.org/grpc"
 )
 

@@ -35,7 +35,7 @@ func Viper() *viper.Viper {
 	return vi
 }
 
-// Initialize returns instance of entry point singleton manager
+// Initialize returns instance of entry point singleton manager, workDir uses to attach templates
 func Initialize(workDir string, v *viper.Viper) (*EntryPoint, error) {
 	mu.Lock()
 	defer mu.Unlock()

@@ -3,7 +3,6 @@ package products_router
 import (
 	"context"
 	"encoding/json"
-	"html/template"
 	"net/http"
 	"time"
 
@@ -21,7 +20,6 @@ import (
 type Router struct {
 	ctx         context.Context
 	cfg         *Config
-	template    *template.Template
 	logger      logger.Logger
 	poolManager *grpc.PoolManager
 }

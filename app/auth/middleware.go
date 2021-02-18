@@ -92,10 +92,10 @@ func (m Middleware) JWTHandler(next http.Handler) http.Handler {
 			return
 		}
 
-		serviceName, serviceId := m.Service(claims)
+		serviceName, serviceID := m.Service(claims)
 		r = r.WithContext(appContext.NewContext(r.Context(), appContext.Mapping{
 			Subject:     subject,
-			ServiceId:   serviceId,
+			ServiceId:   serviceID,
 			ServiceName: serviceName,
 		}))
 
