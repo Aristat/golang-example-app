@@ -60,10 +60,6 @@ https://golang.org/doc/install
 
 Install [Postgresql](https://www.postgresql.org/download) (if you want to run locally)
 
-```$xslt
-https://golang.org/doc/install
-```
-
 Clone repository
 
 ```$xslt

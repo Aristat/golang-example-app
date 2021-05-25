@@ -19,3 +19,5 @@ vendor/
 artifacts/
 
 coverage.out
+
+.DS_Store
