@@ -1,9 +1,22 @@
+FROM golang:1.16.2-alpine3.13 as builder
+
+RUN apk add --update make \
+    && rm -rf /tmp/* \
+    && rm -rf /var/cache/apk/*
+
+RUN mkdir /build
+WORKDIR /build
+
+COPY . .
+
+RUN GOOS=linux GOARCH=amd64 make build
+
 FROM alpine:3.9
 
-WORKDIR /app
+COPY --from=builder /build/docker/app/files /
+COPY --from=builder /build/artifacts /app/
 
-COPY ./docker/app/files /
-COPY ./artifacts .
+WORKDIR /app
 
 RUN apk --no-cache add tzdata bash \
     && chmod +x /docker/bin/* \

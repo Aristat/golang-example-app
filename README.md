@@ -106,19 +106,6 @@ export APP_WD=go_path to project_path/resources or project_path/artifacts
 
 ## Docker environment
 
-
-Install Golang packages without modules
-
-```$xslt
-make install
-```
-
-Generate artifacts(binary files and configs)
-
-```$xslt
-GOOS=linux GOARCH=amd64 make build
-```
-
 Generate docker image
 
 ```$xslt
@@ -164,7 +151,6 @@ Start health-check service
 #### Run this commands
 ```$xslt
 docker-compose rm # Remove previous containers
-GOOS=linux GOARCH=amd64 make build # Generate binary file
 REMOVE_CONTAINERS=on DOCKER_IMAGE=golang-example-app TAG=development make docker-image # Generate new docker image
 docker-compose up
 ```

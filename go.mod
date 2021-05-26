@@ -9,6 +9,7 @@ require (
 	github.com/go-chi/chi v4.0.2+incompatible
 	github.com/go-session/session v3.1.2+incompatible
 	github.com/golang/protobuf v1.4.0
+	github.com/google/subcommands v1.2.0 // indirect
 	github.com/google/wire v0.5.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.1-0.20190118093823-f849b5445de4
 	github.com/hashicorp/go-uuid v1.0.1 // indirect
@@ -38,14 +39,15 @@ require (
 	github.com/uber-go/atomic v1.4.0 // indirect
 	github.com/uber/jaeger-client-go v2.17.0+incompatible
 	github.com/uber/jaeger-lib v2.1.1+incompatible // indirect
+	github.com/vektah/dataloaden v0.3.0 // indirect
 	github.com/vektah/gqlparser/v2 v2.0.1
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	go.uber.org/automaxprocs v1.2.0
 	go.uber.org/zap v1.13.0
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4
-	golang.org/x/sys v0.0.0-20210521203332-0cec03c779c1 // indirect
-	golang.org/x/tools v0.1.1 // indirect
+	golang.org/x/sys v0.0.0-20210525143221-35b2ab0089ea // indirect
+	golang.org/x/tools v0.1.2 // indirect
 	google.golang.org/genproto v0.0.0-20190905072037-92dd089d5514 // indirect
 	google.golang.org/grpc v1.26.0
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
