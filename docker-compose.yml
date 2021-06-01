@@ -69,6 +69,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=golang_example_development
+      - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
