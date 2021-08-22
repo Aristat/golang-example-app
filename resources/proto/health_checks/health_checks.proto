@@ -4,6 +4,8 @@ package health_checks;
 
 import "google/protobuf/empty.proto";
 
+option go_package="github.com/aristat/golang-example-app/health_checks";
+
 service HealthChecks {
     rpc IsAlive (google.protobuf.Empty) returns (IsAliveOut) {
     }

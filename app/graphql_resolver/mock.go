@@ -7,7 +7,9 @@ import (
 	"github.com/aristat/golang-example-app/generated/resources/proto/products"
 )
 
-type ProductServerMock struct{}
+type ProductServerMock struct {
+	products.UnimplementedProductsServer
+}
 
 func (s *ProductServerMock) ListProduct(ctx context.Context, in *products.ListProductIn) (*products.ListProductOut, error) {
 	productIds := []int64{1, 2, 3, 4, 5}

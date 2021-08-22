@@ -37,6 +37,7 @@ type Config struct {
 type server struct {
 	logger logger.Logger
 	cfg    Config
+	products.UnimplementedProductsServer
 }
 
 func (s *server) ListProduct(ctx context.Context, in *products.ListProductIn) (*products.ListProductOut, error) {

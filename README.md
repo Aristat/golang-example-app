@@ -98,6 +98,12 @@ Generate artifacts(binary files and configs)
 make build
 ```
 
+Packages for proto generator
+
+```$xslt
+https://grpc.io/docs/languages/go/quickstart/#prerequisites
+```
+
 Set APP_WD if you start to use html templates or path to ssh keys or run `make test`
 
 ```$xslt

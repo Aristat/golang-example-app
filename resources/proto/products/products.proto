@@ -2,11 +2,12 @@ syntax = "proto3";
 
 package products;
 
+option go_package="github.com/aristat/golang-example-app/products";
+
 message Product {
     int64 id = 1;
     string name = 2;
 }
-
 
 service Products {
     rpc ListProduct (ListProductIn) returns (ListProductOut) {

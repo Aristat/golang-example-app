@@ -36,7 +36,8 @@ gqlgen-generate: ## generate graphql resolver
 	go run github.com/99designs/gqlgen
 
 prototool-generate: ## generate proto file
-	prototool generate resources/proto
+	protoc --go_out=generated --go_opt=paths=source_relative --go-grpc_out=generated --go-grpc_opt=paths=source_relative resources/proto/products/products.proto
+	protoc --go_out=generated --go_opt=paths=source_relative --go-grpc_out=generated --go-grpc_opt=paths=source_relative resources/proto/health_checks/health_checks.proto
 
 build: init ## build binary file
 	$(call build_resources) ;\

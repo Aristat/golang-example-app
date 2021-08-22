@@ -32,6 +32,7 @@ type Config struct {
 
 type server struct {
 	cfg Config
+	health_checks.UnimplementedHealthChecksServer
 }
 
 func (s *server) IsAlive(ctx context.Context, empty *empty.Empty) (*health_checks.IsAliveOut, error) {
