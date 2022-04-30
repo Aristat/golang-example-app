@@ -9,7 +9,7 @@ import (
 
 	"github.com/spf13/cast"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 	"github.com/spf13/cobra"
 )
 

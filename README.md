@@ -43,7 +43,7 @@ Packages which use in this example project
 8. [mux](https://github.com/gorilla/mux) - http router
 9. [nats-streaming](https://github.com/nats-io/stan.go) - NATS Streaming System
 10. [gqlgen](https://github.com/99designs/gqlgen) - graphql server library
-11. [protobuf](https://github.com/golang/protobuf) - Google's data interchange format
+11. [protobuf](https://pkg.go.dev/google.golang.org/protobuf) - Google's data interchange format
 12. [grpc](google.golang.org/grpc) - RPC framework
 13. [jaeger](https://github.com/uber/jaeger-client-go) - Jaeger Bindings for Go OpenTracing API
 14. [casbin](https://github.com/casbin/casbin) - Supports access control

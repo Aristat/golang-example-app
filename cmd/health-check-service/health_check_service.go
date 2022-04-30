@@ -16,7 +16,7 @@ import (
 	"github.com/aristat/golang-example-app/app/common"
 
 	"github.com/aristat/golang-example-app/generated/resources/proto/health_checks"
-	"github.com/golang/protobuf/ptypes/empty"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 
@@ -35,7 +35,7 @@ type server struct {
 	health_checks.UnimplementedHealthChecksServer
 }
 
-func (s *server) IsAlive(ctx context.Context, empty *empty.Empty) (*health_checks.IsAliveOut, error) {
+func (s *server) IsAlive(ctx context.Context, empty *emptypb.Empty) (*health_checks.IsAliveOut, error) {
 	if s.cfg.RandomDisable {
 		return &health_checks.IsAliveOut{Status: health_checks.IsAliveOut_OK}, nil
 	}

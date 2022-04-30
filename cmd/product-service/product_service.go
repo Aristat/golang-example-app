@@ -18,9 +18,9 @@ import (
 
 	"github.com/aristat/golang-example-app/generated/resources/proto/health_checks"
 	"github.com/aristat/golang-example-app/generated/resources/proto/products"
-	"github.com/golang/protobuf/ptypes/empty"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
@@ -65,7 +65,7 @@ func (s *server) ListProduct(ctx context.Context, in *products.ListProductIn) (*
 
 	ctx, cancel := context.WithTimeout(ctx, time.Second)
 	defer cancel()
-	isAliveOut, err := c.IsAlive(ctx, &empty.Empty{})
+	isAliveOut, err := c.IsAlive(ctx, &emptypb.Empty{})
 	if err != nil {
 		return nil, err
 	}

@@ -11,7 +11,7 @@ import (
 
 	"github.com/aristat/golang-example-app/app/entrypoint"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 
 	appContext "github.com/aristat/golang-example-app/app/context"
 	"github.com/pkg/errors"
