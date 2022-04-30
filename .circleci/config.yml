@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   test:
     docker:
-      - image: circleci/golang:1.14
+      - image: cimg/go:1.17
     working_directory: ~/golang-example-app
     steps:
       - checkout
@@ -17,7 +17,7 @@ jobs:
           command: go test ./...
   build:
     docker:
-      - image: circleci/golang:1.14
+      - image: cimg/go:1.17
     working_directory: ~/golang-example-app
     steps:
       - checkout
