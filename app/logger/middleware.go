@@ -31,7 +31,7 @@ func UnaryClientInterceptor(log Logger, enable bool) grpc.UnaryClientInterceptor
 	}
 }
 
-// StreamClientInterceptor returns a new streaming client interceptor for OpenTracing.
+// StreamClientInterceptor returns a new streaming client interceptor
 func StreamClientInterceptor(log Logger, enable bool) grpc.StreamClientInterceptor {
 	return func(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
 		if !enable {
@@ -76,7 +76,7 @@ func UnaryServerInterceptor(log Logger, enable bool) grpc.UnaryServerInterceptor
 	}
 }
 
-// StreamServerInterceptor returns a new streaming server interceptor for OpenTracing.
+// StreamServerInterceptor returns a new streaming server interceptor
 func StreamServerInterceptor(log Logger, enable bool) grpc.StreamServerInterceptor {
 	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		if !enable {

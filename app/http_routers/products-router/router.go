@@ -9,7 +9,7 @@ import (
 	"github.com/nats-io/stan.go"
 
 	"github.com/aristat/golang-example-app/app/common"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/nats-io/nats.go"
 
 	"github.com/aristat/golang-example-app/app/grpc"

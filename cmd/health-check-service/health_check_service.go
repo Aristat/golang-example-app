@@ -7,18 +7,19 @@ import (
 	"net"
 	"time"
 
+	"go.opentelemetry.io/otel/propagation"
+
+	"go.opentelemetry.io/otel"
+
 	"github.com/aristat/golang-example-app/app/config"
 
 	"github.com/aristat/golang-example-app/app/logger"
 
-	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
-
 	"github.com/aristat/golang-example-app/app/common"
 
 	"github.com/aristat/golang-example-app/generated/resources/proto/health_checks"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
@@ -91,24 +92,32 @@ var (
 				}
 			}()
 
-			tracer := common.GenerateTracerForTestClient("golang-example-app-health-check-service", conf)
+			tracer, e := common.GenerateTracerForTestClient("golang-example-app-health-check-service", conf)
+			otel.SetTracerProvider(tracer)
+
+			if e != nil {
+				panic(e)
+			}
+
+			defer func() {
+				if err := tracer.Shutdown(context.Background()); err != nil {
+					log.Printf("Error shutting down tracer provider: %v", err)
+				}
+			}()
 
 			lis, err := net.Listen("tcp", ":"+clientConfig.Port)
 			if err != nil {
 				panic(err)
 			}
+
 			s := grpc.NewServer(
-				grpc.UnaryInterceptor(
-					grpc_middleware.ChainUnaryServer(
-						logger.UnaryServerInterceptor(log, true),
-						grpc_opentracing.UnaryServerInterceptor(grpc_opentracing.WithTracer(tracer)),
-					),
+				grpc.ChainUnaryInterceptor(
+					logger.UnaryServerInterceptor(log, true),
+					otelgrpc.UnaryServerInterceptor(otelgrpc.WithTracerProvider(tracer), otelgrpc.WithPropagators(propagation.TraceContext{})),
 				),
-				grpc.StreamInterceptor(
-					grpc_middleware.ChainStreamServer(
-						logger.StreamServerInterceptor(log, true),
-						grpc_opentracing.StreamServerInterceptor(grpc_opentracing.WithTracer(tracer)),
-					),
+				grpc.ChainStreamInterceptor(
+					logger.StreamServerInterceptor(log, true),
+					otelgrpc.StreamServerInterceptor(otelgrpc.WithTracerProvider(tracer), otelgrpc.WithPropagators(propagation.TraceContext{})),
 				),
 			)
 			health_checks.RegisterHealthChecksServer(s, &server{cfg: clientConfig})

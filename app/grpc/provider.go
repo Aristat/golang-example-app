@@ -5,9 +5,10 @@ import (
 	"sync"
 	"time"
 
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
+
 	"github.com/aristat/golang-example-app/app/logger"
 
-	"github.com/aristat/golang-example-app/app/tracing"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/keepalive"
@@ -50,7 +51,7 @@ type Config struct {
 }
 
 // Provider
-func Provider(ctx context.Context, tracing tracing.Tracer, logger logger.Logger, cfg *Config) (*PoolManager, func(), error) {
+func Provider(ctx context.Context, tracing *tracesdk.TracerProvider, logger logger.Logger, cfg *Config) (*PoolManager, func(), error) {
 	mutexPM.Lock()
 	defer mutexPM.Unlock()
 	if pm != nil {

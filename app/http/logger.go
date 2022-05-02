@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/aristat/golang-example-app/app/logger"
-	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 func Logger(l logger.Logger) func(next http.Handler) http.Handler {

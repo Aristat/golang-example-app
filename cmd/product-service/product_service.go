@@ -7,6 +7,14 @@ import (
 	"net"
 	"time"
 
+	"go.opentelemetry.io/otel/propagation"
+
+	"google.golang.org/grpc/credentials/insecure"
+
+	"go.opentelemetry.io/otel"
+
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/stan.go"
 
@@ -14,12 +22,9 @@ import (
 
 	"github.com/aristat/golang-example-app/app/common"
 	"github.com/aristat/golang-example-app/app/logger"
-	"github.com/opentracing/opentracing-go"
 
 	"github.com/aristat/golang-example-app/generated/resources/proto/health_checks"
 	"github.com/aristat/golang-example-app/generated/resources/proto/products"
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/spf13/cobra"
@@ -41,22 +46,20 @@ type server struct {
 }
 
 func (s *server) ListProduct(ctx context.Context, in *products.ListProductIn) (*products.ListProductOut, error) {
-	tracer := opentracing.GlobalTracer()
+	tracer := otel.GetTracerProvider()
 
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
-	opts = append(opts, grpc.WithUnaryInterceptor(
-		grpc_middleware.ChainUnaryClient(
+	conn, err := grpc.Dial(s.cfg.HealthCheckUrl,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithChainUnaryInterceptor(
 			logger.UnaryClientInterceptor(s.logger, true),
-			grpc_opentracing.UnaryClientInterceptor(grpc_opentracing.WithTracer(tracer)),
-		)))
-	opts = append(opts, grpc.WithStreamInterceptor(
-		grpc_middleware.ChainStreamClient(
+			otelgrpc.UnaryClientInterceptor(otelgrpc.WithTracerProvider(tracer), otelgrpc.WithPropagators(propagation.TraceContext{})),
+		),
+		grpc.WithChainStreamInterceptor(
 			logger.StreamClientInterceptor(s.logger, true),
-			grpc_opentracing.StreamClientInterceptor(grpc_opentracing.WithTracer(tracer)),
-		)))
+			otelgrpc.StreamClientInterceptor(otelgrpc.WithTracerProvider(tracer), otelgrpc.WithPropagators(propagation.TraceContext{})),
+		),
+	)
 
-	conn, err := grpc.Dial(s.cfg.HealthCheckUrl, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -119,8 +122,18 @@ var (
 				}
 			}()
 
-			tracer := common.GenerateTracerForTestClient("golang-example-app-product-service", conf)
-			opentracing.SetGlobalTracer(tracer)
+			tracer, e := common.GenerateTracerForTestClient("golang-example-app-product-service", conf)
+			otel.SetTracerProvider(tracer)
+
+			if e != nil {
+				panic(e)
+			}
+
+			defer func() {
+				if err := tracer.Shutdown(context.Background()); err != nil {
+					log.Printf("Error shutting down tracer provider: %v", err)
+				}
+			}()
 
 			log.Info("Start product service %s", logger.Args(clientConfig.Port))
 			lis, err := net.Listen("tcp", ":"+clientConfig.Port)
@@ -146,17 +159,13 @@ var (
 			}
 
 			s := grpc.NewServer(
-				grpc.UnaryInterceptor(
-					grpc_middleware.ChainUnaryServer(
-						logger.UnaryServerInterceptor(log, true),
-						grpc_opentracing.UnaryServerInterceptor(grpc_opentracing.WithTracer(tracer)),
-					),
+				grpc.ChainUnaryInterceptor(
+					logger.UnaryServerInterceptor(log, true),
+					otelgrpc.UnaryServerInterceptor(otelgrpc.WithTracerProvider(tracer), otelgrpc.WithPropagators(propagation.TraceContext{})),
 				),
-				grpc.StreamInterceptor(
-					grpc_middleware.ChainStreamServer(
-						logger.StreamServerInterceptor(log, true),
-						grpc_opentracing.StreamServerInterceptor(grpc_opentracing.WithTracer(tracer)),
-					),
+				grpc.ChainStreamInterceptor(
+					logger.StreamServerInterceptor(log, true),
+					otelgrpc.StreamServerInterceptor(otelgrpc.WithTracerProvider(tracer), otelgrpc.WithPropagators(propagation.TraceContext{})),
 				),
 			)
 			products.RegisterProductsServer(s, &server{logger: log, cfg: clientConfig})

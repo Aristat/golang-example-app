@@ -6,7 +6,7 @@ db:
   maxOpenConns: 5
   maxIdleConns: 3
   connMaxLifetime: 15m
-  logLevel: debug
+  logLevel: 7
 grpc:
   services:
     products:
@@ -31,9 +31,8 @@ graphql_resolver:
   productTimeout: 5
 tracing:
   jaeger:
-    reporter:
-      localAgentHostPort: jaeger:6831
-    disabled: false
+    agentHost: jaeger
+    agentPort: 6831
     serviceName: golang-example-app-server
 products:
   natsUrl: nats-streaming:4222

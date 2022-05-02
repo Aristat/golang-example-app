@@ -1,39 +1,38 @@
 package common
 
 import (
-	"log"
+	"github.com/aristat/golang-example-app/app/tracing"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/sdk/resource"
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 
 	"github.com/spf13/viper"
-
-	"github.com/opentracing/opentracing-go"
-	"github.com/uber/jaeger-client-go"
-
-	jaegerConfig "github.com/uber/jaeger-client-go/config"
 )
 
-func GenerateTracerForTestClient(serviceName string, cfg *viper.Viper) opentracing.Tracer {
-	jaegerCfg := jaegerConfig.Configuration{
-		Sampler: &jaegerConfig.SamplerConfig{
-			Type:  "const",
-			Param: 1,
-		},
-		Reporter: &jaegerConfig.ReporterConfig{
-			LogSpans: false,
-		},
+func GenerateTracerForTestClient(serviceName string, cfg *viper.Viper) (*tracesdk.TracerProvider, error) {
+	configuration := tracing.Configuration{}
+	err := cfg.UnmarshalKey("tracing.jaeger", &configuration)
+	if err != nil {
+		return nil, err
 	}
 
-	e := cfg.UnmarshalKey("tracing.jaeger", &jaegerCfg)
-	if e != nil {
-		log.Fatal("Jaeger initialize config error")
+	exp, err := jaeger.New(
+		jaeger.WithAgentEndpoint(
+			jaeger.WithAgentHost(configuration.AgentHost),
+			jaeger.WithAgentPort(configuration.AgentPort),
+		),
+	)
+	if err != nil {
+		return nil, err
 	}
 
-	// redefine for test services
-	jaegerCfg.ServiceName = serviceName
-
-	tracer, _, e := jaegerCfg.NewTracer(jaegerConfig.Logger(jaeger.StdLogger))
-	if e != nil {
-		log.Fatal("Jaeger initialize client error")
-	}
-
-	return tracer
+	tp := tracesdk.NewTracerProvider(
+		tracesdk.WithBatcher(exp),
+		tracesdk.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String(serviceName),
+		)),
+	)
+	return tp, nil
 }
