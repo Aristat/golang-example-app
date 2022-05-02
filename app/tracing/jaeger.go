@@ -3,30 +3,50 @@ package tracing
 import (
 	"context"
 
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/sdk/resource"
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+
 	"github.com/aristat/golang-example-app/app/logger"
-	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
-	"github.com/uber/jaeger-client-go/config"
 )
+
+type Configuration struct {
+	AgentHost   string
+	AgentPort   string
+	ServiceName string
+}
 
 const prefix = "app.tracer"
 
-type (
-	Tracer = opentracing.Tracer
-)
-
-// New returns instance implemented of opentracing.Tracer interface
-func newJaegerTracer(ctx context.Context, log logger.Logger, cfg config.Configuration, option ...config.Option) (Tracer, error) {
+func newJaegerTracer(ctx context.Context, configuration *Configuration, log logger.Logger) (*tracesdk.TracerProvider, error) {
 	log = log.WithFields(logger.Fields{"service": prefix})
-	tracer, closer, e := cfg.NewTracer(option...)
-	if e != nil {
-		return tracer, errors.WithMessage(e, prefix)
+
+	exp, err := jaeger.New(
+		jaeger.WithAgentEndpoint(
+			jaeger.WithAgentHost(configuration.AgentHost),
+			jaeger.WithAgentPort(configuration.AgentPort),
+		),
+	)
+	if err != nil {
+		return nil, errors.WithMessage(err, prefix)
 	}
+
+	tracer := tracesdk.NewTracerProvider(
+		tracesdk.WithBatcher(exp),
+		tracesdk.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String(configuration.ServiceName),
+		)),
+	)
+
 	go func() {
 		<-ctx.Done()
-		if e := closer.Close(); e != nil {
-			log.Error("%v", logger.Args(e))
+		if err := tracer.Shutdown(ctx); err != nil {
+			log.Printf("Error shutting down tracer provider: %v", err)
 		}
 	}()
-	return tracer, errors.WithMessage(e, prefix)
+
+	return tracer, errors.WithMessage(err, prefix)
 }

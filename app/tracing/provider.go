@@ -3,45 +3,43 @@ package tracing
 import (
 	"context"
 
-	jaegerConfig "github.com/uber/jaeger-client-go/config"
+	"go.opentelemetry.io/otel/propagation"
+
+	"github.com/google/wire"
+	"github.com/spf13/viper"
+
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
+
+	"go.opentelemetry.io/otel"
 
 	"github.com/aristat/golang-example-app/app/logger"
-	"github.com/google/wire"
-	"github.com/opentracing/opentracing-go"
-	"github.com/opentracing/opentracing-go/mocktracer"
-	"github.com/spf13/viper"
-	"github.com/uber/jaeger-client-go"
 )
 
-// ProviderCfg
-func ProviderCfg(cfg *viper.Viper) (jaegerConfig.Configuration, func(), error) {
-	c := jaegerConfig.Configuration{
-		Sampler: &jaegerConfig.SamplerConfig{
-			Type:  "const",
-			Param: 1,
-		},
-		Reporter: &jaegerConfig.ReporterConfig{
-			LogSpans: false,
-		},
-	}
+// Cfg
+func Cfg(cfg *viper.Viper) (*Configuration, func(), error) {
+	c := Configuration{}
 	e := cfg.UnmarshalKey("tracing.jaeger", &c)
-	return c, func() {}, e
+	if e != nil {
+		return nil, func() {}, e
+	}
+	return &c, func() {}, nil
 }
 
 // Provider
-func Provider(ctx context.Context, cfg jaegerConfig.Configuration, log logger.Logger) (Tracer, func(), error) {
-	t, e := newJaegerTracer(ctx, log, cfg, jaegerConfig.Logger(jaeger.StdLogger))
-	opentracing.SetGlobalTracer(t)
+func Provider(ctx context.Context, configuration *Configuration, log logger.Logger) (*tracesdk.TracerProvider, func(), error) {
+	t, e := newJaegerTracer(ctx, configuration, log)
+	otel.SetTracerProvider(t)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 	return t, func() {}, e
 }
 
 // ProviderTest
-func ProviderTest() (Tracer, func(), error) {
-	m := mocktracer.New()
+func ProviderTest() (*tracesdk.TracerProvider, func(), error) {
+	m := tracesdk.NewTracerProvider()
 	return m, func() {}, nil
 }
 
 var (
-	ProviderProductionSet = wire.NewSet(Provider, ProviderCfg)
+	ProviderProductionSet = wire.NewSet(Provider, Cfg)
 	ProviderTestSet       = wire.NewSet(ProviderTest)
 )

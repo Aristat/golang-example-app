@@ -4,11 +4,14 @@ import (
 	"context"
 	"errors"
 
-	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
+	"go.opentelemetry.io/otel/propagation"
+
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
+
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/aristat/golang-example-app/app/logger"
-	"github.com/aristat/golang-example-app/app/tracing"
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
@@ -20,7 +23,7 @@ var errCfgInvalid = errors.New("cfg is not present or invalid")
 // PoolManager
 type PoolManager struct {
 	ctx     context.Context
-	tracing tracing.Tracer
+	tracing *tracesdk.TracerProvider
 	cfg     *Config
 	logger  logger.Logger
 }
@@ -34,7 +37,7 @@ func (p *PoolManager) NewPool(service string) (_ *Pool, loaded bool, _ error) {
 	}
 
 	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
+	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	cl := s.ClientParameters
 	if cl == nil {
@@ -47,14 +50,17 @@ func (p *PoolManager) NewPool(service string) (_ *Pool, loaded bool, _ error) {
 
 	opts = append(opts, grpc.WithKeepaliveParams(*cl))
 	opts = append(opts,
-		grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
+		grpc.WithChainUnaryInterceptor(
 			logger.UnaryClientInterceptor(p.logger, true),
-			grpc_opentracing.UnaryClientInterceptor(grpc_opentracing.WithTracer(p.tracing)),
-		)))
-	opts = append(opts, grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(
-		logger.StreamClientInterceptor(p.logger, true),
-		grpc_opentracing.StreamClientInterceptor(grpc_opentracing.WithTracer(p.tracing)),
-	)))
+			otelgrpc.UnaryClientInterceptor(otelgrpc.WithTracerProvider(p.tracing), otelgrpc.WithPropagators(propagation.TraceContext{})),
+		),
+	)
+	opts = append(opts,
+		grpc.WithChainStreamInterceptor(
+			logger.StreamClientInterceptor(p.logger, true),
+			otelgrpc.StreamClientInterceptor(otelgrpc.WithTracerProvider(p.tracing), otelgrpc.WithPropagators(propagation.TraceContext{})),
+		),
+	)
 
 	pool, l := NewPool(p.ctx, service, s.Target,
 		MaxConn(s.MaxConn),
@@ -68,6 +74,6 @@ func (p *PoolManager) NewPool(service string) (_ *Pool, loaded bool, _ error) {
 }
 
 // NewPoolManager
-func NewPoolManager(ctx context.Context, tracing tracing.Tracer, logger logger.Logger, cfg *Config) *PoolManager {
+func NewPoolManager(ctx context.Context, tracing *tracesdk.TracerProvider, logger logger.Logger, cfg *Config) *PoolManager {
 	return &PoolManager{ctx: ctx, tracing: tracing, cfg: cfg, logger: logger}
 }

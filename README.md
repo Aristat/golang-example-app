@@ -45,10 +45,11 @@ Packages which use in this example project
 10. [gqlgen](https://github.com/99designs/gqlgen) - graphql server library
 11. [protobuf](https://pkg.go.dev/google.golang.org/protobuf) - Google's data interchange format
 12. [grpc](google.golang.org/grpc) - RPC framework
-13. [jaeger](https://github.com/uber/jaeger-client-go) - Jaeger Bindings for Go OpenTracing API
-14. [casbin](https://github.com/casbin/casbin) - Supports access control
-15. [dataloaden](https://github.com/vektah/dataloaden) - DataLoader for graphql
-16. [nats](https://github.com/nats-io/nats.go) - Golang client for NATS, the cloud native messaging system
+13. [opentelemetry](https://github.com/open-telemetry/opentelemetry-go) - OpenTelemetry
+14. [jaeger](https://github.com/uber/jaeger-client-go) - Jaeger Bindings for Go OpenTelemetry API
+15. [casbin](https://github.com/casbin/casbin) - Supports access control
+16. [dataloaden](https://github.com/vektah/dataloaden) - DataLoader for graphql
+17. [nats](https://github.com/nats-io/nats.go) - Golang client for NATS, the cloud native messaging system
 
 # Installing
 

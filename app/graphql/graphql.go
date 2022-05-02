@@ -16,7 +16,7 @@ import (
 	gqlgen "github.com/99designs/gqlgen/graphql"
 	"github.com/aristat/golang-example-app/app/logger"
 	"github.com/aristat/golang-example-app/generated/graphql"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 

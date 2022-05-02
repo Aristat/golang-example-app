@@ -18,7 +18,7 @@ func Cfg(cfg *viper.Viper) (Config, func(), error) {
 	c := Config{LogLevel: logger.LevelDebug}
 	e := cfg.UnmarshalKey("db", &c)
 	if e != nil {
-		return c, func() {}, nil
+		return c, func() {}, e
 	}
 	return c, func() {}, nil
 }

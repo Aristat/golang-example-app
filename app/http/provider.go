@@ -3,6 +3,8 @@ package http
 import (
 	"context"
 
+	"github.com/riandyrn/otelchi"
+
 	"github.com/aristat/golang-example-app/app/dataloader"
 
 	products_router "github.com/aristat/golang-example-app/app/http_routers/products-router"
@@ -10,9 +12,8 @@ import (
 	"github.com/aristat/golang-example-app/app/auth"
 
 	"github.com/aristat/golang-example-app/app/graphql"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
-	"github.com/opentracing/opentracing-go"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 
 	"github.com/aristat/golang-example-app/app/logger"
 
@@ -20,14 +21,14 @@ import (
 	"github.com/spf13/viper"
 )
 
-var mux *chi.Mux
+var muxRouter *chi.Mux
 
 // Cfg
 func Cfg(cfg *viper.Viper) (Config, func(), error) {
 	c := Config{}
 	e := cfg.UnmarshalKey("http", &c)
 	if e != nil {
-		return c, func() {}, nil
+		return c, func() {}, e
 	}
 	c.Debug = cfg.GetBool("debug")
 	return c, func() {}, nil
@@ -39,21 +40,21 @@ func CfgTest() (Config, func(), error) {
 }
 
 // Mux
-func Mux(managers Managers, log logger.Logger, tracer opentracing.Tracer) (*chi.Mux, func(), error) {
-	if mux != nil {
-		return mux, func() {}, nil
+func Mux(managers Managers, log logger.Logger) (*chi.Mux, func(), error) {
+	if muxRouter != nil {
+		return muxRouter, func() {}, nil
 	}
 
-	mux = chi.NewRouter()
-	mux.Use(middleware.RequestID)
-	mux.Use(Logger(log))
-	mux.Use(Tracer(tracer))
-	mux.Use(dataloader.LoaderMiddleware)
+	muxRouter = chi.NewRouter()
+	muxRouter.Use(middleware.RequestID)
+	muxRouter.Use(Logger(log))
+	muxRouter.Use(otelchi.Middleware("http-server", otelchi.WithChiRoutes(muxRouter)))
+	muxRouter.Use(dataloader.LoaderMiddleware)
 
-	managers.products.Router.Run(mux)
-	managers.graphql.Routers(mux.With(managers.authMiddleware.JWTHandler))
+	managers.products.Router.Run(muxRouter)
+	managers.graphql.Routers(muxRouter.With(managers.authMiddleware.JWTHandler))
 
-	return mux, func() {}, nil
+	return muxRouter, func() {}, nil
 }
 
 // ServiceManagers
