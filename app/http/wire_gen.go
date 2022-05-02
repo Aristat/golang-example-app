@@ -331,7 +331,7 @@ func Build() (*Http, func(), error) {
 		authMiddleware: middleware,
 		graphql:        graphQL,
 	}
-	chiMux, cleanup22, err := Mux(httpManagers, zap)
+	mux, cleanup22, err := Mux(httpManagers, zap)
 	if err != nil {
 		cleanup21()
 		cleanup20()
@@ -382,7 +382,7 @@ func Build() (*Http, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	http, cleanup24, err := Provider(context, chiMux, zap, httpConfig)
+	http, cleanup24, err := Provider(context, mux, zap, httpConfig)
 	if err != nil {
 		cleanup23()
 		cleanup22()
