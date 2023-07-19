@@ -1,0 +1,129 @@
+---
+# Name of the GitHub Validation Check
+# Default: 'integrations/jira'
+checksName: integrations/jira
+
+# Check PR Body for Jira issue (true | false)
+checkPRBody: true
+
+# Check PR Title for Jira issue (true | false)
+checkPRTitle: true
+
+# Check all commit messages for a Jira issue (true | false)
+checkCommitMessages: true
+
+# List of Jira statuses that an issue must be in in order to pass
+issueStatuses: ['Open', 'To Do', 'In Progress']
+
+# Jira State to move an issue when '/completes' action has completed
+# Default: 'Done' If Not set, will skip transition promotion
+doneState: 'Done'
+
+# Comment on the PR in addition to the check message? (true | false)
+commentOnPull: false
+
+# Ignore merge commits when checking commit messages (true | false)
+ignoreMergeCommits: true
+
+# List of valid Jira issue prefixes to search for
+# If left blank, this will search for any pattern matching "[a-z]{1,10}-[0-9]{1,10}"
+issuePrefixes: ['JIRA', 'TICKET', 'ISSUE', 'TEST', 'DEMO']
+
+# When enabled, we will iterate through the jiraMappings configuration below to synchronize fields between
+# the PR Body and fields within Jira
+synchronizeBody: true
+
+# List of Jira Issue fields and fields in a key/value table or between blocks in a GitHub pull request
+jiraMappings:
+    # name of the key to search on in GitHub PR Body
+  - prBodyKey: Jira Key
+    # json object path to field in jira issue api
+    # see: https://developer.atlassian.com/server/jira/platform/jira-rest-api-examples/       
+    jiraField: key      
+    # Whether system of record should be GitHub or Jira          
+    systemOfRecord: Jira
+    # if a long-form value needs to exist outside of a table, prepend with "block" 
+    # and create header and footer with syntax <!-- block.<FIELD_NAME> -->
+  - prBodyKey: block.description  
+    # When a block is defined, a header must be defined in case a new block needs to be created in the PR Body
+    prBodyHeader: Description
+    jiraField: fields.description
+    defaultValue: <!-- Place a description here to populate the Description field in Jira -->
+    systemOfRecord: GitHub
+  - prBodyKey: Summary
+    jiraField: fields.summary
+    systemOfRecord: GitHub
+    defaultValue: <!-- Place a summary here to populate the Summary or Title field in Jira -->
+  - prBodyKey: Status
+    jiraField: fields.status.name
+    systemOfRecord: Jira
+  - prBodyKey: Assignee
+    jiraField: fields.assignee.displayName
+    systemOfRecord: Jira
+  - prBodyKey: Priority
+    jiraField: fields.priority.name
+    # If validEntries is set and GitHub is the system of record, an error message will be returned and we won't 
+    # attempt to sync this field to Jira
+    validEntries: ['Low', 'Medium', 'High']
+    systemOfRecord: GitHub
+    defaultValue: <!-- Priority - valid entries are 'Low', 'Medium', and 'High'  -->
+  - prBodyKey: Reporter
+    jiraField: fields.reporter.displayName
+    systemOfRecord: Jira
+  - prBodyKey: Type
+    jiraField: fields.issuetype.name
+    systemOfRecord: Jira
+  - prBodyKey: Software Risk
+    jiraField: fields.customfield_10030.value
+    validEntries: ['Low', 'Medium', 'High']
+    systemOfRecord: GitHub
+    defaultValue: <!-- Software Risk - valid entries are 'Low', 'Medium', and 'High'  -->
+# Flag to allow the Jira-Validator to promote the Jira Issue Status to different levels
+# Example: Moving Jira Issue from: to-do -> In Progress -> Done
+updateOnMerge: true
+
+# Enforce Protected branches on Pull Request
+# Will fail check if checkName is not listed as enforced on Protected branches
+# Default: true
+enforceBranchProtection: true
+
+prBodyActions:
+  - githubState: pull_request.merged
+    transitions:
+      - command: completes
+        transitionState: 'Done'
+    updateFields:
+      - command: completes
+        jiraField: fields.description
+        value: Done
+  - githubState: pull_request.approved
+    transitions:
+      - command: completes
+        transitionState: 'Approved'
+    updateFields:
+      - command: completes
+        jiraField: fields.description
+        value: Approved
+  - githubState: pull_request.open
+    validJiraStates: ['To Do', 'In Progress']
+    transitions:
+      - command: promotes
+        transitionState: 'In Progress'
+    updateFields:
+      - command: describes
+        jiraField: fields.description
+        value: Opened in GitHub
+
+# Allow users to create Jira Issues from GitHub Pull request body
+createJiraIssues: true
+issueTypesToCreate: ['Story', 'Task', 'Bug', 'Subtask']
+
+# Whether or not to allow check override (true | false)
+# allowOverride: true  #this is not currently implemented
+
+# Optional Jira hostname configuration
+jira:
+ host: example.com
+ port: 8080
+ protocol: http
+ strict_ssl: false
