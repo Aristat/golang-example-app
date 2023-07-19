@@ -120,10 +120,3 @@ issueTypesToCreate: ['Story', 'Task', 'Bug', 'Subtask']
 
 # Whether or not to allow check override (true | false)
 # allowOverride: true  #this is not currently implemented
-
-# Optional Jira hostname configuration
-jira:
- host: example.com
- port: 8080
- protocol: http
- strict_ssl: false
