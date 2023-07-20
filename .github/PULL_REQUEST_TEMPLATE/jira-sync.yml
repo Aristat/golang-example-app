@@ -1,0 +1,21 @@
+---
+name: Pull Request (with Jira sync)
+description: Create a pull request that is synchronized with Jira issues
+title: "[DEMO]: "
+labels:
+  - bugfix
+assignees:
+  - 
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for opening this PR! We're glad you're here contributing to our code base!
+  - type: input
+    id: jira
+    attributes:
+      label: What is your Jira key?
+      description: Please privde the Jira issue you are working with
+      placeholder: DEMO-1
+    validations:
+      required: true
