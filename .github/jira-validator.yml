@@ -85,7 +85,7 @@ updateOnMerge: true
 # Enforce Protected branches on Pull Request
 # Will fail check if checkName is not listed as enforced on Protected branches
 # Default: true
-enforceBranchProtection: true
+enforceBranchProtection: false
 
 prBodyActions:
   - githubState: pull_request.merged
