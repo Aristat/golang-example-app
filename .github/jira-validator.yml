@@ -74,7 +74,7 @@ jiraMappings:
     jiraField: fields.issuetype.name
     systemOfRecord: Jira
   - prBodyKey: Software Risk
-    jiraField: fields.customfield_10030.value
+    jiraField: fields.customfield_10114.value
     validEntries: ['Low', 'Medium', 'High']
     systemOfRecord: GitHub
     defaultValue: <!-- Software Risk - valid entries are 'Low', 'Medium', and 'High'  -->
