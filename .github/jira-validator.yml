@@ -49,7 +49,7 @@ jiraMappings:
     prBodyHeader: Description
     jiraField: fields.description
     defaultValue: <!-- Place a description here to populate the Description field in Jira -->
-    systemOfRecord: GitHub
+    systemOfRecord: Jira
   - prBodyKey: Summary
     jiraField: fields.summary
     systemOfRecord: GitHub
