@@ -74,7 +74,7 @@ jiraMappings:
     jiraField: fields.issuetype.name
     systemOfRecord: Jira
   - prBodyKey: Software Risk
-    jiraField: fields.customfield_10030.value
+    jiraField: fields.customfield_10114.value
     validEntries: ['Low', 'Medium', 'High']
     systemOfRecord: GitHub
     defaultValue: <!-- Software Risk - valid entries are 'Low', 'Medium', and 'High'  -->
@@ -120,10 +120,3 @@ issueTypesToCreate: ['Story', 'Task', 'Bug', 'Subtask']
 
 # Whether or not to allow check override (true | false)
 # allowOverride: true  #this is not currently implemented
-
-# Optional Jira hostname configuration
-jira:
- host: example.com
- port: 8080
- protocol: http
- strict_ssl: false
