@@ -73,11 +73,11 @@ jiraMappings:
   - prBodyKey: Type
     jiraField: fields.issuetype.name
     systemOfRecord: Jira
-  - prBodyKey: Software Risk
-    jiraField: fields.customfield_10114.value
-    validEntries: ['Low', 'Medium', 'High']
-    systemOfRecord: GitHub
-    defaultValue: <!-- Software Risk - valid entries are 'Low', 'Medium', and 'High'  -->
+  #- prBodyKey: Software Risk
+  #  jiraField: fields.customfield_10114.value
+  #  validEntries: ['Low', 'Medium', 'High']
+  #  systemOfRecord: GitHub
+  #  defaultValue: <!-- Software Risk - valid entries are 'Low', 'Medium', and 'High'  -->
 # Flag to allow the Jira-Validator to promote the Jira Issue Status to different levels
 # Example: Moving Jira Issue from: to-do -> In Progress -> Done
 updateOnMerge: true
